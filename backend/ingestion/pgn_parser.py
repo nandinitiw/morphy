@@ -1,3 +1,4 @@
+import chess
 import chess.pgn
 import io
 from dataclasses import dataclass

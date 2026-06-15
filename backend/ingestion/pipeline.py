@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Callable
 
 from sqlalchemy.orm import Session
 
@@ -15,7 +16,11 @@ def _map_result(parsed) -> str:
     return "win" if parsed.result == "0-1" else "loss"
 
 
-async def ingest_user_games(username: str, db: Session) -> list[str]:
+async def ingest_user_games(
+    username: str,
+    db: Session,
+    on_progress: Callable[[int], None] | None = None,
+) -> list[str]:
     ingested_ids: list[str] = []
 
     async for raw_game in fetch_all_games(username):
@@ -33,7 +38,7 @@ async def ingest_user_games(username: str, db: Session) -> list[str]:
 
         game = Game(
             id=parsed.game_id,
-            username=username,
+            username=username.lower(),
             player_color=parsed.player_color,
             result=_map_result(parsed),
             time_control=parsed.time_control,
@@ -59,6 +64,8 @@ async def ingest_user_games(username: str, db: Session) -> list[str]:
             )
 
         ingested_ids.append(parsed.game_id)
+        db.commit()
+        if on_progress:
+            on_progress(len(ingested_ids))
 
-    db.commit()
     return ingested_ids

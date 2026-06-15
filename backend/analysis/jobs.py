@@ -1,4 +1,5 @@
 import uuid
+import logging
 from datetime import datetime
 
 from sqlalchemy.orm import Session
@@ -9,6 +10,8 @@ from db.database import SessionLocal
 from db.models import Game, IngestJob
 from ingestion.pipeline import ingest_user_games
 from profiler.clusterer import refresh_weakness_profile
+
+logger = logging.getLogger(__name__)
 
 
 def create_ingest_job(username: str, db: Session) -> IngestJob:
@@ -56,11 +59,21 @@ async def run_ingest_job(job_id: str) -> None:
     try:
         job = db.query(IngestJob).filter_by(id=job_id).first()
         if not job:
+            logger.warning("Ingest job %s not found", job_id)
             return
 
+        logger.info("Starting ingest job %s for %s", job_id, job.username)
         _update_job(db, job, status="ingesting")
 
-        ingested_ids = await ingest_user_games(job.username, db)
+        def report_ingest_progress(count: int) -> None:
+            _update_job(db, job, games_ingested=count)
+
+        ingested_ids = await ingest_user_games(
+            job.username,
+            db,
+            on_progress=report_ingest_progress,
+        )
+        logger.info("Job %s ingested %d games", job_id, len(ingested_ids))
         _update_job(db, job, games_ingested=len(ingested_ids))
 
         unanalyzed = (
@@ -96,7 +109,9 @@ async def run_ingest_job(job_id: str) -> None:
             status="completed",
             weakness_themes=len(profiles),
         )
+        logger.info("Job %s completed", job_id)
     except Exception as exc:
+        logger.exception("Ingest job %s failed", job_id)
         db.rollback()
         job = db.query(IngestJob).filter_by(id=job_id).first()
         if job:

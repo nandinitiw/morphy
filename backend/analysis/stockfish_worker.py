@@ -1,5 +1,7 @@
 import asyncio
 import os
+import shutil
+from pathlib import Path
 
 import chess
 import chess.engine
@@ -7,21 +9,52 @@ from sqlalchemy.orm import Session
 
 from db.models import Position
 
-STOCKFISH_PATH = os.getenv("STOCKFISH_PATH", "/usr/local/bin/stockfish")
 ANALYSIS_DEPTH = int(os.getenv("ANALYSIS_DEPTH", "15"))
 
 SKIPPED_RESULT = {"best_move": None, "centipawn_loss": None, "classification": None}
+
+COMMON_STOCKFISH_PATHS = (
+    "/opt/homebrew/bin/stockfish",
+    "/usr/local/bin/stockfish",
+)
+
+
+def resolve_stockfish_path() -> str:
+    configured = os.getenv("STOCKFISH_PATH")
+    if configured:
+        if not Path(configured).is_file():
+            raise FileNotFoundError(f"STOCKFISH_PATH does not exist: {configured}")
+        return configured
+
+    found = shutil.which("stockfish")
+    if found:
+        return found
+
+    for path in COMMON_STOCKFISH_PATHS:
+        if Path(path).is_file():
+            return path
+
+    raise FileNotFoundError(
+        "Stockfish not found. Install it with `brew install stockfish`, "
+        "or set STOCKFISH_PATH to the binary location."
+    )
 
 
 class StockfishPool:
     def __init__(self):
         self._engine = None
         self._lock = asyncio.Lock()
+        self._stockfish_path: str | None = None
+
+    def _path(self) -> str:
+        if self._stockfish_path is None:
+            self._stockfish_path = resolve_stockfish_path()
+        return self._stockfish_path
 
     async def get_engine(self):
         async with self._lock:
             if self._engine is None:
-                _, self._engine = await chess.engine.popen_uci(STOCKFISH_PATH)
+                _, self._engine = await chess.engine.popen_uci(self._path())
             return self._engine
 
     async def close(self):
@@ -58,7 +91,7 @@ async def analyze_position(engine: chess.engine.UciProtocol, fen: str, move_play
     board_after_played.push(chess.Move.from_uci(move_played))
     result_after = await engine.analyse(board_after_played, chess.engine.Limit(depth=ANALYSIS_DEPTH))
 
-    score_after = result_after["score"].relative.negate()
+    score_after = -result_after["score"].relative
     best_cp = score.score(mate_score=10000) or 0
     played_cp = score_after.score(mate_score=10000) or 0
     centipawn_loss = max(0, best_cp - played_cp)

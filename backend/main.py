@@ -1,7 +1,8 @@
-import asyncio
+import logging
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -10,6 +11,8 @@ from analysis.jobs import create_ingest_job, get_ingest_job, run_ingest_job, ser
 from analysis.stockfish_worker import stockfish_pool
 from db.database import get_db
 from db.models import WeaknessProfile
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -20,10 +23,38 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 class CoachRequest(BaseModel):
     username: str
     message: str
+
+
+@app.get("/")
+async def root():
+    return {
+        "name": "Morphy API",
+        "status": "ok",
+        "docs": "/docs",
+        "endpoints": {
+            "coach": "POST /coach",
+            "ingest": "POST /ingest/{username}",
+            "job_status": "GET /jobs/{job_id}",
+            "profile": "GET /profile/{username}",
+        },
+    }
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
 
 
 @app.post("/coach")
@@ -33,10 +64,15 @@ async def coach(req: CoachRequest, db: Session = Depends(get_db)):
 
 
 @app.post("/ingest/{username}")
-async def ingest(username: str, db: Session = Depends(get_db)):
+async def ingest(
+    username: str,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
     """Enqueue a background ingestion + analysis job for a user."""
     job = create_ingest_job(username, db)
-    asyncio.create_task(run_ingest_job(job.id))
+    background_tasks.add_task(run_ingest_job, job.id)
+    logger.info("Queued ingest job %s for %s", job.id, username)
     return serialize_job(job)
 
 
