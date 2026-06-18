@@ -7,20 +7,34 @@ from agent.tools import TOOLS, execute_tool
 
 client = anthropic.Anthropic()
 MAX_TOOL_ITERATIONS = 10
+MODEL = "claude-sonnet-4-6"
 
 
-async def run_coach_session(username: str, user_message: str, db) -> str:
+async def run_coach_session(
+    username: str,
+    user_message: str,
+    db,
+    history: list[dict] | None = None,
+) -> str:
     """
-    Runs one turn of the coach agent.
-    The agent autonomously decides which tools to call and chains them together.
+    Runs one turn of the coach agent with full conversation history.
+    history: list of {role: "user"|"assistant", content: str} from prior turns.
     """
+    messages: list[dict] = []
 
-    messages = [{"role": "user", "content": user_message}]
+    if history:
+        for entry in history:
+            role = entry.get("role")
+            content = entry.get("content", "")
+            if role in ("user", "assistant") and content:
+                messages.append({"role": role, "content": content})
+
+    messages.append({"role": "user", "content": user_message})
 
     for _ in range(MAX_TOOL_ITERATIONS):
         response = await asyncio.to_thread(
             client.messages.create,
-            model="claude-opus-4-5",
+            model=MODEL,
             max_tokens=4096,
             system=COACH_SYSTEM_PROMPT.format(username=username),
             tools=TOOLS,

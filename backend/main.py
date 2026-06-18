@@ -11,7 +11,7 @@ from agent.coach_agent import run_coach_session
 from analysis.jobs import create_ingest_job, get_ingest_job, run_ingest_job, serialize_job
 from analysis.stockfish_worker import stockfish_pool
 from db.database import get_db
-from stats import aggregate_openings, build_profile, get_blunder_examples
+from stats import aggregate_openings, build_profile, get_blunder_examples, get_style_gap, list_gm_profiles
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +44,7 @@ app.add_middleware(
 class CoachRequest(BaseModel):
     username: str
     message: str
+    history: list[dict] | None = None
 
 
 @app.get("/")
@@ -69,7 +70,7 @@ async def health():
 
 @app.post("/coach")
 async def coach(req: CoachRequest, db: Session = Depends(get_db)):
-    response = await run_coach_session(req.username, req.message, db)
+    response = await run_coach_session(req.username, req.message, db, history=req.history)
     return {"response": response}
 
 
@@ -102,6 +103,25 @@ async def get_profile(
 ):
     """Return weakness profile + summary stats for the dashboard."""
     return build_profile(username, db, tc)
+
+
+@app.get("/gms")
+async def list_gms(db: Session = Depends(get_db)):
+    """Return all seeded GM profiles available for style comparison."""
+    return {"gms": list_gm_profiles(db)}
+
+
+@app.get("/style-gap/{username}")
+async def style_gap(
+    username: str,
+    gm: str = Query(default="morphy", description="GM slug (morphy, tal, fischer, kasparov, carlsen)"),
+    db: Session = Depends(get_db),
+):
+    """Return style radar axes for user vs. a grandmaster."""
+    result = get_style_gap(username, gm, db)
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"GM profile '{gm}' not found. Run: python -m gm.seed_gms --slug {gm}")
+    return result
 
 
 @app.get("/blunders/{username}")

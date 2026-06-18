@@ -121,11 +121,15 @@ export const fetchOpeningStats = (username, tc = "all") =>
 export const fetchBlunderExamples = (username) =>
   get(`/blunders/${username}`).then((d) => d.blunders ?? []);
 
-export const fetchStyleGap = (username, gmUsername = "paulmorphy") =>
-  get(`/style-gap/${username}?gm=${gmUsername}`);
+export const fetchGmList = () =>
+  get("/gms").then((d) => d.gms ?? []);
 
-export async function sendCoachMessage(username, message) {
-  const data = await post(`/coach`, { username, message });
+export const fetchStyleGap = (username, gmSlug = "morphy") =>
+  get(`/style-gap/${username}?gm=${encodeURIComponent(gmSlug)}`);
+
+export async function sendCoachMessage(username, message, history = []) {
+  // history: [{role: "user"|"assistant", content: string}]
+  const data = await post(`/coach`, { username, message, history });
   return data.response ?? "";
 }
 

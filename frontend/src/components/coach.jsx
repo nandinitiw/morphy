@@ -52,11 +52,18 @@ export default function Coach({ username, seedMessage }) {
     if (!text || loading) return;
     setInput("");
 
+    // Snapshot current messages before state update so we can build history synchronously
+    const priorMessages = messages;
     setMessages((prev) => [...prev, { role: "user", type: "text", content: text }]);
     setLoading(true);
 
+    // Send prior conversation as history (text messages only, role coach→assistant)
+    const history = priorMessages
+      .filter((m) => m.type === "text")
+      .map((m) => ({ role: m.role === "coach" ? "assistant" : "user", content: m.content }));
+
     try {
-      const response = await sendCoachMessage(username, text);
+      const response = await sendCoachMessage(username, text, history);
       setMessages((prev) => [...prev, { role: "coach", type: "text", content: response }]);
     } catch (err) {
       setMessages((prev) => [

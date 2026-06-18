@@ -8,7 +8,7 @@ import chess.pgn
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from db.models import Game, Position, WeaknessProfile
+from db.models import Game, GmProfile, Position, WeaknessProfile
 
 
 def parse_time_control_base(time_control: str | None) -> int | None:
@@ -304,4 +304,98 @@ def build_profile(username: str, db: Session, tc: str | None = None) -> dict:
             "latest_game": latest.isoformat() if latest else None,
             "time_controls": tc_counts,
         },
+    }
+
+
+def list_gm_profiles(db: Session) -> list[dict]:
+    profiles = db.query(GmProfile).order_by(GmProfile.birth_year).all()
+    return [
+        {
+            "slug":         p.slug,
+            "display_name": p.display_name,
+            "birth_year":   p.birth_year,
+            "games_analyzed": p.games_analyzed,
+        }
+        for p in profiles
+    ]
+
+
+def compute_user_style(username: str, db: Session) -> dict:
+    """
+    Compute the same 5 style axes for a user from their stored PGNs.
+    Uses the same logic as gm/compute_style.py but reads from the DB.
+    """
+    from gm.compute_style import compute_style
+
+    games = (
+        db.query(Game)
+        .filter_by(username=username.lower(), analyzed=True)
+        .filter(Game.raw_pgn.isnot(None))
+        .all()
+    )
+    if not games:
+        return {}
+
+    # Build a combined PGN where the username always appears as the correct color.
+    # For each game, overwrite the White/Black header so the compute function can find them.
+    pgn_parts: list[str] = []
+    for game in games:
+        if not game.raw_pgn:
+            continue
+        pgn = game.raw_pgn
+        # Replace player color header so the matcher finds username in PGN headers
+        if game.player_color == "white":
+            pgn = pgn.replace('[White "', f'[White "{username}\n[_OrigWhite "', 1)
+        else:
+            pgn = pgn.replace('[Black "', f'[Black "{username}\n[_OrigBlack "', 1)
+        pgn_parts.append(pgn)
+
+    combined = "\n\n".join(pgn_parts)
+    return compute_style(combined, username)
+
+
+def get_style_gap(username: str, gm_slug: str, db: Session) -> dict | None:
+    gm = db.query(GmProfile).filter_by(slug=gm_slug).first()
+    if not gm:
+        return None
+
+    user_style = compute_user_style(username, db)
+
+    gm_axes = {
+        "development":    gm.development,
+        "open_files":     gm.open_files,
+        "king_attack":    gm.king_attack,
+        "sacrifice_rate": gm.sacrifice_rate,
+        "aggression":     gm.aggression,
+    }
+    gm_stats = {
+        "avg_game_length":   gm.avg_game_length,
+        "sacrifice_rate":    gm.sacrifice_rate_pct or f"{gm.sacrifice_rate:.0f}%",
+        "open_file_control": gm.open_file_pct or f"{gm.open_files:.0f}%",
+        "king_attack_freq":  gm.king_attack_pct or f"{gm.king_attack:.0f}%",
+        "development_speed": gm.development_speed or "—",
+    }
+
+    you_axes = {
+        "development":    user_style.get("development", 0),
+        "open_files":     user_style.get("open_files", 0),
+        "king_attack":    user_style.get("king_attack", 0),
+        "sacrifice_rate": user_style.get("sacrifice_rate", 0),
+        "aggression":     user_style.get("aggression", 0),
+    }
+    you_stats = {
+        "avg_game_length":   user_style.get("avg_game_length", "—"),
+        "sacrifice_rate":    user_style.get("sacrifice_rate_pct", "—"),
+        "open_file_control": user_style.get("open_file_pct", "—"),
+        "king_attack_freq":  user_style.get("king_attack_pct", "—"),
+        "development_speed": user_style.get("development_speed", "—"),
+    }
+
+    return {
+        "you":   you_axes,
+        "gm":    gm_axes,
+        "gm_meta": {"slug": gm.slug, "name": gm.display_name, "games_analyzed": gm.games_analyzed},
+        "stats": {"you": you_stats, gm.slug: gm_stats},
+        # Legacy field for stylegap.jsx compatibility
+        "morphy": gm_axes,
     }

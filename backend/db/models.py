@@ -43,6 +43,28 @@ class WeaknessProfile(Base):
     centroid = Column(JSON)                         # Cluster centroid vector
     updated_at = Column(DateTime)
 
+class GmProfile(Base):
+    """Precomputed style fingerprint for a grandmaster, derived from their game corpus."""
+    __tablename__ = "gm_profiles"
+    slug         = Column(String, primary_key=True)   # "morphy", "tal", etc.
+    display_name = Column(String, nullable=False)
+    birth_year   = Column(Integer)
+    # 0–100 style axes
+    development    = Column(Float, default=0.0)
+    open_files     = Column(Float, default=0.0)
+    king_attack    = Column(Float, default=0.0)
+    sacrifice_rate = Column(Float, default=0.0)
+    aggression     = Column(Float, default=0.0)
+    # Human-readable stats for the comparison table
+    avg_game_length      = Column(Float)
+    sacrifice_rate_pct   = Column(String)
+    open_file_pct        = Column(String)
+    king_attack_pct      = Column(String)
+    development_speed    = Column(String)   # e.g. "move 5.1"
+    games_analyzed = Column(Integer, default=0)
+    updated_at     = Column(DateTime)
+
+
 class CoachingSession(Base):
     __tablename__ = "coaching_sessions"
     id = Column(Integer, primary_key=True, autoincrement=True)
