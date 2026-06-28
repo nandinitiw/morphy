@@ -232,8 +232,14 @@ def make_game_record(opening: dict, game_num: int, base_date: datetime) -> Game:
     opp = f"demo_opponent_{game_num}"
 
     board = board_from_pgn(opening["pgn"])
-    # Build a minimal PGN from the opening
     pgn_game = chess.pgn.read_game(io.StringIO(opening["pgn"]))
+    # Inject demo username into headers so compute_style can match the player
+    if color == "white":
+        pgn_game.headers["White"] = DEMO_USER
+        pgn_game.headers["Black"] = opp
+    else:
+        pgn_game.headers["White"] = opp
+        pgn_game.headers["Black"] = DEMO_USER
     pgn_str = str(pgn_game)
 
     return Game(

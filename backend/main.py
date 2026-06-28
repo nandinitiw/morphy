@@ -23,6 +23,11 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Seed demo data on first startup if not present
+    try:
+        seed_demo(reset=False)
+    except Exception as exc:
+        logger.warning("Demo seed skipped: %s", exc)
     yield
     await stockfish_pool.close()
 
@@ -143,9 +148,13 @@ async def style_gap(
 
 
 @app.get("/blunders/{username}")
-async def get_blunders(username: str, db: Session = Depends(get_db)):
+async def get_blunders(
+    username: str,
+    tc: str | None = Query(default=None, description="bullet, blitz, rapid, classical, or all"),
+    db: Session = Depends(get_db),
+):
     """Return example blunder positions (with FEN) grouped by tactical theme."""
-    return {"blunders": get_blunder_examples(username, db)}
+    return {"blunders": get_blunder_examples(username, db, tc=tc)}
 
 
 @app.get("/openings/{username}")

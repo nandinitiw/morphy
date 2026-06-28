@@ -8,13 +8,13 @@ const CHART_GREEN = "#22C55E";
 const CHART_RED = "#EF4444";
 const CHART_AMBER = "#F59E0B";
 
-export default function Dashboard({ username, refreshKey = 0 }) {
+export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcChange }) {
+  const setTc = onTcChange ?? (() => {});
   const [stats, setStats] = useState(null);
   const [meta, setMeta] = useState(null);
   const [weaknesses, setWeaknesses] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [tc, setTc] = useState("all");
   const accuracyRef = useRef(null);
   const accuracyChart = useRef(null);
 

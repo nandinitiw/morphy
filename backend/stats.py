@@ -172,9 +172,9 @@ def aggregate_openings(username: str, db: Session, tc: str | None = None) -> dic
     return {"white": serialize("white"), "black": serialize("black")}
 
 
-def get_blunder_examples(username: str, db: Session, limit_per_theme: int = 3) -> list[dict]:
+def get_blunder_examples(username: str, db: Session, tc: str | None = None, limit_per_theme: int = 3) -> list[dict]:
     """Return up to limit_per_theme example blunder positions per tactical theme."""
-    positions = (
+    q = (
         db.query(Position)
         .join(Game)
         .filter(
@@ -184,9 +184,16 @@ def get_blunder_examples(username: str, db: Session, limit_per_theme: int = 3) -
             Position.tactical_motif.isnot(None),
             Position.fen.isnot(None),
         )
-        .order_by(Position.centipawn_loss.desc())
-        .all()
     )
+    if tc and tc != "all":
+        game_ids = [
+            g.id for g in games_query(db, username).all()
+            if classify_time_control(g.time_control) == tc
+        ]
+        if not game_ids:
+            return []
+        q = q.filter(Position.game_id.in_(game_ids))
+    positions = q.order_by(Position.centipawn_loss.desc()).all()
 
     seen: dict[str, int] = {}
     results = []
@@ -226,6 +233,17 @@ def build_profile(username: str, db: Session, tc: str | None = None) -> dict:
     if tc and tc != "all" and not filtered_ids:
         # Specific TC requested but no games for it — return empty rather than leaking all-time data
         profile_rows = []
+        return {
+            "profile": [],
+            "stats": {"games_analyzed": 0, "blunder_rate": 0, "total_blunders": 0},
+            "meta": {
+                "time_control": tc,
+                "earliest_game": None,
+                "latest_game": None,
+                "time_controls": {k: sum(1 for g in all_analyzed if classify_time_control(g.time_control) == k)
+                                  for k in ("bullet", "blitz", "rapid", "classical", "other")},
+            },
+        }
     elif tc and tc != "all" and filtered_ids:
         theme_stats: dict[str, dict] = {}
         positions = (

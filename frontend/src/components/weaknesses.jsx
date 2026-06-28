@@ -101,7 +101,7 @@ function BoardPanel({ blunders, theme }) {
   );
 }
 
-export default function Weaknesses({ username, refreshKey = 0, onNavigateCoach }) {
+export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNavigateCoach }) {
   const [weaknesses, setWeaknesses] = useState([]);
   const [blunders, setBlunders] = useState([]);
   const [error, setError] = useState(null);
@@ -114,8 +114,8 @@ export default function Weaknesses({ username, refreshKey = 0, onNavigateCoach }
     setLoading(true);
     setError(null);
     Promise.all([
-      fetchWeaknessProfile(username),
-      fetchBlunderExamples(username).catch(() => []),
+      fetchWeaknessProfile(username, tc),
+      fetchBlunderExamples(username, tc).catch(() => []),
     ])
       .then(([profileData, blunderData]) => {
         setWeaknesses(profileData.weaknesses);
@@ -123,7 +123,7 @@ export default function Weaknesses({ username, refreshKey = 0, onNavigateCoach }
       })
       .catch(setError)
       .finally(() => setLoading(false));
-  }, [username, refreshKey]);
+  }, [username, refreshKey, tc]);
 
   async function askRecommendations() {
     setRecoLoading(true);

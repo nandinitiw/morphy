@@ -118,8 +118,8 @@ export const fetchTimePressure = (username) => get(`/profile/${username}/time-pr
 export const fetchOpeningStats = (username, tc = "all") =>
   get(withTc(`/openings/${username}`, tc));
 
-export const fetchBlunderExamples = (username) =>
-  get(`/blunders/${username}`).then((d) => d.blunders ?? []);
+export const fetchBlunderExamples = (username, tc = "all") =>
+  get(withTc(`/blunders/${username}`, tc)).then((d) => d.blunders ?? []);
 
 export const fetchGmList = () =>
   get("/gms").then((d) => d.gms ?? []);

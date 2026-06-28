@@ -25,6 +25,7 @@ export default function App() {
   const [page, setPage] = useState("dashboard");
   const [refreshKey, setRefreshKey] = useState(0);
   const [coachSeed, setCoachSeed] = useState(null);
+  const [tc, setTc] = useState("all");
 
   if (!username) {
     return <UsernameSetup />;
@@ -68,10 +69,10 @@ export default function App() {
       </nav>
       <main className="main">
         <IngestBanner username={username} onComplete={() => setRefreshKey((k) => k + 1)} />
-        {page === "dashboard" && <Dashboard username={username} refreshKey={refreshKey} />}
-        {page === "openings" && <Openings username={username} refreshKey={refreshKey} />}
+        {page === "dashboard" && <Dashboard username={username} refreshKey={refreshKey} tc={tc} onTcChange={setTc} />}
+        {page === "openings" && <Openings username={username} refreshKey={refreshKey} tc={tc} />}
         {page === "weaknesses" && (
-          <Weaknesses username={username} refreshKey={refreshKey} onNavigateCoach={goToCoach} />
+          <Weaknesses username={username} refreshKey={refreshKey} tc={tc} onNavigateCoach={goToCoach} />
         )}
         {page === "coach" && <Coach username={username} seedMessage={coachSeed} />}
         {page === "style" && <StyleGap username={username} onNavigateCoach={goToCoach} />}
