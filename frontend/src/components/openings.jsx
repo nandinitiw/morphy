@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import Markdown from "react-markdown";
 import { fetchOpeningStats, sendCoachMessage } from "../api/client";
 import Chart from "chart.js/auto";
 
@@ -58,7 +59,7 @@ function OpeningRow({ opening, color, onSelect, selected, summary, summaryLoadin
           {summaryLoading ? (
             <p className="ai-summary-text">Generating opening summary…</p>
           ) : (
-            <p className="ai-summary-text">{summary}</p>
+            <div className="ai-summary-text"><Markdown>{summary}</Markdown></div>
           )}
         </div>
       )}

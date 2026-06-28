@@ -1028,8 +1028,12 @@ body {
   line-height: 1.65;
   color: rgba(232,231,229,0.88);
   margin-top: 4px;
-  white-space: pre-wrap;
 }
+.ai-summary-text p { margin: 0 0 6px; }
+.ai-summary-text p:last-child { margin-bottom: 0; }
+.ai-summary-text strong { color: var(--text); font-weight: 600; }
+.ai-summary-text ul, .ai-summary-text ol { margin: 4px 0 6px 16px; padding: 0; }
+.ai-summary-text li { margin-bottom: 2px; }
 
 .link-btn {
   margin-top: 10px;
