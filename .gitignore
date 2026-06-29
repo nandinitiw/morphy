@@ -22,3 +22,5 @@ backend/.env
 
 # GM PGN files (large, sourced externally — see backend/gm/download.py)
 backend/gm/pgns/*.pgn
+.vercel
+.env*
