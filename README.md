@@ -2,7 +2,7 @@
 
 A chess coaching agent that ingests your Chess.com games, runs Stockfish analysis on every position, clusters your mistakes into a persistent weakness profile, and lets you chat with an AI coach that has live access to all of it.
 
-**[Try the demo →](https://morphy.vercel.app)** *(no Chess.com account needed)*
+**[Try the demo →]([https://morphy.vercel.app](https://morphy-byvlfiykt-nandinis-projects-19f8bc87.vercel.app/))** *(no Chess.com account needed)*
 
 ---
 
