@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { fetchWeaknessProfile, formatAnalysisSince, themeLabel } from "../api/client";
+import { fetchWeaknessProfile, formatAnalysisRange, themeLabel } from "../api/client";
 import AiTooltip from "./AiTooltip";
 import TimeControlFilter from "./TimeControlFilter";
 import Chart from "chart.js/auto";
@@ -91,7 +91,7 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
 
   const maxFreq = Math.max(...weaknesses.map((w) => w.frequency), 1);
   const gamesAnalyzed = stats?.games_analyzed ?? 0;
-  const since = formatAnalysisSince(meta);
+  const dateRange = formatAnalysisRange(meta);
   const tcLabel = tc === "all" ? "all time controls" : tc;
 
   return (
@@ -102,8 +102,8 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
           <div className="page-sub">
             {gamesAnalyzed > 0 ? (
               <>
-                Based on <strong>{gamesAnalyzed}</strong> {tcLabel} games analyzed
-                {since ? <> since <strong>{since}</strong></> : null} for {username}
+                Based on <strong>{gamesAnalyzed}</strong> {tcLabel} games
+                {dateRange ? <> · <strong>{dateRange}</strong></> : null}
               </>
             ) : (
               "No analyzed games yet — click Refresh games above"

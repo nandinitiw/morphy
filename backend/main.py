@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from agent.coach_agent import run_coach_session
+from scheduler import start_scheduler, stop_scheduler
 from analysis.jobs import create_ingest_job, get_ingest_job, run_ingest_job, serialize_job
 from analysis.stockfish_worker import stockfish_pool
 from db.database import get_db
@@ -37,7 +38,9 @@ async def lifespan(app: FastAPI):
         db.close()
     except Exception as exc:
         logger.warning("GM seed skipped: %s", exc)
+    start_scheduler()
     yield
+    stop_scheduler()
     await stockfish_pool.close()
 
 
