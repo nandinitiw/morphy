@@ -61,9 +61,13 @@ export default function App() {
           ))}
         </div>
         <div className="sidebar-footer">
-          <button type="button" className="user-pill" onClick={clearUsername} title="Change username">
+          <div className="user-pill">
             <div className="avatar">{username.slice(0, 2).toUpperCase()}</div>
             <div className="user-name">{username}</div>
+          </div>
+          <button type="button" className="change-user-btn" onClick={clearUsername}>
+            <i className="ti ti-logout" aria-hidden="true" />
+            <span>Change user</span>
           </button>
         </div>
       </nav>

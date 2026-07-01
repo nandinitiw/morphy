@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import Markdown from "react-markdown";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
-import { CP_LOSS_EXPLANATION, fetchWeaknessProfile, fetchBlunderExamples, sendCoachMessage, themeLabel } from "../api/client";
+import { fetchWeaknessProfile, fetchBlunderExamples, sendCoachMessage, themeLabel } from "../api/client";
 import AiTooltip from "./AiTooltip";
 import RecommendButton from "./RecommendButton";
 
@@ -71,8 +72,7 @@ function BoardPanel({ blunders, theme }) {
             <div className="move-good">{ex.best_move ?? "—"}</div>
           </div>
         </div>
-        <div className="board-panel-cp">−{ex.centipawn_loss} cp loss</div>
-        {ex.game_id && (
+        {ex.game_id && !ex.game_id.startsWith("demo_") && (
           <a
             className="board-game-link"
             href={`https://www.chess.com/game/live/${ex.game_id}`}
@@ -164,18 +164,15 @@ export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNav
       </div>
 
       <div className="card cp-explainer">
-        <div className="card-title">
-          <AiTooltip label="What is centipawn loss?">{CP_LOSS_EXPLANATION}</AiTooltip>
-        </div>
         <p className="empty-copy" style={{ marginTop: 0 }}>
-          Each row shows how often a theme appears and how costly it is. Click any row to see an example position on the board.
+          Each row shows how often a tactical theme has appeared in your games. Click any row to see an example position on the board.
         </p>
       </div>
 
       {reco && (
         <div className="card ai-insight-card">
           <span className="ai-tip-badge">AI insight</span>
-          <p className="ai-summary-text">{reco}</p>
+          <div className="ai-summary-text"><Markdown>{reco}</Markdown></div>
           {onNavigateCoach && (
             <button type="button" className="link-btn" onClick={() => onNavigateCoach(reco)}>
               Continue in Coach →
@@ -214,7 +211,7 @@ export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNav
                       <AiTooltip label={w.display}>{w.description}</AiTooltip>
                     </span>
                     <span className="weakness-count">
-                      {w.frequency}× · avg {w.severity}cp loss
+                      {w.frequency}× occurrences
                       <i
                         className={`ti ${openTheme === w.theme ? "ti-chevron-up" : "ti-chevron-down"}`}
                         style={{ marginLeft: 8, opacity: 0.45, fontSize: 11 }}

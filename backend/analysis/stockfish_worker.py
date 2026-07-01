@@ -14,6 +14,8 @@ ANALYSIS_DEPTH = int(os.getenv("ANALYSIS_DEPTH", "15"))
 SKIPPED_RESULT = {"best_move": None, "centipawn_loss": None, "classification": None}
 
 COMMON_STOCKFISH_PATHS = (
+    "/usr/games/stockfish",       # Debian/Ubuntu apt (Render Docker)
+    "/usr/bin/stockfish",         # some Linux distros
     "/opt/homebrew/bin/stockfish",
     "/usr/local/bin/stockfish",
 )
@@ -21,9 +23,7 @@ COMMON_STOCKFISH_PATHS = (
 
 def resolve_stockfish_path() -> str:
     configured = os.getenv("STOCKFISH_PATH")
-    if configured:
-        if not Path(configured).is_file():
-            raise FileNotFoundError(f"STOCKFISH_PATH does not exist: {configured}")
+    if configured and Path(configured).is_file():
         return configured
 
     found = shutil.which("stockfish")
@@ -34,9 +34,10 @@ def resolve_stockfish_path() -> str:
         if Path(path).is_file():
             return path
 
+    hint = f"STOCKFISH_PATH={configured!r} was set but not found. " if configured else ""
     raise FileNotFoundError(
-        "Stockfish not found. Install it with `brew install stockfish`, "
-        "or set STOCKFISH_PATH to the binary location."
+        f"{hint}Stockfish binary not found. Install it with `brew install stockfish` "
+        "or `apt-get install stockfish`, or set STOCKFISH_PATH to the binary location."
     )
 
 

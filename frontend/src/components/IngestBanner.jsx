@@ -1,5 +1,7 @@
 import { useIngest } from "../context/IngestContext.jsx";
 
+const STEPS = ["pending", "ingesting", "analyzing", "profiling", "completed"];
+
 const STATUS_LABELS = {
   pending: "Queued",
   ingesting: "Fetching games from Chess.com",
@@ -8,6 +10,21 @@ const STATUS_LABELS = {
   completed: "Analysis complete",
   failed: "Analysis failed",
 };
+
+function ProgressBar({ status }) {
+  const idx = STEPS.indexOf(status);
+  const pct = idx < 0 ? 0 : Math.round(((idx + 1) / STEPS.length) * 100);
+  const done = status === "completed";
+  const failed = status === "failed";
+  return (
+    <div className="ingest-progress-track">
+      <div
+        className={`ingest-progress-fill ${done ? "ingest-progress-done" : ""} ${failed ? "ingest-progress-fail" : ""}`}
+        style={{ width: failed ? "100%" : `${pct}%` }}
+      />
+    </div>
+  );
+}
 
 export default function IngestBanner({ username, onComplete }) {
   const { job, error, isRunning, startIngest } = useIngest();
@@ -47,36 +64,41 @@ export default function IngestBanner({ username, onComplete }) {
     );
   }
 
+  const isFailed = job?.status === "failed";
+
   return (
-    <div className={`ingest-banner ${job?.status === "failed" ? "ingest-banner-error" : ""}`}>
-      <div className="ingest-banner-text">
-        {isRunning || job ? (
-          <>
-            <strong>{STATUS_LABELS[job?.status] ?? "Working…"}</strong>
-            {job?.status === "analyzing" && (
-              <span className="ingest-banner-detail">
-                {" "}
-                — {job.games_analyzed} / {job.games_total} games
-              </span>
-            )}
-            {job?.status === "ingesting" && job.games_ingested > 0 && (
-              <span className="ingest-banner-detail"> — {job.games_ingested} new games</span>
-            )}
-            {job?.status === "completed" && (
-              <span className="ingest-banner-detail">
-                {" "}
-                — {job.games_analyzed} games, {job.weakness_themes} themes
-              </span>
-            )}
-            {(error || job?.error) && (
-              <span className="ingest-banner-detail ingest-error"> — {error || job.error}</span>
-            )}
-          </>
-        ) : null}
+    <div className={`ingest-banner ${isFailed ? "ingest-banner-error" : ""}`}>
+      <div className="ingest-banner-body">
+        <div className="ingest-banner-text">
+          {isRunning || job ? (
+            <>
+              <strong>{STATUS_LABELS[job?.status] ?? "Working…"}</strong>
+              {job?.status === "analyzing" && (
+                <span className="ingest-banner-detail">
+                  {" "}— {job.games_analyzed} / {job.games_total} games
+                </span>
+              )}
+              {job?.status === "ingesting" && job.games_ingested > 0 && (
+                <span className="ingest-banner-detail"> — {job.games_ingested} new games found</span>
+              )}
+              {job?.status === "completed" && (
+                <span className="ingest-banner-detail">
+                  {" "}— {job.games_analyzed} games, {job.weakness_themes} themes found
+                </span>
+              )}
+              {(error || job?.error) && (
+                <span className="ingest-banner-detail ingest-error"> — {error || job.error}</span>
+              )}
+            </>
+          ) : null}
+        </div>
+        {(isRunning || job) && !isFailed && (
+          <ProgressBar status={job?.status ?? "pending"} />
+        )}
       </div>
       {!isRunning && (
         <button type="button" className="ingest-banner-btn" onClick={handleRefresh}>
-          Refresh games
+          {isFailed ? "Retry" : "Refresh games"}
         </button>
       )}
     </div>

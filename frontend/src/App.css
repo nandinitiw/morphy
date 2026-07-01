@@ -134,6 +134,9 @@ body {
 .sidebar-footer {
   padding: 12px 16px;
   border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .user-pill {
@@ -144,11 +147,26 @@ body {
   background: none;
   border: none;
   width: 100%;
-  cursor: pointer;
   text-align: left;
 }
 
-.user-pill:hover .user-name { color: var(--green); }
+.change-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text-dim);
+  font-size: 11px;
+  font-family: var(--mono);
+  cursor: pointer;
+  width: 100%;
+  transition: border-color 0.12s, color 0.12s;
+}
+.change-user-btn:hover { border-color: var(--green); color: var(--green); }
+.change-user-btn .ti { font-size: 12px; }
 
 .avatar {
   width: 28px;
@@ -887,9 +905,25 @@ body {
   background: rgba(224,82,82,0.05);
 }
 
+.ingest-banner-body { display: flex; flex-direction: column; gap: 7px; flex: 1; min-width: 0; }
 .ingest-banner-text strong { color: var(--text); }
 .ingest-banner-detail { color: var(--text-dim); }
 .ingest-error { color: var(--red); }
+
+.ingest-progress-track {
+  height: 3px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ingest-progress-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+.ingest-progress-done { background: var(--green); }
+.ingest-progress-fail { background: var(--red); }
 
 .ingest-banner-btn {
   flex-shrink: 0;

@@ -74,6 +74,7 @@ export default function Openings({ username, refreshKey = 0 }) {
   const [selected, setSelected] = useState(null);
   const [summary, setSummary] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const summaryCache = useRef({});
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   const askCoach = useCallback(
@@ -170,6 +171,13 @@ export default function Openings({ username, refreshKey = 0 }) {
       return;
     }
     setSelected(key);
+
+    // Return cached summary immediately — don't re-fetch
+    if (summaryCache.current[key]) {
+      setSummary(summaryCache.current[key]);
+      return;
+    }
+
     setSummary("");
     setSummaryLoading(true);
     try {
@@ -179,6 +187,7 @@ export default function Openings({ username, refreshKey = 0 }) {
         `Opening moves: ${opening.moves_notation || "unknown"}. ` +
         `Give one concrete study recommendation.`,
       );
+      summaryCache.current[key] = text;
       setSummary(text);
     } catch (err) {
       setSummary(`Could not reach coach: ${err.message}`);

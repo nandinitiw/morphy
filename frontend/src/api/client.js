@@ -152,11 +152,19 @@ export const triggerIngest = (username) => post(`/ingest/${username}`, {});
 
 export const fetchIngestStatus = (jobId) => get(`/jobs/${jobId}`);
 
-export function formatAnalysisSince(meta) {
-  if (!meta?.earliest_game) return null;
-  const start = new Date(meta.earliest_game);
-  if (Number.isNaN(start.getTime())) return null;
-  return start.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+function fmtDate(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short" });
+}
+
+export function formatAnalysisRange(meta) {
+  const start = fmtDate(meta?.earliest_game);
+  const end = fmtDate(meta?.latest_game);
+  if (!start) return null;
+  if (!end || start === end) return start;
+  return `${start} – ${end}`;
 }
 
 export const CP_LOSS_EXPLANATION =

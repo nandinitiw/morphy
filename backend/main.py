@@ -16,6 +16,7 @@ from analysis.jobs import create_ingest_job, get_ingest_job, run_ingest_job, ser
 from analysis.stockfish_worker import stockfish_pool
 from db.database import get_db
 from demo.seed_demo import seed as seed_demo
+from gm.seed_gms import GM_REGISTRY, seed_gm
 from stats import aggregate_openings, build_profile, get_blunder_examples, get_style_gap, list_gm_profiles
 
 logger = logging.getLogger(__name__)
@@ -23,11 +24,19 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Seed demo data on first startup if not present
+    # Seed demo user and GM profiles on first startup (idempotent)
     try:
         seed_demo(reset=False)
     except Exception as exc:
         logger.warning("Demo seed skipped: %s", exc)
+    try:
+        from db.database import get_db as _get_db
+        db = next(_get_db())
+        for gm in GM_REGISTRY:
+            seed_gm(gm, db)
+        db.close()
+    except Exception as exc:
+        logger.warning("GM seed skipped: %s", exc)
     yield
     await stockfish_pool.close()
 
