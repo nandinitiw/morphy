@@ -6,21 +6,36 @@ function normalizeUsername(raw) {
   return raw.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "");
 }
 
+// localStorage throws in some contexts (Safari private mode, sandboxed
+// iframes). Degrade to in-memory only rather than crashing the app.
+function storageGet(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function storageSet(key, value) {
+  try {
+    if (value) localStorage.setItem(key, value);
+    else localStorage.removeItem(key);
+  } catch {
+    /* in-memory only */
+  }
+}
+
 const UsernameContext = createContext(null);
 
 export function UsernameProvider({ children }) {
   const [username, setUsernameState] = useState(
-    () => localStorage.getItem(STORAGE_KEY) ?? "",
+    () => storageGet(STORAGE_KEY) ?? "",
   );
 
   const setUsername = useCallback((next) => {
     const normalized = normalizeUsername(next);
     setUsernameState(normalized);
-    if (normalized) {
-      localStorage.setItem(STORAGE_KEY, normalized);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    storageSet(STORAGE_KEY, normalized);
     return normalized;
   }, []);
 

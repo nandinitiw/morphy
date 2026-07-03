@@ -11,6 +11,13 @@ const INITIAL_MESSAGES = [
   },
 ];
 
+const SUGGESTED_PROMPTS = [
+  "What's my biggest weakness right now?",
+  "Review my worst recent game",
+  "Give me 3 puzzles for my weakest theme",
+  "Which opening should I stop playing?",
+];
+
 function ChessBoardBlock({ value }) {
   try {
     const { fen, label } = JSON.parse(value);
@@ -132,6 +139,20 @@ export default function Coach({ username, seedMessage }) {
         <div className="chat-container">
           <div className="chat-messages">
             {messages.map((msg, i) => <Message key={i} msg={msg} />)}
+            {messages.length <= 1 && !loading && (
+              <div className="coach-suggestions">
+                {SUGGESTED_PROMPTS.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    className="coach-suggestion-chip"
+                    onClick={() => send(prompt)}
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            )}
             {loading && (
               <div className="tool-call ai-thinking">
                 analysing your games{elapsed > 3 ? ` · ${elapsed}s` : "…"}
