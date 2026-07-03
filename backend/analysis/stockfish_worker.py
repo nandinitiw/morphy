@@ -69,16 +69,27 @@ stockfish_pool = StockfishPool()
 
 
 def load_fen_cache_from_db(db: Session) -> dict:
-    cache = {}
-    rows = db.query(Position).filter(Position.best_move.isnot(None)).all()
-    for position in rows:
-        key = f"{position.fen}|{position.move_played}"
-        cache[key] = {
-            "best_move": position.best_move,
-            "centipawn_loss": position.centipawn_loss,
-            "classification": position.classification,
+    # Query bare columns, not ORM objects — this table grows with every
+    # analyzed game and full entities would pin the whole corpus in memory.
+    rows = (
+        db.query(
+            Position.fen,
+            Position.move_played,
+            Position.best_move,
+            Position.centipawn_loss,
+            Position.classification,
+        )
+        .filter(Position.best_move.isnot(None))
+        .all()
+    )
+    return {
+        f"{fen}|{move_played}": {
+            "best_move": best_move,
+            "centipawn_loss": centipawn_loss,
+            "classification": classification,
         }
-    return cache
+        for fen, move_played, best_move, centipawn_loss, classification in rows
+    }
 
 
 async def analyze_position(engine: chess.engine.UciProtocol, fen: str, move_played: str) -> dict:

@@ -14,6 +14,19 @@ from profiler.clusterer import refresh_weakness_profile
 logger = logging.getLogger(__name__)
 
 
+ACTIVE_STATUSES = ("pending", "ingesting", "analyzing", "profiling")
+
+
+def get_active_job(username: str, db: Session) -> IngestJob | None:
+    """Return a still-running job for this user, if any."""
+    return (
+        db.query(IngestJob)
+        .filter(IngestJob.username == username, IngestJob.status.in_(ACTIVE_STATUSES))
+        .order_by(IngestJob.created_at.desc())
+        .first()
+    )
+
+
 def create_ingest_job(username: str, db: Session) -> IngestJob:
     job = IngestJob(
         id=str(uuid.uuid4()),
@@ -95,11 +108,21 @@ async def run_ingest_job(job_id: str) -> None:
         fen_cache = load_fen_cache_from_db(db)
         engine = await stockfish_pool.get_engine()
         analyzed = 0
+        failed_games = 0
 
         for game_id in game_ids:
-            if await process_game(game_id, db, fen_cache, engine):
-                analyzed += 1
-                _update_job(db, job, games_analyzed=analyzed)
+            try:
+                if await process_game(game_id, db, fen_cache, engine):
+                    analyzed += 1
+                    _update_job(db, job, games_analyzed=analyzed)
+            except Exception:
+                # One corrupt game must not kill the batch
+                logger.exception("Job %s: game %s failed analysis, skipping", job_id, game_id)
+                db.rollback()
+                failed_games += 1
+
+        if failed_games:
+            logger.warning("Job %s: %d of %d games failed analysis", job_id, failed_games, len(game_ids))
 
         _update_job(db, job, status="profiling")
         profiles = refresh_weakness_profile(job.username, db)

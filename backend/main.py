@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 
 from agent.coach_agent import run_coach_session
 from scheduler import start_scheduler, stop_scheduler
-from analysis.jobs import create_ingest_job, get_ingest_job, run_ingest_job, serialize_job
+from analysis.jobs import create_ingest_job, get_active_job, get_ingest_job, run_ingest_job, serialize_job
 from analysis.stockfish_worker import stockfish_pool
 from db.database import get_db
 from demo.seed_demo import seed as seed_demo
@@ -118,7 +118,15 @@ async def ingest(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
-    """Enqueue a background ingestion + analysis job for a user."""
+    """Enqueue a background ingestion + analysis job for a user.
+
+    If a job is already running for this user, return it instead of
+    stacking a duplicate (double-clicks, page reloads, abuse).
+    """
+    existing = get_active_job(username, db)
+    if existing:
+        logger.info("Reusing active ingest job %s for %s", existing.id, username)
+        return serialize_job(existing)
     job = create_ingest_job(username, db)
     background_tasks.add_task(run_ingest_job, job.id)
     logger.info("Queued ingest job %s for %s", job.id, username)
