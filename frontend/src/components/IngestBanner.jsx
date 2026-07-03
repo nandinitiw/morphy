@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useIngest } from "../context/IngestContext.jsx";
 
 const STEPS = ["pending", "ingesting", "analyzing", "profiling", "completed"];
@@ -28,14 +29,24 @@ function ProgressBar({ status }) {
 
 export default function IngestBanner({ username, onComplete }) {
   const { job, error, isRunning, startIngest } = useIngest();
+  const [dismissed, setDismissed] = useState(false);
 
   if (username === "demo") {
+    if (dismissed) return null;
     return (
       <div className="ingest-banner ingest-banner-demo">
         <div className="ingest-banner-text">
           <strong>Demo mode</strong> — pre-loaded with 30 rapid games and 6 weakness themes.
           Enter your Chess.com username on the home screen to analyze your own games.
         </div>
+        <button
+          type="button"
+          className="ingest-banner-dismiss"
+          onClick={() => setDismissed(true)}
+          aria-label="Dismiss demo banner"
+        >
+          <i className="ti ti-x" aria-hidden="true" />
+        </button>
       </div>
     );
   }
@@ -65,6 +76,23 @@ export default function IngestBanner({ username, onComplete }) {
   }
 
   const isFailed = job?.status === "failed";
+  const isDone = job?.status === "completed";
+
+  // Once analysis completes, collapse to a thin one-line strip — the banner
+  // shouldn't keep eating vertical space on every page after the work is done.
+  if (isDone) {
+    return (
+      <div className="ingest-banner ingest-banner-compact">
+        <div className="ingest-banner-text">
+          <i className="ti ti-circle-check" aria-hidden="true" style={{ marginRight: 6 }} />
+          {job.games_analyzed} games analyzed · {job.weakness_themes} themes
+        </div>
+        <button type="button" className="ingest-banner-btn" onClick={handleRefresh}>
+          Refresh games
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={`ingest-banner ${isFailed ? "ingest-banner-error" : ""}`}>
@@ -80,11 +108,6 @@ export default function IngestBanner({ username, onComplete }) {
               )}
               {job?.status === "ingesting" && job.games_ingested > 0 && (
                 <span className="ingest-banner-detail"> — {job.games_ingested} new games found</span>
-              )}
-              {job?.status === "completed" && (
-                <span className="ingest-banner-detail">
-                  {" "}— {job.games_analyzed} games, {job.weakness_themes} themes found
-                </span>
               )}
               {(error || job?.error) && (
                 <span className="ingest-banner-detail ingest-error"> — {error || job.error}</span>

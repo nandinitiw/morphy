@@ -149,7 +149,10 @@ export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNav
   if (error) return <div className="error">Failed to load weaknesses: {error.message}</div>;
   if (loading) return <div className="loading">Loading weakness profile…</div>;
 
-  const maxFreq = Math.max(...weaknesses.map((w) => w.frequency), 1);
+  // Sort and size bars by severity — frequency compresses into a narrow range,
+  // severity is the variable that actually differentiates themes.
+  const sorted = [...weaknesses].sort((a, b) => b.severity - a.severity);
+  const maxSeverity = Math.max(...weaknesses.map((w) => w.severity), 1);
 
   return (
     <div className="page">
@@ -165,7 +168,7 @@ export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNav
 
       <div className="card cp-explainer">
         <p className="empty-copy" style={{ marginTop: 0 }}>
-          Each row shows how often a tactical theme has appeared in your games. Click any row to see an example position on the board.
+          Themes are ordered by how costly they are — the longer the bar, the more damage that mistake type does to your games. Click any row to see an example position on the board.
         </p>
       </div>
 
@@ -193,10 +196,10 @@ export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNav
         <div className="card">
           <div className="card-title">
             Tactical blind spots
-            <span className="card-hint">click a row to view an example position</span>
+            <span className="card-hint">sorted by severity · click a row for an example position</span>
           </div>
           <div className="weakness-list">
-            {weaknesses.map((w) => (
+            {sorted.map((w) => (
               <div key={w.theme}>
                 <div
                   className="weakness-item"
@@ -223,7 +226,7 @@ export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNav
                     <div
                       className="bar-fill"
                       style={{
-                        width: `${(w.frequency / maxFreq) * 100}%`,
+                        width: `${(w.severity / maxSeverity) * 100}%`,
                         background: severityColor(w.severity),
                       }}
                     />

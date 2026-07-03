@@ -927,6 +927,27 @@ body {
   background: rgba(224,82,82,0.05);
 }
 
+.ingest-banner-compact {
+  padding: 5px 14px;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+.ingest-banner-compact .ingest-banner-btn { padding: 3px 10px; font-size: 10.5px; }
+.ingest-banner-compact .ti-circle-check { color: var(--green); }
+
+.ingest-banner-dismiss {
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.55;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.ingest-banner-dismiss:hover { opacity: 1; }
+
 .ingest-banner-body { display: flex; flex-direction: column; gap: 7px; flex: 1; min-width: 0; }
 .ingest-banner-text strong { color: var(--text); }
 .ingest-banner-detail { color: var(--text-dim); }
