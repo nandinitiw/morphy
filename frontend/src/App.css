@@ -1194,7 +1194,9 @@ body {
   .two-col, .three-col { grid-template-columns: 1fr; }
   .board-panel { grid-template-columns: 1fr; }
   .sidebar { width: 56px; }
-  .sidebar .logo-sub, .sidebar .nav-item span, .sidebar .user-name { display: none; }
+  .sidebar .logo-sub, .sidebar .nav-item span, .sidebar .user-name,
+  .sidebar .change-user-btn span { display: none; }
+  .change-user-btn { justify-content: center; padding: 6px; }
   .logo-name { font-size: 14px; }
   .nav-item { justify-content: center; padding: 10px; border-left: none; border-bottom: 2px solid transparent; }
   .nav-item.active { border-bottom-color: var(--green); background: rgba(129,182,76,0.08); }
