@@ -88,6 +88,23 @@ def _get_weakness_profile(username: str, db: Session) -> str:
             f"- {profile.theme}: seen {profile.frequency}x, "
             f"avg {profile.severity:.0f} centipawn loss, last seen {last_seen}"
         )
+        example = (
+            db.query(Position)
+            .join(Game)
+            .filter(
+                Game.username == username,
+                Position.is_your_move.is_(True),
+                Position.tactical_motif == profile.theme,
+            )
+            .order_by(Position.centipawn_loss.desc())
+            .first()
+        )
+        if example:
+            lines.append(
+                f"    Worst example — game {example.game_id}, move {example.move_number}: "
+                f"played {example.move_played}, best was {example.best_move}. "
+                f"FEN before move: {example.fen}"
+            )
     return "\n".join(lines)
 
 
@@ -157,6 +174,8 @@ def _get_game_details(game_id: str, username: str, db: Session) -> str:
             f"  Move {position.move_number}: {position.move_played} -> {position.classification} "
             f"(best: {position.best_move}, cp loss: {cp_loss}{motif})"
         )
+        if position.classification in ("blunder", "mistake"):
+            lines.append(f"    FEN before move: {position.fen}")
 
     if not notable:
         lines.append("  No significant errors flagged.")
@@ -169,21 +188,25 @@ def _get_opening_stats(username: str, db: Session) -> str:
     if not games:
         return "No analyzed games yet."
 
+    # One aggregate query for avg cp loss per game instead of a query per game
+    cp_by_game = dict(
+        db.query(Position.game_id, func.avg(Position.centipawn_loss))
+        .filter(
+            Position.game_id.in_([g.id for g in games]),
+            Position.is_your_move.is_(True),
+            Position.centipawn_loss.isnot(None),
+        )
+        .group_by(Position.game_id)
+        .all()
+    )
+
     stats: dict[str, dict] = {}
     for game in games:
         opening = game.opening_name or game.eco or "Unknown"
-        if opening not in stats:
-            stats[opening] = {"win": 0, "loss": 0, "draw": 0, "cp_losses": []}
-        stats[opening][game.result] += 1
-
-        cp_losses = [
-            position.centipawn_loss
-            for position in db.query(Position)
-            .filter_by(game_id=game.id, is_your_move=True)
-            .filter(Position.centipawn_loss.isnot(None))
-            .all()
-        ]
-        stats[opening]["cp_losses"].extend(cp_losses)
+        entry = stats.setdefault(opening, {"win": 0, "loss": 0, "draw": 0, "cp_avgs": []})
+        entry[game.result] += 1
+        if game.id in cp_by_game:
+            entry["cp_avgs"].append(cp_by_game[game.id])
 
     lines = ["Opening statistics:"]
     for opening, data in sorted(
@@ -192,7 +215,7 @@ def _get_opening_stats(username: str, db: Session) -> str:
         reverse=True,
     ):
         total = data["win"] + data["loss"] + data["draw"]
-        avg_cp = sum(data["cp_losses"]) / len(data["cp_losses"]) if data["cp_losses"] else 0
+        avg_cp = sum(data["cp_avgs"]) / len(data["cp_avgs"]) if data["cp_avgs"] else 0
         lines.append(
             f"- {opening}: {total} games, W{data['win']}/L{data['loss']}/D{data['draw']}, "
             f"avg cp loss {avg_cp:.0f}"
