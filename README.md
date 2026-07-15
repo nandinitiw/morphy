@@ -1,4 +1,4 @@
-# Morphy
+# MORPHY
 
 **An AI chess coach that ingests your Chess.com games, runs Stockfish on every position, profiles your recurring mistakes, and lets you chat with a Claude-powered agent that has live access to all of it — and shows you the positions on a real board.**
 
