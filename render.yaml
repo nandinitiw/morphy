@@ -2,15 +2,28 @@ services:
   - type: web
     name: morphy-api
     runtime: docker
+    plan: free
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
-    disk:
-      name: morphy-data
-      mountPath: /data
-      sizeGB: 1
+    healthCheckPath: /health
     envVars:
+      # Free instances have no persistent disk, so SQLite lives in the
+      # container and resets when the service restarts or spins down.
+      # Demo + GM profiles re-seed automatically on startup (see main.py
+      # lifespan); user-ingested games do not survive a restart.
+      #
+      # To make data persistent, either:
+      #   1. attach a Render Postgres instance and set DATABASE_URL to its
+      #      connection string, or
+      #   2. move to a paid plan and re-add a disk:
+      #        plan: starter
+      #        disk:
+      #          name: morphy-data
+      #          mountPath: /data
+      #          sizeGB: 1
+      #        DATABASE_URL: sqlite:////data/morphy.db
       - key: DATABASE_URL
-        value: sqlite:////data/morphy.db
+        value: sqlite:////app/morphy.db
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: CORS_ORIGINS

@@ -1,9 +1,12 @@
 FROM python:3.11-slim
 
+# Stockfish is in Debian main; the package installs the binary to /usr/games.
+# `test -x` fails the build loudly if that ever changes, instead of deferring
+# the failure to the first analysis request at runtime.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     stockfish \
     && rm -rf /var/lib/apt/lists/* \
-    && (ls -la /usr/games/stockfish || ls -la /usr/bin/stockfish || which stockfish || echo "STOCKFISH NOT FOUND IN BUILD")
+    && test -x /usr/games/stockfish
 
 WORKDIR /app
 COPY requirements.txt .

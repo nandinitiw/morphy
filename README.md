@@ -151,6 +151,6 @@ npm run lint && npm run typecheck              # ESLint + tsc
 
 The frontend is a static Vite build. The backend needs Stockfish, persistent storage, and long-running jobs, so it runs as a Docker service (not serverless).
 
-**Backend — [Render](https://render.com)** (config in [`render.yaml`](render.yaml)): Docker service from `backend/Dockerfile` (installs Stockfish via apt), a mounted disk for SQLite persistence, and env vars `ANTHROPIC_API_KEY` + `CORS_ORIGINS`.
+**Backend — [Render](https://render.com)** (config in [`render.yaml`](render.yaml)): a Docker service built from `backend/Dockerfile`, which installs Stockfish via apt and verifies the binary at build time. Set `ANTHROPIC_API_KEY` and `CORS_ORIGINS`. Deploy it as a **Blueprint** so `render.yaml` is actually applied — a service created by hand in the dashboard ignores that file and won't use the Dockerfile. On the free plan there's no persistent disk, so SQLite resets on restart (demo and GM profiles re-seed automatically); attach Postgres or a disk for durable storage.
 
 **Frontend — [Vercel](https://vercel.com)**: import the repo, root `frontend`, set `VITE_API_URL` to your Render URL. Preview deployments are automatic on every PR.
