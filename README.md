@@ -2,7 +2,7 @@
 
 **An AI chess coach that ingests your Chess.com games, runs Stockfish on every position, profiles your recurring mistakes, and lets you chat with a Claude-powered agent that has live access to all of it — and shows you the positions on a real board.**
 
-**[Try the live demo →](https://morphy-byvlfiykt-nandinis-projects-19f8bc87.vercel.app/)** *(no account needed — click "Try demo")*
+**[Try the live demo →](https://morphy-jade.vercel.app)** *(no account needed — click "Try demo")*
 
 ![Coach session](docs/screenshots/coach.png)
 
