@@ -137,11 +137,8 @@ export default function StyleGap({ username, onNavigateCoach }) {
     setRecoLoading(true);
     setReco(null);
     const gmName = style.gm_meta?.name ?? gmSlug;
-    const gaps = ["Development", "Open files", "King attack", "Sacrifices", "Aggression"]
-      .map((label, i) => {
-        const keys = ["development", "open_files", "king_attack", "sacrifice_rate", "aggression"];
-        return `${label}: you ${style.you[keys[i]]} vs ${gmName} ${style.gm[keys[i]]}`;
-      })
+    const gaps = AXIS_KEYS
+      .map((key, i) => `${AXIS_LABELS[i]}: you ${style.you[key]} vs ${gmName} ${style.gm[key]}`)
       .join("; ");
     try {
       const text = await sendCoachMessage(
