@@ -58,7 +58,7 @@ POST /ingest/{username}                      ← background job; deduped per act
       ├─ Stockfish analysis (FEN-cached, per-game failure isolation)
       ├─ tactical-motif classification (python-chess)
       ├─ weakness profiling (per-theme aggregation + feature centroids)
-      └─ persist to SQLite (dev) / Postgres (prod)
+      └─ persist via SQLAlchemy (SQLite by default; Postgres via DATABASE_URL)
                   │
                   ▼
          GET  /profile/{username}     · weakness fingerprint + summary stats
@@ -88,7 +88,7 @@ History is capped to bound token cost; the static prompt and tool definitions ar
 | Layer | Tech |
 |---|---|
 | Frontend | React 18, Vite, Chart.js, react-chessboard, react-markdown |
-| Backend | FastAPI, SQLAlchemy, SQLite (dev) / Postgres (prod) |
+| Backend | FastAPI, SQLAlchemy, SQLite (Postgres-ready via `DATABASE_URL`) |
 | Analysis | Stockfish via python-chess; NumPy/scikit-learn for position features |
 | AI coach | Anthropic Claude — tool-use agentic loop with prompt caching |
 | Puzzles | Lichess API |
