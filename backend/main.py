@@ -30,14 +30,28 @@ async def lifespan(app: FastAPI):
         seed_demo(reset=False)
     except Exception as exc:
         logger.warning("Demo seed skipped: %s", exc)
+    # Seed GM style profiles from the committed profiles.json. Isolated per GM
+    # so one bad entry can't leave the rest of the roster unseeded.
     try:
-        from db.database import get_db as _get_db
-        db = next(_get_db())
-        for gm in GM_REGISTRY:
-            seed_gm(gm, db)
-        db.close()
-    except Exception as exc:
-        logger.warning("GM seed skipped: %s", exc)
+        from db.database import SessionLocal
+        db = SessionLocal()
+        try:
+            seeded = 0
+            for gm in GM_REGISTRY:
+                try:
+                    if seed_gm(gm, db):
+                        seeded += 1
+                except Exception:
+                    db.rollback()
+                    logger.exception("GM seed failed for %s", gm["slug"])
+            if seeded < len(GM_REGISTRY):
+                logger.warning("Seeded %d/%d GM profiles", seeded, len(GM_REGISTRY))
+            else:
+                logger.info("Seeded %d GM profiles", seeded)
+        finally:
+            db.close()
+    except Exception:
+        logger.exception("GM seed skipped")
     start_scheduler()
     yield
     stop_scheduler()

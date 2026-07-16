@@ -16,6 +16,7 @@ For Carlsen, games are auto-downloaded from the Lichess API.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -25,6 +26,38 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from db.database import SessionLocal
 from db.models import Base, GmProfile
+
+# Style axes precomputed from the PGN corpora and committed to the repo.
+# The raw PGNs (~9MB) are gitignored and absent in deployed images, and
+# recomputing style from ~13k games on every cold start would be far too
+# slow — so deploys seed from this file instead. Regenerate after changing
+# the corpora or the style algorithm with:  python -m gm.seed_gms --recompute
+PROFILES_JSON = Path(__file__).parent / "profiles.json"
+
+STYLE_FIELDS = (
+    "development",
+    "open_files",
+    "king_attack",
+    "sacrifice_rate",
+    "aggression",
+    "avg_game_length",
+    "sacrifice_rate_pct",
+    "open_file_pct",
+    "king_attack_pct",
+    "development_speed",
+    "games_analyzed",
+)
+
+
+def load_precomputed(slug: str) -> dict | None:
+    """Return the committed style profile for a GM, or None if unavailable."""
+    if not PROFILES_JSON.is_file():
+        return None
+    try:
+        with open(PROFILES_JSON) as fh:
+            return json.load(fh).get(slug)
+    except (OSError, json.JSONDecodeError):
+        return None
 from gm.compute_style import compute_style
 from gm.download import load_pgn
 
@@ -70,17 +103,37 @@ GM_REGISTRY: list[dict] = [
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def seed_gm(gm: dict, db) -> bool:
+def compute_style_from_pgn(gm: dict) -> dict | None:
+    """Compute style axes from the GM's local PGN corpus. Slow; needs the PGN files."""
     pgn_text = load_pgn(gm["slug"])
     if not pgn_text:
         print(f"[seed] Skipping {gm['slug']} — no PGN data available.")
-        return False
+        return None
 
     print(f"[seed] Computing style for {gm['display_name']} …")
     style = compute_style(pgn_text, gm["player_name"])
     if not style:
         print(f"[seed] No matching games found for player_name='{gm['player_name']}'. "
               f"Check that player_name matches the PGN White/Black headers.")
+        return None
+    return style
+
+
+def seed_gm(gm: dict, db, recompute: bool = False) -> bool:
+    """Upsert a GM style profile.
+
+    Seeds from the committed profiles.json by default so deployed instances
+    (which have no PGN corpus) work without recomputing. Pass recompute=True
+    to derive the axes from the PGN files instead.
+    """
+    style = compute_style_from_pgn(gm) if recompute else load_precomputed(gm["slug"])
+
+    if style is None and not recompute:
+        # No precomputed entry — fall back to the PGNs if they happen to be present.
+        style = compute_style_from_pgn(gm)
+
+    if not style:
+        print(f"[seed] Skipping {gm['slug']} — no precomputed profile and no PGN data.")
         return False
 
     print(f"[seed]   {style['games_analyzed']} games · axes: "
@@ -114,9 +167,30 @@ def seed_gm(gm: dict, db) -> bool:
     return True
 
 
+def write_profiles_json(db) -> None:
+    """Dump every seeded GM profile back out to profiles.json."""
+    payload = {}
+    for profile in db.query(GmProfile).order_by(GmProfile.slug).all():
+        payload[profile.slug] = {
+            "display_name": profile.display_name,
+            "birth_year": profile.birth_year,
+            **{field: getattr(profile, field) for field in STYLE_FIELDS},
+        }
+    with open(PROFILES_JSON, "w") as fh:
+        json.dump(payload, fh, indent=2, sort_keys=True)
+        fh.write("\n")
+    print(f"[seed] Wrote {PROFILES_JSON.name} ({len(payload)} GMs) — commit this file.")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Seed GM style profiles")
     parser.add_argument("--slug", help="Seed only this GM slug")
+    parser.add_argument(
+        "--recompute",
+        action="store_true",
+        help="Recompute axes from the local PGN corpora and rewrite profiles.json "
+             "(requires backend/gm/pgns/*.pgn; slow)",
+    )
     args = parser.parse_args()
 
     # Create table if it doesn't exist yet
@@ -131,7 +205,10 @@ def main():
             sys.exit(1)
 
         for gm in targets:
-            seed_gm(gm, db)
+            seed_gm(gm, db, recompute=args.recompute)
+
+        if args.recompute:
+            write_profiles_json(db)
     finally:
         db.close()
 
