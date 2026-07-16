@@ -6,19 +6,25 @@ import Chart from "chart.js/auto";
 
 const STAT_LABELS = {
   avg_game_length:   "Avg game length",
+  decisive_games:    "Decisive games",
+  endgame_reach:     "Reached an endgame",
   sacrifice_rate:    "Check frequency",
-  open_file_control: "Open file control",
   king_attack_freq:  "King attack frequency",
+  open_file_control: "Open file control",
   development_speed: "Development speed",
 };
 
 const AXIS_HELP = {
-  Development: "How quickly you get pieces off the back rank and into the game.",
-  "Open files": "How often you contest or occupy open files with rooks.",
+  Decisiveness: "How often your games end in a win or loss rather than a draw — high means you play for the win and rarely settle.",
+  Endgames: "How often your games are played down into an endgame, instead of being decided while the board is still full.",
   "King attack": "Frequency of kingside attacks and direct threats to the enemy king.",
-  Sacrifices: "How often you give check — a reliable signal of tactical, attacking play.",
+  Checks: "How often you give check — a reliable signal of tactical, attacking play.",
   Aggression: "Overall tendency toward forcing, active play vs. quiet maneuvering.",
 };
+
+// Radar axes, in display order. Keys must match the /style-gap payload.
+const AXIS_KEYS   = ["decisiveness", "endgame_tendency", "king_attack", "sacrifice_rate", "aggression"];
+const AXIS_LABELS = ["Decisiveness", "Endgames", "King attack", "Checks", "Aggression"];
 
 const RADAR_YOU = "#e8e7e5";
 const RADAR_GM  = "#81b64c";
@@ -73,9 +79,9 @@ export default function StyleGap({ username, onNavigateCoach }) {
   useEffect(() => {
     if (!style || !radarRef.current) return;
 
-    const labels  = ["Development", "Open files", "King attack", "Sacrifices", "Aggression"];
-    const youData = [style.you.development, style.you.open_files, style.you.king_attack, style.you.sacrifice_rate, style.you.aggression];
-    const gmData  = [style.gm.development,  style.gm.open_files,  style.gm.king_attack,  style.gm.sacrifice_rate,  style.gm.aggression];
+    const labels  = AXIS_LABELS;
+    const youData = AXIS_KEYS.map((key) => style.you[key]);
+    const gmData  = AXIS_KEYS.map((key) => style.gm[key]);
 
     if (radarChart.current) radarChart.current.destroy();
     radarChart.current = new Chart(radarRef.current, {
@@ -154,7 +160,9 @@ export default function StyleGap({ username, onNavigateCoach }) {
   const gmName   = style?.gm_meta?.name ?? gms.find((g) => g.slug === gmSlug)?.display_name ?? gmSlug;
   const gmStats  = style?.stats?.[gmSlug] ?? style?.stats?.morphy ?? {};
   const youStats = style?.stats?.you ?? {};
-  const hasRealUserData = style && (style.you.development > 0 || style.you.open_files > 0);
+  // Check every axis rather than naming two — the previous version keyed off
+  // development/open_files, so renaming those axes silently made this always false.
+  const hasRealUserData = style && AXIS_KEYS.some((key) => (style.you?.[key] ?? 0) > 0);
 
   return (
     <div className="page">

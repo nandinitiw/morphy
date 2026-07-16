@@ -370,30 +370,34 @@ def get_style_gap(username: str, gm_slug: str, db: Session) -> dict | None:
     user_style = compute_user_style(username, db)
 
     gm_axes = {
-        "development":    gm.development,
-        "open_files":     gm.open_files,
-        "king_attack":    gm.king_attack,
-        "sacrifice_rate": gm.sacrifice_rate,
-        "aggression":     gm.aggression,
+        "decisiveness":     gm.decisiveness,
+        "endgame_tendency": gm.endgame_tendency,
+        "king_attack":      gm.king_attack,
+        "sacrifice_rate":   gm.sacrifice_rate,
+        "aggression":       gm.aggression,
     }
     gm_stats = {
         "avg_game_length":   gm.avg_game_length,
         "sacrifice_rate":    gm.sacrifice_rate_pct or f"{gm.sacrifice_rate:.0f}%",
-        "open_file_control": gm.open_file_pct or f"{gm.open_files:.0f}%",
+        "decisive_games":    gm.decisive_pct or "—",
+        "endgame_reach":     gm.endgame_pct or "—",
+        "open_file_control": gm.open_file_pct or "—",
         "king_attack_freq":  gm.king_attack_pct or f"{gm.king_attack:.0f}%",
         "development_speed": gm.development_speed or "—",
     }
 
     you_axes = {
-        "development":    user_style.get("development", 0),
-        "open_files":     user_style.get("open_files", 0),
-        "king_attack":    user_style.get("king_attack", 0),
-        "sacrifice_rate": user_style.get("sacrifice_rate", 0),
-        "aggression":     user_style.get("aggression", 0),
+        "decisiveness":     user_style.get("decisiveness", 0),
+        "endgame_tendency": user_style.get("endgame_tendency", 0),
+        "king_attack":      user_style.get("king_attack", 0),
+        "sacrifice_rate":   user_style.get("sacrifice_rate", 0),
+        "aggression":       user_style.get("aggression", 0),
     }
     you_stats = {
         "avg_game_length":   user_style.get("avg_game_length", "—"),
         "sacrifice_rate":    user_style.get("sacrifice_rate_pct", "—"),
+        "decisive_games":    user_style.get("decisive_pct", "—"),
+        "endgame_reach":     user_style.get("endgame_pct", "—"),
         "open_file_control": user_style.get("open_file_pct", "—"),
         "king_attack_freq":  user_style.get("king_attack_pct", "—"),
         "development_speed": user_style.get("development_speed", "—"),

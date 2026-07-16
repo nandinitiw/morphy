@@ -41,7 +41,7 @@
 2. **Analyses** every position with Stockfish — best move, centipawn loss, blunder classification.
 3. **Classifies** each blunder's tactical motif with python-chess board logic (missed fork, pin, skewer, back-rank mate, discovered check, hanging piece, king safety…).
 4. **Profiles** your persistent weaknesses by aggregating motifs across all games — frequency, severity, and a stored position-feature centroid per theme.
-5. **Compares** your style to grandmasters (Morphy, Tal, Fischer, Kasparov, Carlsen) across development speed, open-file control, king attack, sacrifice rate, and aggression.
+5. **Compares** your style to grandmasters (Morphy, Tal, Fischer, Kasparov, Carlsen) across decisiveness, endgame tendency, king attack, check frequency, and aggression — axes chosen because they actually separate players, and normalized against the spread measured across ~13k GM games.
 6. **Coaches** you through a multi-turn Claude agent that pulls all of the above — plus Lichess practice puzzles — mid-conversation and renders positions on an interactive board.
 
 ---

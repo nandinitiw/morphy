@@ -226,6 +226,14 @@ def board_from_pgn(pgn_str: str) -> chess.Board:
     return board
 
 
+def _pgn_result(result: str, color: str) -> str:
+    """Map a stored result ("win"/"loss"/"draw") + player colour to a PGN Result tag."""
+    if result == "draw":
+        return "1/2-1/2"
+    won_as_white = (result == "win") == (color == "white")
+    return "1-0" if won_as_white else "0-1"
+
+
 def make_game_record(opening: dict, game_num: int, base_date: datetime) -> Game:
     played_at = base_date - timedelta(days=game_num * 2 + random.randint(0, 1))
     color = opening["color"]
@@ -240,6 +248,10 @@ def make_game_record(opening: dict, game_num: int, base_date: datetime) -> Game:
     else:
         pgn_game.headers["White"] = opp
         pgn_game.headers["Black"] = DEMO_USER
+    # Mirror the result into the PGN header. The source fixtures carry
+    # Result "*", which reads as "no decided games" and zeroes the
+    # decisiveness axis for the demo user.
+    pgn_game.headers["Result"] = _pgn_result(opening["result"], color)
     pgn_str = str(pgn_game)
 
     return Game(

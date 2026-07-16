@@ -2,11 +2,21 @@
 Compute 5 style axes from a PGN corpus for a named player.
 
 Axes (all 0–100):
-  development   – how fast minor pieces leave the back rank
-  open_files    – how often rooks occupy open/semi-open files
-  king_attack   – how often moves land near the opponent's king
-  sacrifice_rate – % of captures where the attacker gives more material than they take
-  aggression    – composite: pawn advances + pieces in enemy territory + sacrifices
+  decisiveness     – % of games that end decisively rather than drawn
+  endgame_tendency – % of games played down into an endgame
+  king_attack      – how often moves land near the opponent's king
+  sacrifice_rate   – check frequency; proxy for tactical/sacrificial play
+  aggression       – composite: king attack + checks + pawn advances
+
+Axis choice note: development speed and rook-on-open-file rate are still
+computed and surfaced as stats, but they are deliberately NOT axes. Every
+elite player develops by move ~4.7 and puts rooks on open files ~46% of the
+time, so those metrics measure competence, not style — they made all five GM
+radars near-identical. Decisiveness and endgame tendency actually separate
+them (e.g. Carlsen reaches an endgame in 40% of games vs Morphy's 20%).
+
+Normalization windows are fitted to the measured spread across the GM corpora,
+not guessed; see tests/test_compute_style.py for the regression guards.
 """
 
 from __future__ import annotations
@@ -31,6 +41,13 @@ WHITE_MINOR_START = frozenset([chess.B1, chess.G1, chess.C1, chess.F1])
 BLACK_MINOR_START = frozenset([chess.B8, chess.G8, chess.C8, chess.F8])
 
 
+# Total non-king material at the start of a game (2 × 39).
+STARTING_MATERIAL = 78
+# A game "reached an endgame" if this much material or less is left at the end.
+# ~20 means queens are off and only a few pieces remain.
+ENDGAME_MATERIAL = 20
+
+
 @dataclass
 class _Accum:
     dev_moves: list[int] = field(default_factory=list)
@@ -43,6 +60,19 @@ class _Accum:
     pawn_advances: int = 0
     enemy_half_moves: int = 0
     game_lengths: list[int] = field(default_factory=list)
+    decisive_games: int = 0   # games ending 1-0 or 0-1
+    decided_games: int = 0    # games with a non-"*" result
+    endgame_games: int = 0    # games reaching ENDGAME_MATERIAL or less
+    finished_games: int = 0   # games whose final position we measured
+
+
+def _material(board: chess.Board) -> int:
+    """Total non-king material on the board."""
+    return sum(
+        PIECE_VALUES[pt] * len(board.pieces(pt, color))
+        for pt in (chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN)
+        for color in (chess.WHITE, chess.BLACK)
+    )
 
 
 def _is_open_file(board: chess.Board, file_idx: int) -> bool:
@@ -126,6 +156,13 @@ def _analyze_game(game: chess.pgn.Game, target_color: chess.Color, accum: _Accum
 
     accum.game_lengths.append(ply // 2)
 
+    # Endgame tendency: did this game get played down into an endgame, or was it
+    # decided while the board was still full? Separates grinders (Carlsen) from
+    # players who finish it in the middlegame (Morphy, Tal).
+    accum.finished_games += 1
+    if _material(board) <= ENDGAME_MATERIAL:
+        accum.endgame_games += 1
+
 
 def _normalize(raw: float, lo: float, hi: float) -> float:
     """Map raw value linearly from [lo, hi] → [0, 100], clamped."""
@@ -169,6 +206,14 @@ def compute_style(pgn_text: str, player_name: str | list[str]) -> dict:
         except Exception:
             continue
 
+        # Decisiveness is a property of the game, not of who won it.
+        result = game.headers.get("Result", "*")
+        if result in ("1-0", "0-1"):
+            accum.decisive_games += 1
+            accum.decided_games += 1
+        elif result == "1/2-1/2":
+            accum.decided_games += 1
+
     if games_processed == 0 or accum.total_moves == 0:
         return {}
 
@@ -179,32 +224,40 @@ def compute_style(pgn_text: str, player_name: str | list[str]) -> dict:
     open_file_rate = accum.rook_open_file / max(accum.rook_moves, 1)
     pawn_adv_rate  = accum.pawn_advances / accum.total_moves
     avg_game_len   = sum(accum.game_lengths) / len(accum.game_lengths)
+    decisive_rate  = accum.decisive_games / max(accum.decided_games, 1)
+    endgame_rate   = accum.endgame_games / max(accum.finished_games, 1)
 
-    # Normalize to 0–100
-    # Calibration ranges (measured from real GM corpora):
-    #   development:   2nd minor piece move 3 → 100, move 10 → 0
-    #   open_files:    0% rook-on-open → 0, 50%+ → 100
-    #   king_attack:   0% moves near opp king → 0, 20%+ → 100
+    # Normalize to 0–100.
+    # Windows are fitted to the spread actually measured across the GM corpora,
+    # wide enough that club-level users don't clamp:
+    #   decisiveness:     40% decisive → 0, 100% → 100
+    #                     (Morphy 91.5%, Carlsen 69.4%, Kasparov 59.1%, Tal 51.6%)
+    #   endgame_tendency: 15% of games reaching an endgame → 0, 50%+ → 100
+    #                     (Carlsen 40.2%, Fischer 31.7%, Tal 21.3%, Morphy 20.4%)
+    #   king_attack:      0% moves near opp king → 0, 20%+ → 100
     #   sacrifice_rate (check freq): 2% → 0, 10%+ → 100
-    #                  Morphy ~10%, Tal/Carlsen ~6.5%, Fischer ~6%, Kasparov ~5%
-    #   aggression:    composite of the above
-    dev_score  = _normalize(avg_dev_move, hi=3.0, lo=10.0)   # inverted: lower move = higher score
-    of_score   = _normalize(open_file_rate * 100, lo=0, hi=50)
+    #                     Morphy ~10%, Carlsen ~6.4%, Fischer ~5.8%, Kasparov ~5.3%
+    #   aggression:       composite of the above
+    dec_score  = _normalize(decisive_rate * 100, lo=40, hi=100)
+    endg_score = _normalize(endgame_rate * 100, lo=15, hi=50)
     ka_score   = _normalize(king_atk_rate * 100, lo=0, hi=20)
     sac_score  = _normalize(check_rate * 100, lo=2.0, hi=10.0)
     agg_score  = (ka_score * 0.4 + sac_score * 0.3 + _normalize(pawn_adv_rate * 100, lo=0, hi=15) * 0.3)
 
     return {
-        "development":    round(dev_score, 1),
-        "open_files":     round(of_score, 1),
-        "king_attack":    round(ka_score, 1),
-        "sacrifice_rate": round(sac_score, 1),
-        "aggression":     round(agg_score, 1),
+        "decisiveness":     round(dec_score, 1),
+        "endgame_tendency": round(endg_score, 1),
+        "king_attack":      round(ka_score, 1),
+        "sacrifice_rate":   round(sac_score, 1),
+        "aggression":       round(agg_score, 1),
         "games_analyzed": games_processed,
         "avg_game_length": round(avg_game_len, 1),
-        # Human-readable for comparison table
+        # Human-readable for comparison table. Development speed and open-file
+        # rate stay here as stats even though they're no longer axes.
         "sacrifice_rate_pct":  f"{check_rate * 100:.1f}%",  # check frequency
         "open_file_pct":       f"{open_file_rate * 100:.0f}%",
         "king_attack_pct":     f"{king_atk_rate * 100:.0f}%",
         "development_speed":   f"move {avg_dev_move:.1f}",
+        "decisive_pct":        f"{decisive_rate * 100:.0f}%",
+        "endgame_pct":         f"{endgame_rate * 100:.0f}%",
     }

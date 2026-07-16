@@ -26,6 +26,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from db.database import SessionLocal
 from db.models import Base, GmProfile
+from gm.compute_style import compute_style
+from gm.download import load_pgn
 
 # Style axes precomputed from the PGN corpora and committed to the repo.
 # The raw PGNs (~9MB) are gitignored and absent in deployed images, and
@@ -35,8 +37,8 @@ from db.models import Base, GmProfile
 PROFILES_JSON = Path(__file__).parent / "profiles.json"
 
 STYLE_FIELDS = (
-    "development",
-    "open_files",
+    "decisiveness",
+    "endgame_tendency",
     "king_attack",
     "sacrifice_rate",
     "aggression",
@@ -45,6 +47,8 @@ STYLE_FIELDS = (
     "open_file_pct",
     "king_attack_pct",
     "development_speed",
+    "decisive_pct",
+    "endgame_pct",
     "games_analyzed",
 )
 
@@ -58,8 +62,7 @@ def load_precomputed(slug: str) -> dict | None:
             return json.load(fh).get(slug)
     except (OSError, json.JSONDecodeError):
         return None
-from gm.compute_style import compute_style
-from gm.download import load_pgn
+
 
 # ── GM registry ──────────────────────────────────────────────────────────────
 # player_name must match names as they appear in PGN White/Black headers.
@@ -137,7 +140,7 @@ def seed_gm(gm: dict, db, recompute: bool = False) -> bool:
         return False
 
     print(f"[seed]   {style['games_analyzed']} games · axes: "
-          f"dev={style['development']} of={style['open_files']} "
+          f"dec={style['decisiveness']} endg={style['endgame_tendency']} "
           f"ka={style['king_attack']} sac={style['sacrifice_rate']} agg={style['aggression']}")
 
     existing = db.query(GmProfile).filter_by(slug=gm["slug"]).first()
@@ -147,20 +150,11 @@ def seed_gm(gm: dict, db, recompute: bool = False) -> bool:
         profile = GmProfile(slug=gm["slug"])
         db.add(profile)
 
-    profile.display_name      = gm["display_name"]
-    profile.birth_year        = gm["birth_year"]
-    profile.development       = style["development"]
-    profile.open_files        = style["open_files"]
-    profile.king_attack       = style["king_attack"]
-    profile.sacrifice_rate    = style["sacrifice_rate"]
-    profile.aggression        = style["aggression"]
-    profile.games_analyzed    = style["games_analyzed"]
-    profile.avg_game_length   = style["avg_game_length"]
-    profile.sacrifice_rate_pct = style["sacrifice_rate_pct"]
-    profile.open_file_pct     = style["open_file_pct"]
-    profile.king_attack_pct   = style["king_attack_pct"]
-    profile.development_speed = style["development_speed"]
-    profile.updated_at        = datetime.now()
+    profile.display_name = gm["display_name"]
+    profile.birth_year   = gm["birth_year"]
+    for field in STYLE_FIELDS:
+        setattr(profile, field, style[field])
+    profile.updated_at = datetime.now()
     db.commit()
 
     print(f"[seed] ✓ {gm['display_name']} saved.")
