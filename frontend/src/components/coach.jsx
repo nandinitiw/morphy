@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import Markdown from "react-markdown";
-import { Chessboard } from "react-chessboard";
+import CoachMarkdown from "./CoachMarkdown.jsx";
 import { sendCoachMessage } from "../api/client";
 
 const INITIAL_MESSAGES = [
@@ -18,42 +17,6 @@ const SUGGESTED_PROMPTS = [
   "Which opening should I stop playing?",
 ];
 
-function ChessBoardBlock({ value }) {
-  try {
-    const { fen, label } = JSON.parse(value);
-    return (
-      <div className="coach-board">
-        <div className="coach-board-wrap">
-          <Chessboard
-            position={fen}
-            arePiecesDraggable={false}
-            boardWidth={240}
-            customDarkSquareStyle={{ backgroundColor: "#769656" }}
-            customLightSquareStyle={{ backgroundColor: "#eeeed2" }}
-          />
-        </div>
-        {label && <div className="coach-board-label">{label}</div>}
-      </div>
-    );
-  } catch {
-    return <code>{value}</code>;
-  }
-}
-
-function MarkdownComponents() {
-  return {
-    code({ className, children }) {
-      const lang = (className ?? "").replace("language-", "");
-      if (lang === "chess-board") {
-        return <ChessBoardBlock value={String(children).trim()} />;
-      }
-      return <code className={className}>{children}</code>;
-    },
-  };
-}
-
-const MD_COMPONENTS = MarkdownComponents();
-
 function Message({ msg }) {
   if (msg.type === "tool") {
     return <div className="tool-call">→ {msg.content}</div>;
@@ -64,7 +27,7 @@ function Message({ msg }) {
       <div className="msg-sender">{msg.role === "coach" ? "Morphy" : "you"}</div>
       <div className={`msg-bubble ${isAi ? "msg-bubble-ai" : ""}`}>
         {isAi
-          ? <Markdown components={MD_COMPONENTS}>{msg.content}</Markdown>
+          ? <CoachMarkdown>{msg.content}</CoachMarkdown>
           : msg.content}
       </div>
     </div>

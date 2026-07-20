@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Markdown from "react-markdown";
+import CoachMarkdown from "./CoachMarkdown.jsx";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 import { fetchWeaknessProfile, fetchBlunderExamples, sendCoachMessage, themeLabel } from "../api/client";
@@ -175,7 +175,7 @@ export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNav
       {reco && (
         <div className="card ai-insight-card">
           <span className="ai-tip-badge">AI insight</span>
-          <div className="ai-summary-text"><Markdown>{reco}</Markdown></div>
+          <div className="ai-summary-text"><CoachMarkdown>{reco}</CoachMarkdown></div>
           {onNavigateCoach && (
             <button type="button" className="link-btn" onClick={() => onNavigateCoach(reco)}>
               Continue in Coach →

@@ -24,6 +24,14 @@ class TestClassifyMove:
         assert classify_move(150) == "blunder"
         assert classify_move(900) == "blunder"
 
+    def test_clamp_ceiling_is_still_a_blunder(self):
+        # Mate positions score at ±10000; centipawn loss is clamped to this
+        # ceiling so severities stay believable. The ceiling must still classify
+        # as a blunder, and be a sane single-digit-pawns magnitude.
+        from analysis.stockfish_worker import MAX_CENTIPAWN_LOSS
+        assert classify_move(MAX_CENTIPAWN_LOSS) == "blunder"
+        assert 300 <= MAX_CENTIPAWN_LOSS <= 2000
+
 
 class TestClassifyTacticalMotif:
     def test_missed_mate(self):

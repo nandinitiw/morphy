@@ -11,6 +11,13 @@ from db.models import Position
 
 ANALYSIS_DEPTH = int(os.getenv("ANALYSIS_DEPTH", "15"))
 
+# Cap centipawn loss at 10 pawns. Positions involving a forced mate are scored at
+# ±10000 (mate_score below), so a missed/allowed mate would otherwise register as
+# thousands of "centipawns lost" and inflate a theme's severity to nonsensical
+# values (e.g. 6000+). Beyond ~1000cp the practical meaning is identical —
+# "decisive blunder" — so we clamp to keep severity numbers believable.
+MAX_CENTIPAWN_LOSS = 1000
+
 SKIPPED_RESULT = {"best_move": None, "centipawn_loss": None, "classification": None}
 
 COMMON_STOCKFISH_PATHS = (
@@ -106,7 +113,7 @@ async def analyze_position(engine: chess.engine.UciProtocol, fen: str, move_play
     score_after = -result_after["score"].relative
     best_cp = score.score(mate_score=10000) or 0
     played_cp = score_after.score(mate_score=10000) or 0
-    centipawn_loss = max(0, best_cp - played_cp)
+    centipawn_loss = min(max(0, best_cp - played_cp), MAX_CENTIPAWN_LOSS)
 
     return {
         "best_move": best_move.uci() if best_move else None,

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { fetchStyleGap, fetchGmList, sendCoachMessage } from "../api/client";
 import AiTooltip from "./AiTooltip";
 import RecommendButton from "./RecommendButton";
+import CoachMarkdown from "./CoachMarkdown.jsx";
 import Chart from "chart.js/auto";
 
 const STAT_LABELS = {
@@ -206,7 +207,7 @@ export default function StyleGap({ username, onNavigateCoach }) {
       {reco && (
         <div className="card ai-insight-card">
           <span className="ai-tip-badge">AI insight</span>
-          <p className="ai-summary-text">{reco}</p>
+          <div className="ai-summary-text"><CoachMarkdown>{reco}</CoachMarkdown></div>
           {onNavigateCoach && (
             <button type="button" className="link-btn" onClick={() => onNavigateCoach(reco)}>
               Continue in Coach →
