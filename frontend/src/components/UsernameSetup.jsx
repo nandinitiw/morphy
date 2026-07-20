@@ -3,13 +3,15 @@ import { useEffect, useState } from "react";
 import { checkBackendHealth, getApiBase } from "../api/client.js";
 import { useUsername } from "../context/UsernameContext.jsx";
 import { useIngest } from "../context/IngestContext.jsx";
+import { useElapsedSeconds, formatDuration } from "../hooks/useElapsedSeconds.js";
 
 export default function UsernameSetup() {
   const { setUsername, normalizeUsername } = useUsername();
-  const { startIngest, job, error: ingestError, isRunning } = useIngest();
+  const { startIngest, job, error: ingestError, isRunning, startedAt } = useIngest();
   const [input, setInput] = useState("");
   const [validationError, setValidationError] = useState("");
   const [backendOk, setBackendOk] = useState(null);
+  const elapsed = useElapsedSeconds(startedAt, isRunning);
 
   useEffect(() => {
     checkBackendHealth()
@@ -25,8 +27,17 @@ export default function UsernameSetup() {
       return;
     }
     setValidationError("");
-    setUsername(normalized);
-    await startIngest(normalized);
+    // Stay on this screen while analysis runs so the progress + live counter are
+    // visible, then enter the app once it actually finishes. On failure/lost the
+    // error shows here and the user can retry without landing in an empty app.
+    try {
+      const finalJob = await startIngest(normalized);
+      if (finalJob?.status === "completed") {
+        setUsername(normalized);
+      }
+    } catch {
+      // error surfaced via ingestError below
+    }
   }
 
   function handleDemo() {
@@ -82,14 +93,20 @@ export default function UsernameSetup() {
           <div className="setup-progress">
             <div className="setup-progress-status">
               Status: <strong>{job.status}</strong>
+              {isRunning && <span className="setup-elapsed"> · {formatDuration(elapsed)} elapsed</span>}
             </div>
             {job.status === "ingesting" && (
-              <p className="setup-progress-detail">Fetching games from Chess.com…</p>
+              <p className="setup-progress-detail">Fetching your games from Chess.com…</p>
             )}
             {job.status === "analyzing" && (
               <p className="setup-progress-detail">
-                Analyzed {job.games_analyzed} / {job.games_total} games
+                {job.games_analyzed === 0
+                  ? "Starting the Stockfish engine and analyzing your first game…"
+                  : `Analyzed ${job.games_analyzed} / ${job.games_total} games`}
               </p>
+            )}
+            {job.status === "profiling" && (
+              <p className="setup-progress-detail">Building your weakness profile…</p>
             )}
             {job.status === "completed" && (
               <p className="setup-progress-detail setup-success">
@@ -98,6 +115,12 @@ export default function UsernameSetup() {
             )}
             {job.status === "failed" && (
               <p className="setup-progress-detail setup-error">{job.error}</p>
+            )}
+            {isRunning && (job.status === "analyzing" || job.status === "ingesting") && (
+              <p className="setup-progress-hint">
+                Stockfish analyzes about one game per minute on the free server, so this
+                takes a few minutes. Keep this tab open — it&rsquo;s working.
+              </p>
             )}
           </div>
         )}

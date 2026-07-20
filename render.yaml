@@ -24,6 +24,15 @@ services:
       #        DATABASE_URL: sqlite:////data/morphy.db
       - key: DATABASE_URL
         value: sqlite:////app/morphy.db
+      # Free tier is ~0.1 CPU / 512 MB and restarts under sustained load, which
+      # kills long analysis jobs mid-run. Keep each job short enough to finish:
+      #   - shallower search (depth 15 -> 12) roughly halves per-game time
+      #   - cap the Stockfish loop to the 20 most-recent games
+      # Raise/remove both on a paid instance for deeper, fuller analysis.
+      - key: ANALYSIS_DEPTH
+        value: "12"
+      - key: MAX_ANALYZE_GAMES
+        value: "20"
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: CORS_ORIGINS

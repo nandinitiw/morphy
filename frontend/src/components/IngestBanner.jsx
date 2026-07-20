@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useIngest } from "../context/IngestContext.jsx";
+import { useElapsedSeconds, formatDuration } from "../hooks/useElapsedSeconds.js";
 
 const STEPS = ["pending", "ingesting", "analyzing", "profiling", "completed"];
 
@@ -28,8 +29,9 @@ function ProgressBar({ status }) {
 }
 
 export default function IngestBanner({ username, onComplete }) {
-  const { job, error, isRunning, startIngest } = useIngest();
+  const { job, error, isRunning, startedAt, startIngest } = useIngest();
   const [dismissed, setDismissed] = useState(false);
+  const elapsed = useElapsedSeconds(startedAt, isRunning);
 
   if (username === "demo") {
     if (dismissed) return null;
@@ -103,12 +105,15 @@ export default function IngestBanner({ username, onComplete }) {
               <strong>{STATUS_LABELS[job?.status] ?? "Working…"}</strong>
               {job?.status === "analyzing" && (
                 <span className="ingest-banner-detail">
-                  {" "}— {job.games_analyzed} / {job.games_total} games
+                  {job.games_analyzed === 0
+                    ? " — starting engine…"
+                    : ` — ${job.games_analyzed} / ${job.games_total} games`}
                 </span>
               )}
               {job?.status === "ingesting" && job.games_ingested > 0 && (
                 <span className="ingest-banner-detail"> — {job.games_ingested} new games found</span>
               )}
+              {isRunning && <span className="ingest-banner-detail"> · {formatDuration(elapsed)}</span>}
               {(error || job?.error) && (
                 <span className="ingest-banner-detail ingest-error"> — {error || job.error}</span>
               )}
@@ -117,6 +122,11 @@ export default function IngestBanner({ username, onComplete }) {
         </div>
         {(isRunning || job) && !isFailed && (
           <ProgressBar status={job?.status ?? "pending"} />
+        )}
+        {isRunning && (job?.status === "analyzing" || job?.status === "ingesting") && (
+          <div className="ingest-banner-hint">
+            ~1 min per game on the free server — keep this tab open while it works.
+          </div>
         )}
       </div>
       {!isRunning && (

@@ -1,3 +1,4 @@
+import os
 import uuid
 import logging
 from datetime import datetime
@@ -12,6 +13,15 @@ from ingestion.pipeline import ingest_user_games
 from profiler.clusterer import refresh_weakness_profile
 
 logger = logging.getLogger(__name__)
+
+# On the free Render tier, Stockfish runs at ~1 min/game and the instance can be
+# restarted (OOM under 512 MB, or health-check timeout under 0.1 CPU) before a
+# full ~60-game run finishes — taking the ephemeral SQLite job + games with it.
+# Cap the expensive analysis to the most-recent N games so a run completes well
+# inside that window. 0 (the default) means "analyze everything" — set the env
+# on constrained hosts (see render.yaml). Ingestion itself is uncapped; only the
+# Stockfish loop is bounded, so stats/openings still see the full history.
+MAX_ANALYZE_GAMES = int(os.getenv("MAX_ANALYZE_GAMES", "0"))
 
 
 ACTIVE_STATUSES = ("pending", "ingesting", "analyzing", "profiling")
@@ -96,6 +106,14 @@ async def run_ingest_job(job_id: str) -> None:
             .all()
         )
         game_ids = [game.id for game in unanalyzed]
+
+        # Bound the Stockfish loop to the most-recent N games on constrained hosts.
+        if MAX_ANALYZE_GAMES and len(game_ids) > MAX_ANALYZE_GAMES:
+            logger.info(
+                "Job %s: capping analysis to %d of %d unanalyzed games (MAX_ANALYZE_GAMES)",
+                job_id, MAX_ANALYZE_GAMES, len(game_ids),
+            )
+            game_ids = game_ids[:MAX_ANALYZE_GAMES]
 
         _update_job(
             db,

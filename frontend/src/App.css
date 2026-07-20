@@ -873,6 +873,13 @@ body {
 
 .setup-progress-status strong { color: var(--green); text-transform: capitalize; }
 .setup-progress-detail { margin-top: 6px; line-height: 1.5; }
+.setup-elapsed { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.setup-progress-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
 
 .setup-success { color: var(--green); }
 .setup-footnote {
@@ -949,6 +956,7 @@ body {
 .ingest-banner-dismiss:hover { opacity: 1; }
 
 .ingest-banner-body { display: flex; flex-direction: column; gap: 7px; flex: 1; min-width: 0; }
+.ingest-banner-hint { font-size: 10.5px; color: var(--text-dim); }
 .ingest-banner-text strong { color: var(--text); }
 .ingest-banner-detail { color: var(--text-dim); }
 .ingest-error { color: var(--red); }
