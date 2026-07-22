@@ -27,8 +27,8 @@ const AXIS_HELP = {
 const AXIS_KEYS   = ["decisiveness", "endgame_tendency", "king_attack", "sacrifice_rate", "aggression"];
 const AXIS_LABELS = ["Decisiveness", "Endgames", "King attack", "Checks", "Aggression"];
 
-const RADAR_YOU = "#e8e7e5";
-const RADAR_GM  = "#81b64c";
+const RADAR_YOU = "#2B2620";   // ink
+const RADAR_GM  = "#C1793A";   // ochre
 
 function isGoodForYou(key, youVal, gmVal) {
   const youNum = parseFloat(youVal);
@@ -94,7 +94,7 @@ export default function StyleGap({ username, onNavigateCoach }) {
             label: "You",
             data: youData,
             borderColor: RADAR_YOU,
-            backgroundColor: "rgba(232,231,229,0.07)",
+            backgroundColor: "rgba(43,38,32,0.06)",
             borderWidth: 2,
             pointBackgroundColor: RADAR_YOU,
             pointRadius: 4,
@@ -103,7 +103,7 @@ export default function StyleGap({ username, onNavigateCoach }) {
             label: style.gm_meta?.name ?? gmSlug,
             data: gmData,
             borderColor: RADAR_GM,
-            backgroundColor: "rgba(129,182,76,0.08)",
+            backgroundColor: "rgba(193,121,58,0.10)",
             borderWidth: 2,
             borderDash: [4, 3],
             pointBackgroundColor: RADAR_GM,
@@ -122,13 +122,18 @@ export default function StyleGap({ username, onNavigateCoach }) {
           r: {
             min: 0, max: 100,
             ticks: { display: false },
-            pointLabels: { color: "rgba(232,231,229,0.55)", font: { size: 11, family: "DM Mono" } },
-            grid:       { color: "rgba(255,255,255,0.07)" },
-            angleLines: { color: "rgba(255,255,255,0.07)" },
+            pointLabels: { color: "#5C5344", font: { size: 11, family: "IBM Plex Mono" } },
+            grid:       { color: "rgba(43,38,32,0.08)" },
+            angleLines: { color: "rgba(43,38,32,0.08)" },
           },
         },
       },
     });
+
+
+    // Chart.js measures label widths at construction; if the webfont lands after
+    // that it under-reserves axis space and clips labels. Re-fit once ready.
+    document.fonts?.ready?.then(() => { try { radarChart.current?.resize(); } catch { /* chart gone */ } });
 
     return () => radarChart.current?.destroy();
   }, [style, gmSlug]);
@@ -187,9 +192,9 @@ export default function StyleGap({ username, onNavigateCoach }) {
                   padding: "6px 14px",
                   borderRadius: 6,
                   border: "1px solid",
-                  borderColor: gmSlug === g.slug ? "var(--green)" : "var(--border-med)",
-                  background:  gmSlug === g.slug ? "var(--green-dim)" : "transparent",
-                  color:       gmSlug === g.slug ? "var(--green)" : "var(--text-muted)",
+                  borderColor: gmSlug === g.slug ? "var(--accent)" : "var(--border)",
+                  background:  gmSlug === g.slug ? "var(--surface)" : "transparent",
+                  color:       gmSlug === g.slug ? "var(--text)" : "var(--text-muted)",
                   fontFamily: "var(--mono)",
                   fontSize: 12,
                   cursor: "pointer",

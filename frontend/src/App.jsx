@@ -13,13 +13,13 @@ import { useUsername } from "./context/UsernameContext.jsx";
 import "./App.css";
 
 const NAV = [
-  { id: "dashboard", label: "Dashboard", icon: "ti-layout-dashboard" },
-  { id: "openings", label: "Openings", icon: "ti-chess" },
-  { id: "weaknesses", label: "Weaknesses", icon: "ti-report-analytics" },
-  { id: "train", label: "Train", icon: "ti-target-arrow" },
-  { id: "coach", label: "Coach", icon: "ti-message-circle" },
-  { id: "style", label: "Style gap", icon: "ti-user-star" },
-  { id: "about", label: "About", icon: "ti-info-circle" },
+  { id: "dashboard", label: "Dashboard" },
+  { id: "openings", label: "Openings" },
+  { id: "weaknesses", label: "Weaknesses" },
+  { id: "train", label: "Train" },
+  { id: "coach", label: "Coach" },
+  { id: "style", label: "Style gap" },
+  { id: "about", label: "About" },
 ];
 
 export default function App() {
@@ -57,7 +57,7 @@ export default function App() {
               className={`nav-item ${page === n.id ? "active" : ""}`}
               onClick={() => navigate(n.id)}
             >
-              <i className={`ti ${n.icon}`} aria-hidden="true" />
+              <span className="nav-dot" aria-hidden="true" />
               <span>{n.label}</span>
             </button>
           ))}

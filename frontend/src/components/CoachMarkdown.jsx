@@ -17,8 +17,8 @@ function ChessBoardBlock({ value }) {
             position={fen}
             arePiecesDraggable={false}
             boardWidth={240}
-            customDarkSquareStyle={{ backgroundColor: "#769656" }}
-            customLightSquareStyle={{ backgroundColor: "#eeeed2" }}
+            customDarkSquareStyle={{ backgroundColor: "#A9754F" }}
+            customLightSquareStyle={{ backgroundColor: "#EFE6D3" }}
           />
         </div>
         {label && <div className="coach-board-label">{label}</div>}

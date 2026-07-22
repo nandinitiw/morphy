@@ -24,7 +24,7 @@ function Message({ msg }) {
   const isAi = msg.role === "coach";
   return (
     <div className={`msg ${msg.role}`}>
-      <div className="msg-sender">{msg.role === "coach" ? "Morphy" : "you"}</div>
+      <div className="msg-sender">{msg.role === "coach" ? "\u2726 AI coach" : "you"}</div>
       <div className={`msg-bubble ${isAi ? "msg-bubble-ai" : ""}`}>
         {isAi
           ? <CoachMarkdown>{msg.content}</CoachMarkdown>

@@ -5,9 +5,9 @@ import { fetchWeaknessProfile, fetchBlunderExamples, fetchTimeline, formatAnalys
 import TimeControlFilter from "./TimeControlFilter";
 import Chart from "chart.js/auto";
 
-const CHART_GREEN = "#22C55E";
-const CHART_RED = "#EF4444";
-const CHART_AMBER = "#F59E0B";
+const CHART_GREEN = "#4E6B41";
+const CHART_RED = "#B5502F";
+const CHART_AMBER = "#C1793A";
 
 function uciSquares(uci) {
   if (!uci || uci.length < 4) return { from: null, to: null };
@@ -22,10 +22,10 @@ function HeroBlunder({ blunder, onNavigateCoach }) {
   const best = uciSquares(blunder.best_move);
 
   const squareStyles = {};
-  if (played.from) squareStyles[played.from] = { background: "rgba(224,82,82,0.40)" };
-  if (played.to) squareStyles[played.to] = { background: "rgba(224,82,82,0.55)" };
-  if (best.from && best.from !== played.from) squareStyles[best.from] = { background: "rgba(129,182,76,0.35)" };
-  if (best.to) squareStyles[best.to] = { background: "rgba(129,182,76,0.60)" };
+  if (played.from) squareStyles[played.from] = { background: "var(--sq-from)" };
+  if (played.to) squareStyles[played.to] = { background: "var(--sq-from)" };
+  if (best.from && best.from !== played.from) squareStyles[best.from] = { background: "var(--sq-target)" };
+  if (best.to) squareStyles[best.to] = { background: "var(--sq-target)" };
 
   let orientation = "white";
   try {
@@ -43,8 +43,8 @@ function HeroBlunder({ blunder, onNavigateCoach }) {
           boardOrientation={orientation}
           arePiecesDraggable={false}
           customSquareStyles={squareStyles}
-          customDarkSquareStyle={{ backgroundColor: "#b58863" }}
-          customLightSquareStyle={{ backgroundColor: "#f0d9b5" }}
+          customDarkSquareStyle={{ backgroundColor: "#A9754F" }}
+          customLightSquareStyle={{ backgroundColor: "#EFE6D3" }}
         />
       </div>
       <div className="hero-info">
@@ -145,8 +145,8 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
           {
             label: "Per game",
             data: raw,
-            borderColor: "rgba(129,182,76,0.22)",
-            backgroundColor: "rgba(129,182,76,0.05)",
+            borderColor: "rgba(193,121,58,0.28)",
+            backgroundColor: "rgba(193,121,58,0.07)",
             borderWidth: 1,
             pointRadius: 0,
             tension: 0.3,
@@ -155,7 +155,7 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
           {
             label: "Trend",
             data: trend,
-            borderColor: CHART_GREEN,
+            borderColor: CHART_AMBER,
             borderWidth: 2.5,
             pointRadius: 0,
             tension: 0.35,
@@ -181,8 +181,8 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
         scales: {
           x: {
             ticks: {
-              color: "rgba(250,250,250,0.35)",
-              font: { size: 10, family: "DM Mono" },
+              color: "#8A8171",
+              font: { size: 10, family: "IBM Plex Mono" },
               maxTicksLimit: 6,
               autoSkip: true,
             },
@@ -192,15 +192,20 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
             title: {
               display: true,
               text: "Avg cp loss (lower = better)",
-              color: "rgba(250,250,250,0.4)",
-              font: { size: 11, family: "DM Mono" },
+              color: "#8A8171",
+              font: { size: 11, family: "IBM Plex Mono" },
             },
-            ticks: { color: "rgba(250,250,250,0.4)", font: { size: 10, family: "DM Mono" } },
-            grid: { color: "rgba(255,255,255,0.06)" },
+            ticks: { color: "#8A8171", font: { size: 10, family: "IBM Plex Mono" } },
+            grid: { color: "rgba(43,38,32,0.08)" },
           },
         },
       },
     });
+
+
+    // Chart.js measures label widths at construction; if the webfont lands after
+    // that it under-reserves axis space and clips labels. Re-fit once ready.
+    document.fonts?.ready?.then(() => { try { trendChart.current?.resize(); } catch { /* chart gone */ } });
 
     return () => trendChart.current?.destroy();
   }, [timeline]);
@@ -221,7 +226,7 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
           label: "Avg centipawn loss",
           data: top.map((w) => w.severity),
           backgroundColor: top.map((w) =>
-            w.severity >= 200 ? CHART_RED : w.severity >= 130 ? CHART_AMBER : "rgba(250,250,250,0.25)",
+            w.severity >= 200 ? CHART_RED : w.severity >= 130 ? CHART_AMBER : "#8A8171",
           ),
           borderRadius: 4,
         }],
@@ -243,19 +248,27 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
             title: {
               display: true,
               text: "Centipawn loss (lower = better)",
-              color: "rgba(250,250,250,0.45)",
-              font: { size: 11, family: "DM Mono" },
+              color: "#8A8171",
+              font: { size: 11, family: "IBM Plex Mono" },
             },
-            ticks: { color: "rgba(250,250,250,0.4)", font: { size: 11, family: "DM Mono" } },
-            grid: { color: "rgba(255,255,255,0.07)" },
+            ticks: { color: "#8A8171", font: { size: 11, family: "IBM Plex Mono" } },
+            grid: { color: "rgba(43,38,32,0.08)" },
           },
           y: {
-            ticks: { color: "rgba(250,250,250,0.55)", font: { size: 11, family: "DM Mono" } },
+            ticks: { color: "#5C5344", font: { size: 11, family: "IBM Plex Mono" } },
             grid: { display: false },
+            // Theme names are long; reserve a fixed gutter so Chart.js can't
+            // clip them when it measures before the webfont has loaded.
+            afterFit: (scale) => { scale.width = 118; },
           },
         },
       },
     });
+
+
+    // Chart.js measures label widths at construction; if the webfont lands after
+    // that it under-reserves axis space and clips labels. Re-fit once ready.
+    document.fonts?.ready?.then(() => { try { accuracyChart.current?.resize(); } catch { /* chart gone */ } });
 
     return () => accuracyChart.current?.destroy();
   }, [stats, weaknesses]);
@@ -370,7 +383,7 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
               <div className="chart-legend-row">
                 <span><i className="legend-swatch" style={{ background: CHART_RED }} /> 200+ cp blunder</span>
                 <span><i className="legend-swatch" style={{ background: CHART_AMBER }} /> 130–199 cp</span>
-                <span><i className="legend-swatch" style={{ background: "rgba(250,250,250,0.25)" }} /> under 130 cp</span>
+                <span><i className="legend-swatch" style={{ background: "#8A8171" }} /> under 130 cp</span>
               </div>
             </div>
           </div>

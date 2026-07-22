@@ -49,14 +49,14 @@ export default function Trainer({ username, refreshKey = 0, tc = "all" }) {
     const styles = {};
     const best = squaresOf(current.best_move);
     if (guess.correct) {
-      if (best.from) styles[best.from] = { background: "rgba(129,182,76,0.45)" };
-      if (best.to) styles[best.to] = { background: "rgba(129,182,76,0.65)" };
+      if (best.from) styles[best.from] = { background: "var(--sq-target)" };
+      if (best.to) styles[best.to] = { background: "var(--sq-target)" };
     } else {
       const bad = squaresOf(guess.uci);
-      if (bad.from) styles[bad.from] = { background: "rgba(224,82,82,0.4)" };
-      if (bad.to) styles[bad.to] = { background: "rgba(224,82,82,0.55)" };
-      if (best.from) styles[best.from] = { background: "rgba(129,182,76,0.4)" };
-      if (best.to) styles[best.to] = { background: "rgba(129,182,76,0.6)" };
+      if (bad.from) styles[bad.from] = { background: "var(--sq-from)" };
+      if (bad.to) styles[bad.to] = { background: "var(--sq-from)" };
+      if (best.from) styles[best.from] = { background: "var(--sq-target)" };
+      if (best.to) styles[best.to] = { background: "var(--sq-target)" };
     }
     return styles;
   }, [guess, current]);
@@ -136,14 +136,22 @@ export default function Trainer({ username, refreshKey = 0, tc = "all" }) {
         <div className="trainer-board">
           <Chessboard
             position={current.fen}
-            boardWidth={340}
+            boardWidth={400}
             boardOrientation={orientation}
             arePiecesDraggable={!guess}
             onPieceDrop={onDrop}
             customSquareStyles={squareStyles}
-            customDarkSquareStyle={{ backgroundColor: "#b58863" }}
-            customLightSquareStyle={{ backgroundColor: "#f0d9b5" }}
+            customDarkSquareStyle={{ backgroundColor: "#A9754F" }}
+            customLightSquareStyle={{ backgroundColor: "#EFE6D3" }}
           />
+          {guess?.correct && (
+            <div className="stamp-overlay">
+              <div className="stamp">
+                <div className="stamp-check">✓</div>
+                <div className="stamp-label">Correct</div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="trainer-side">

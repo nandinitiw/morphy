@@ -3,9 +3,9 @@ import CoachMarkdown from "./CoachMarkdown.jsx";
 import { fetchOpeningStats, sendCoachMessage } from "../api/client";
 import Chart from "chart.js/auto";
 
-const CHART_GREEN = "#22C55E";
-const CHART_RED = "#EF4444";
-const CHART_AMBER = "#F59E0B";
+const CHART_GREEN = "#4E6B41";
+const CHART_RED = "#B5502F";
+const CHART_AMBER = "#C1793A";
 
 function OpeningRow({ opening, color, onSelect, selected, summary, summaryLoading }) {
   const isWin = opening.win_rate >= 55;
@@ -138,28 +138,33 @@ export default function Openings({ username, refreshKey = 0 }) {
         },
         scales: {
           x: {
-            ticks: { color: "rgba(250,250,250,0.5)", font: { size: 10, family: "DM Mono" } },
+            ticks: { color: "#8A8171", font: { size: 10, family: "IBM Plex Mono" } },
             grid: { display: false },
             title: {
               display: true,
               text: "ECO code",
-              color: "rgba(250,250,250,0.4)",
-              font: { size: 11, family: "DM Mono" },
+              color: "#8A8171",
+              font: { size: 11, family: "IBM Plex Mono" },
             },
           },
           y: {
-            ticks: { color: "rgba(250,250,250,0.4)", font: { size: 11, family: "DM Mono" } },
-            grid: { color: "rgba(255,255,255,0.07)" },
+            ticks: { color: "#8A8171", font: { size: 11, family: "IBM Plex Mono" } },
+            grid: { color: "rgba(43,38,32,0.08)" },
             title: {
               display: true,
               text: "Centipawn loss (lower = better)",
-              color: "rgba(250,250,250,0.4)",
-              font: { size: 11, family: "DM Mono" },
+              color: "#8A8171",
+              font: { size: 11, family: "IBM Plex Mono" },
             },
           },
         },
       },
     });
+
+
+    // Chart.js measures label widths at construction; if the webfont lands after
+    // that it under-reserves axis space and clips labels. Re-fit once ready.
+    document.fonts?.ready?.then(() => { try { chartInstance.current?.resize(); } catch { /* chart gone */ } });
 
     return () => chartInstance.current?.destroy();
   }, [openings]);

@@ -9,7 +9,7 @@ import RecommendButton from "./RecommendButton";
 const severityColor = (s) => {
   if (s >= 200) return "var(--red)";
   if (s >= 130) return "var(--amber)";
-  return "rgba(232,231,229,0.35)";
+  return "var(--text-dim)";
 };
 
 function uciSquares(uci) {
@@ -36,10 +36,10 @@ function BoardPanel({ blunders, theme }) {
   const best = uciSquares(ex.best_move);
 
   const customSquares = {};
-  if (played.from) customSquares[played.from] = { backgroundColor: "rgba(224,82,82,0.4)" };
-  if (played.to)   customSquares[played.to]   = { backgroundColor: "rgba(224,82,82,0.55)" };
-  if (best.from && best.from !== played.from) customSquares[best.from] = { backgroundColor: "rgba(129,182,76,0.35)" };
-  if (best.to)     customSquares[best.to]     = { backgroundColor: "rgba(129,182,76,0.55)" };
+  if (played.from) customSquares[played.from] = { backgroundColor: "var(--sq-from)" };
+  if (played.to)   customSquares[played.to]   = { backgroundColor: "var(--sq-from)" };
+  if (best.from && best.from !== played.from) customSquares[best.from] = { backgroundColor: "var(--sq-target)" };
+  if (best.to)     customSquares[best.to]     = { backgroundColor: "var(--sq-target)" };
 
   let boardOrientation = "white";
   try {
@@ -56,8 +56,8 @@ function BoardPanel({ blunders, theme }) {
           boardOrientation={boardOrientation}
           arePiecesDraggable={false}
           customSquareStyles={customSquares}
-          customDarkSquareStyle={{ backgroundColor: "var(--sq-dark, #b58863)" }}
-          customLightSquareStyle={{ backgroundColor: "var(--sq-light, #f0d9b5)" }}
+          customDarkSquareStyle={{ backgroundColor: "var(--sq-dark, #A9754F)" }}
+          customLightSquareStyle={{ backgroundColor: "var(--sq-light, #EFE6D3)" }}
         />
       </div>
       <div className="board-panel-info">
@@ -88,7 +88,7 @@ function BoardPanel({ blunders, theme }) {
               <button
                 key={i}
                 className="board-nav-btn"
-                style={i === idx ? { borderColor: "var(--green)", color: "var(--green)" } : {}}
+                style={i === idx ? { borderColor: "var(--accent)", color: "var(--accent-hover)" } : {}}
                 onClick={() => setIdx(i)}
               >
                 #{i + 1}
