@@ -1,9 +1,27 @@
 import { useEffect, useState } from "react";
 
-import { checkBackendHealth, getApiBase } from "../api/client.js";
+import {
+  checkBackendHealth,
+  getApiBase,
+  fetchWeaknessProfile,
+  fetchOpeningStats,
+  fetchBlunderExamples,
+  fetchStyleGap,
+} from "../api/client.js";
 import { useUsername } from "../context/UsernameContext.jsx";
 import { useIngest } from "../context/IngestContext.jsx";
 import { useElapsedSeconds, formatDuration } from "../hooks/useElapsedSeconds.js";
+
+// The demo has no analysis to run — its games are pre-seeded — so the only thing
+// that can make it slow is a free-tier cold start (~30-60s to wake a spun-down
+// instance). We preload every demo view in parallel to warm the instance, and
+// show a live timer so it's obviously working rather than frozen.
+function demoMessage(sec) {
+  if (sec < 4) return "Loading pre-analyzed demo games…";
+  if (sec < 10) return "Waking the demo server…";
+  if (sec < 22) return "Almost there — the free server is starting up…";
+  return "Still starting — free-tier cold start can take up to a minute…";
+}
 
 export default function UsernameSetup() {
   const { setUsername, normalizeUsername } = useUsername();
@@ -11,7 +29,11 @@ export default function UsernameSetup() {
   const [input, setInput] = useState("");
   const [validationError, setValidationError] = useState("");
   const [backendOk, setBackendOk] = useState(null);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoStartedAt, setDemoStartedAt] = useState(null);
+  const [demoError, setDemoError] = useState("");
   const elapsed = useElapsedSeconds(startedAt, isRunning);
+  const demoElapsed = useElapsedSeconds(demoStartedAt, demoLoading);
 
   useEffect(() => {
     checkBackendHealth()
@@ -40,8 +62,40 @@ export default function UsernameSetup() {
     }
   }
 
-  function handleDemo() {
-    setUsername("demo");
+  async function handleDemo() {
+    setDemoError("");
+    setDemoStartedAt(Date.now());
+    setDemoLoading(true);
+    try {
+      // Preload every demo view in parallel — this both warms the instance and
+      // confirms the data is ready before we drop the recruiter into the app,
+      // so navigating between pages is instant afterwards.
+      const [profile] = await Promise.all([
+        fetchWeaknessProfile("demo"),
+        fetchOpeningStats("demo").catch(() => null),
+        fetchBlunderExamples("demo").catch(() => null),
+        fetchStyleGap("demo", "morphy").catch(() => null),
+      ]);
+      if (!profile) throw new Error("Demo data unavailable");
+      setUsername("demo");
+    } catch (err) {
+      setDemoError(err?.message ?? "Could not load the demo. Please retry.");
+      setDemoLoading(false);
+    }
+  }
+
+  if (demoLoading) {
+    return (
+      <div className="setup-screen">
+        <div className="setup-card demo-loading-card">
+          <div className="setup-logo">Morphy</div>
+          <div className="demo-spinner" aria-hidden="true" />
+          <div className="demo-timer">{demoElapsed}s</div>
+          <p className="demo-loading-msg">{demoMessage(demoElapsed)}</p>
+          <p className="setup-demo-note">Loading the pre-analyzed demo — no account needed.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -88,6 +142,7 @@ export default function UsernameSetup() {
         <p className="setup-demo-note">
           Explore with pre-loaded games — no Chess.com account needed.
         </p>
+        {demoError && <p className="setup-error">{demoError}</p>}
 
         {job && (
           <div className="setup-progress">
