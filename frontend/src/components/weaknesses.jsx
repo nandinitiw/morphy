@@ -4,6 +4,7 @@ import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 import { fetchWeaknessProfile, fetchBlunderExamples, sendCoachMessage, themeLabel } from "../api/client";
 import AiTooltip from "./AiTooltip";
+import { uciToSan } from "../notation.js";
 import RecommendButton from "./RecommendButton";
 
 const severityColor = (s) => {
@@ -65,11 +66,11 @@ function BoardPanel({ blunders, theme }) {
         <div className="board-panel-move">
           <div>
             <div className="move-label">You played</div>
-            <div className="move-bad">{ex.move_played ?? "—"}</div>
+            <div className="move-bad">{uciToSan(ex.fen, ex.move_played)}</div>
           </div>
           <div>
             <div className="move-label">Best was</div>
-            <div className="move-good">{ex.best_move ?? "—"}</div>
+            <div className="move-good">{uciToSan(ex.fen, ex.best_move)}</div>
           </div>
         </div>
         {ex.game_id && !ex.game_id.startsWith("demo_") && (

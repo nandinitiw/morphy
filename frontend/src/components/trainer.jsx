@@ -2,11 +2,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 import { fetchBlunderExamples, themeLabel } from "../api/client";
+import { uciToSan } from "../notation.js";
 
 // Re-solve your own mistakes. Each card is a real position where you blundered;
 // you try to find the move Stockfish preferred. This closes the loop from
 // "here's what you got wrong" to actually practicing the fix — on your own games,
 // not generic puzzles.
+
+const REVEAL = "__reveal__";
 
 function squaresOf(uci) {
   if (!uci || uci.length < 4) return { from: null, to: null };
@@ -44,6 +47,20 @@ export default function Trainer({ username, refreshKey = 0, tc = "all" }) {
     }
   }, [current]);
 
+  // Display SAN, not the UCI we store — "Qd7" not "d8d7".
+  const playedSan = useMemo(
+    () => (current ? uciToSan(current.fen, current.move_played) : "—"),
+    [current],
+  );
+  const bestSan = useMemo(
+    () => (current ? uciToSan(current.fen, current.best_move) : "—"),
+    [current],
+  );
+  const guessSan = useMemo(
+    () => (current && guess && guess.uci !== REVEAL ? uciToSan(current.fen, guess.uci) : null),
+    [current, guess],
+  );
+
   const squareStyles = useMemo(() => {
     if (!guess || !current) return {};
     const styles = {};
@@ -52,7 +69,8 @@ export default function Trainer({ username, refreshKey = 0, tc = "all" }) {
       if (best.from) styles[best.from] = { background: "var(--sq-target)" };
       if (best.to) styles[best.to] = { background: "var(--sq-target)" };
     } else {
-      const bad = squaresOf(guess.uci);
+      // On "show the answer" there is no attempted move to highlight.
+      const bad = guess.uci === REVEAL ? { from: null, to: null } : squaresOf(guess.uci);
       if (bad.from) styles[bad.from] = { background: "var(--sq-from)" };
       if (bad.to) styles[bad.to] = { background: "var(--sq-from)" };
       if (best.from) styles[best.from] = { background: "var(--sq-target)" };
@@ -86,7 +104,7 @@ export default function Trainer({ username, refreshKey = 0, tc = "all" }) {
 
   function reveal() {
     if (!current) return;
-    grade("__reveal__"); // never matches best_move → counts as not solved
+    grade(REVEAL); // never matches best_move → counts as not solved
   }
 
   function next() {
@@ -162,7 +180,7 @@ export default function Trainer({ username, refreshKey = 0, tc = "all" }) {
           {!guess ? (
             <>
               <p className="trainer-prompt">
-                You played <span className="trainer-bad">{current.move_played}</span> here and lost{" "}
+                You played <span className="trainer-bad">{playedSan}</span> here and lost{" "}
                 <strong>{Math.round(current.centipawn_loss ?? 0)} cp</strong>. Find the move that
                 keeps the advantage.
               </p>
@@ -176,13 +194,13 @@ export default function Trainer({ username, refreshKey = 0, tc = "all" }) {
                 {guess.correct ? "✓ Correct" : "✗ Not the top move"}
               </div>
               <p className="trainer-prompt">
-                Best was <span className="trainer-good">{current.best_move}</span>
-                {!guess.correct && guess.uci !== "__reveal__" && (
+                Best was <span className="trainer-good">{bestSan}</span>
+                {!guess.correct && guess.uci !== REVEAL && (
                   <>
-                    {" "}— you tried <span className="trainer-bad">{guess.uci}</span>
+                    {" "}— you tried <span className="trainer-bad">{guessSan}</span>
                   </>
                 )}
-                . In the game you played <span className="trainer-bad">{current.move_played}</span>.
+                . In the game you played <span className="trainer-bad">{playedSan}</span>.
               </p>
               {finished ? (
                 <div className="trainer-done">

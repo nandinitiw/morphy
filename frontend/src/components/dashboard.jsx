@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 import { fetchWeaknessProfile, fetchBlunderExamples, fetchTimeline, formatAnalysisRange, themeLabel } from "../api/client";
+import { uciToSan } from "../notation.js";
 import TimeControlFilter from "./TimeControlFilter";
 import Chart from "chart.js/auto";
 
@@ -33,6 +34,9 @@ function HeroBlunder({ blunder, onNavigateCoach }) {
   } catch { /* keep white */ }
 
   const cpLoss = Math.round(blunder.centipawn_loss ?? 0);
+  // Show SAN in the UI; the stored UCI stays for square highlighting.
+  const playedSan = uciToSan(blunder.fen, blunder.move_played);
+  const bestSan = uciToSan(blunder.fen, blunder.best_move);
 
   return (
     <div className="card hero-blunder">
@@ -54,18 +58,18 @@ function HeroBlunder({ blunder, onNavigateCoach }) {
         <div className="hero-moves">
           <div className="hero-move">
             <span className="hero-move-label">You played</span>
-            <span className="hero-move-bad">{blunder.move_played ?? "—"}</span>
+            <span className="hero-move-bad">{playedSan}</span>
           </div>
           <div className="hero-move">
             <span className="hero-move-label">Best was</span>
-            <span className="hero-move-good">{blunder.best_move ?? "—"}</span>
+            <span className="hero-move-good">{bestSan}</span>
           </div>
         </div>
         {onNavigateCoach && (
           <button
             type="button"
             className="hero-cta"
-            onClick={() => onNavigateCoach(`Explain this position and how I should have found the best move: FEN ${blunder.fen}. I played ${blunder.move_played}, best was ${blunder.best_move}.`)}
+            onClick={() => onNavigateCoach(`Explain this position and how I should have found the best move: FEN ${blunder.fen}. I played ${playedSan}, best was ${bestSan}.`)}
           >
             <i className="ti ti-sparkles" aria-hidden="true" /> Ask the coach about this
           </button>

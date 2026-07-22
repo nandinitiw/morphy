@@ -1,8 +1,27 @@
+import chess
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 import httpx
 
 from db.models import Game, Position, WeaknessProfile
+
+def uci_to_san(fen: str | None, uci: str | None) -> str:
+    """Render a stored UCI move as SAN for the given position.
+
+    Moves are stored in UCI because that's what Stockfish emits, but the coach's
+    replies are read by a chess player — "Qd7", not "d8d7". Falls back to the raw
+    UCI if the position or move can't be parsed.
+    """
+    if not uci:
+        return "?"
+    if not fen:
+        return uci
+    try:
+        board = chess.Board(fen)
+        return board.san(chess.Move.from_uci(uci))
+    except Exception:
+        return uci
+
 
 TOOLS = [
     {
@@ -102,7 +121,8 @@ def _get_weakness_profile(username: str, db: Session) -> str:
         if example:
             lines.append(
                 f"    Worst example — game {example.game_id}, move {example.move_number}: "
-                f"played {example.move_played}, best was {example.best_move}. "
+                f"played {uci_to_san(example.fen, example.move_played)}, "
+                f"best was {uci_to_san(example.fen, example.best_move)}. "
                 f"FEN before move: {example.fen}"
             )
     return "\n".join(lines)
@@ -171,8 +191,9 @@ def _get_game_details(game_id: str, username: str, db: Session) -> str:
         motif = f", motif: {position.tactical_motif}" if position.tactical_motif else ""
         cp_loss = f"{position.centipawn_loss:.0f}" if position.centipawn_loss is not None else "n/a"
         lines.append(
-            f"  Move {position.move_number}: {position.move_played} -> {position.classification} "
-            f"(best: {position.best_move}, cp loss: {cp_loss}{motif})"
+            f"  Move {position.move_number}: {uci_to_san(position.fen, position.move_played)} "
+            f"-> {position.classification} "
+            f"(best: {uci_to_san(position.fen, position.best_move)}, cp loss: {cp_loss}{motif})"
         )
         if position.classification in ("blunder", "mistake"):
             lines.append(f"    FEN before move: {position.fen}")
