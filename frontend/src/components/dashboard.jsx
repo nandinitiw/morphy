@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
-import { fetchWeaknessProfile, fetchBlunderExamples, formatAnalysisRange, themeLabel } from "../api/client";
+import { fetchWeaknessProfile, fetchBlunderExamples, fetchTimeline, formatAnalysisRange, themeLabel } from "../api/client";
 import TimeControlFilter from "./TimeControlFilter";
 import Chart from "chart.js/auto";
 
@@ -81,10 +81,13 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
   const [meta, setMeta] = useState(null);
   const [weaknesses, setWeaknesses] = useState([]);
   const [worstBlunder, setWorstBlunder] = useState(null);
+  const [timeline, setTimeline] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const accuracyRef = useRef(null);
   const accuracyChart = useRef(null);
+  const trendRef = useRef(null);
+  const trendChart = useRef(null);
 
   useEffect(() => {
     setLoading(true);
@@ -110,6 +113,97 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
       })
       .catch(() => setWorstBlunder(null));
   }, [username, refreshKey, tc]);
+
+  useEffect(() => {
+    fetchTimeline(username, tc)
+      .then((pts) => setTimeline(pts))
+      .catch(() => setTimeline([]));
+  }, [username, refreshKey, tc]);
+
+  // Accuracy-over-time line: per-game avg cp loss (faint) with a moving-average
+  // trend (bold). Answers "am I improving?" — lower is better.
+  useEffect(() => {
+    if (trendChart.current) {
+      trendChart.current.destroy();
+      trendChart.current = null;
+    }
+    if (!trendRef.current || timeline.length < 2) return;
+
+    const raw = timeline.map((p) => p.avg_cp_loss);
+    const window = Math.max(3, Math.round(timeline.length / 6));
+    const trend = raw.map((_, i) => {
+      const from = Math.max(0, i - window + 1);
+      const slice = raw.slice(from, i + 1);
+      return Math.round((slice.reduce((a, b) => a + b, 0) / slice.length) * 10) / 10;
+    });
+
+    trendChart.current = new Chart(trendRef.current, {
+      type: "line",
+      data: {
+        labels: timeline.map((p) => p.date),
+        datasets: [
+          {
+            label: "Per game",
+            data: raw,
+            borderColor: "rgba(129,182,76,0.22)",
+            backgroundColor: "rgba(129,182,76,0.05)",
+            borderWidth: 1,
+            pointRadius: 0,
+            tension: 0.3,
+            fill: true,
+          },
+          {
+            label: "Trend",
+            data: trend,
+            borderColor: CHART_GREEN,
+            borderWidth: 2.5,
+            pointRadius: 0,
+            tension: 0.35,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (items) => items[0].label,
+              label: (ctx) =>
+                ctx.datasetIndex === 1
+                  ? ` trend: ${ctx.parsed.y} cp`
+                  : ` this game: ${ctx.parsed.y} cp`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: "rgba(250,250,250,0.35)",
+              font: { size: 10, family: "DM Mono" },
+              maxTicksLimit: 6,
+              autoSkip: true,
+            },
+            grid: { display: false },
+          },
+          y: {
+            title: {
+              display: true,
+              text: "Avg cp loss (lower = better)",
+              color: "rgba(250,250,250,0.4)",
+              font: { size: 11, family: "DM Mono" },
+            },
+            ticks: { color: "rgba(250,250,250,0.4)", font: { size: 10, family: "DM Mono" } },
+            grid: { color: "rgba(255,255,255,0.06)" },
+          },
+        },
+      },
+    });
+
+    return () => trendChart.current?.destroy();
+  }, [timeline]);
 
   useEffect(() => {
     if (accuracyChart.current) {
@@ -173,6 +267,17 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
   const dateRange = formatAnalysisRange(meta);
   const tcLabel = tc === "all" ? "all time controls" : tc;
 
+  // Improvement indicator: compare the average cp loss of the first vs last
+  // third of the analyzed games. Lower cp loss later = improving.
+  let trendDelta = null;
+  if (timeline.length >= 6) {
+    const third = Math.max(2, Math.floor(timeline.length / 3));
+    const early = timeline.slice(0, third);
+    const late = timeline.slice(-third);
+    const avg = (a) => a.reduce((s, p) => s + p.avg_cp_loss, 0) / a.length;
+    trendDelta = Math.round(avg(early) - avg(late)); // positive = improved
+  }
+
   return (
     <div className="page">
       <div className="page-header">
@@ -212,6 +317,26 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
           <div className="metric-value">{weaknesses.length}</div>
         </div>
       </div>
+
+      {timeline.length >= 2 && (
+        <div className="card">
+          <div className="card-title">
+            Accuracy over time
+            <span className="card-hint">avg centipawn loss per game · lower is better</span>
+            {trendDelta !== null && trendDelta !== 0 && (
+              <span className={`trend-pill ${trendDelta > 0 ? "trend-up" : "trend-down"}`}>
+                <i className={`ti ${trendDelta > 0 ? "ti-trending-down" : "ti-trending-up"}`} aria-hidden="true" />
+                {trendDelta > 0
+                  ? `Improving · ${trendDelta} cp cleaner`
+                  : `Up ${Math.abs(trendDelta)} cp — slipping`}
+              </span>
+            )}
+          </div>
+          <div className="chart-wrap" style={{ height: 200 }}>
+            <canvas ref={trendRef} role="img" aria-label="Line chart of average centipawn loss per game over time" />
+          </div>
+        </div>
+      )}
 
       {weaknesses.length === 0 ? (
         <div className="card">

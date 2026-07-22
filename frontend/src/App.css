@@ -367,6 +367,20 @@ body {
   .hero-board { width: 100%; max-width: 300px; margin: 0 auto; }
 }
 
+/* ── Accuracy-over-time trend pill ── */
+.trend-pill {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 12px;
+}
+.trend-up { color: var(--green); background: rgba(129,182,76,0.12); }
+.trend-down { color: var(--amber, #e2a438); background: rgba(226,164,56,0.12); }
+
 /* ── Blunder trainer ── */
 .trainer-score {
   font-family: var(--mono);

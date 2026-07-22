@@ -217,6 +217,58 @@ def get_blunder_examples(username: str, db: Session, tc: str | None = None, limi
     return results
 
 
+def build_timeline(username: str, db: Session, tc: str | None = None) -> dict:
+    """Per-game accuracy over time — the data behind the 'am I improving?' chart.
+
+    Returns one point per analyzed game (sorted oldest → newest) with the average
+    centipawn loss across the user's moves and the blunder count in that game.
+    """
+    games = [
+        g for g in games_query(db, username).filter(Game.played_at.isnot(None)).all()
+    ]
+    games = filter_games_by_tc(games, tc)
+    if not games:
+        return {"points": []}
+
+    game_ids = [g.id for g in games]
+
+    # One aggregate pass instead of a query per game.
+    avg_rows = dict(
+        db.query(Position.game_id, func.avg(Position.centipawn_loss))
+        .filter(
+            Position.game_id.in_(game_ids),
+            Position.is_your_move.is_(True),
+            Position.centipawn_loss.isnot(None),
+        )
+        .group_by(Position.game_id)
+        .all()
+    )
+    blunder_rows = dict(
+        db.query(Position.game_id, func.count(Position.id))
+        .filter(
+            Position.game_id.in_(game_ids),
+            Position.is_your_move.is_(True),
+            Position.classification == "blunder",
+        )
+        .group_by(Position.game_id)
+        .all()
+    )
+
+    points = []
+    for g in sorted(games, key=lambda x: x.played_at):
+        if g.id not in avg_rows:
+            continue  # no analyzed moves for this game
+        points.append(
+            {
+                "date": g.played_at.date().isoformat(),
+                "game_id": g.id,
+                "avg_cp_loss": round(float(avg_rows[g.id]), 1),
+                "blunders": int(blunder_rows.get(g.id, 0)),
+            }
+        )
+    return {"points": points}
+
+
 def build_profile(username: str, db: Session, tc: str | None = None) -> dict:
     username = username.lower()
     all_analyzed = games_query(db, username).all()

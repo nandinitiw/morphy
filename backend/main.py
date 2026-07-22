@@ -18,7 +18,7 @@ from analysis.stockfish_worker import stockfish_pool
 from db.database import get_db
 from demo.seed_demo import seed as seed_demo
 from gm.seed_gms import GM_REGISTRY, seed_gm
-from stats import aggregate_openings, build_profile, get_blunder_examples, get_style_gap, list_gm_profiles
+from stats import aggregate_openings, build_profile, build_timeline, get_blunder_examples, get_style_gap, list_gm_profiles
 
 logger = logging.getLogger(__name__)
 
@@ -163,6 +163,16 @@ async def get_profile(
 ):
     """Return weakness profile + summary stats for the dashboard."""
     return build_profile(username, db, tc)
+
+
+@app.get("/timeline/{username}")
+async def get_timeline(
+    username: str,
+    tc: str | None = Query(default=None, description="bullet, blitz, rapid, classical, or all"),
+    db: Session = Depends(get_db),
+):
+    """Per-game accuracy over time for the 'am I improving?' chart."""
+    return build_timeline(username, db, tc)
 
 
 @app.get("/gms")

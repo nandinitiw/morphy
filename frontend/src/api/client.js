@@ -139,6 +139,9 @@ export const fetchOpeningStats = (username, tc = "all") =>
 export const fetchBlunderExamples = (username, tc = "all") =>
   get(withTc(`/blunders/${username}`, tc)).then((d) => d.blunders ?? []);
 
+export const fetchTimeline = (username, tc = "all") =>
+  get(withTc(`/timeline/${username}`, tc)).then((d) => d.points ?? []);
+
 export const fetchGmList = () =>
   get("/gms").then((d) => d.gms ?? []);
 

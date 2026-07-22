@@ -592,8 +592,8 @@
  },
  "/profile/demo": {
   "meta": {
-   "earliest_game": "2026-05-25T04:49:37.165832",
-   "latest_game": "2026-07-22T04:49:37.165832",
+   "earliest_game": "2026-05-19T14:18:41.361117",
+   "latest_game": "2026-07-16T14:18:41.361117",
    "time_control": "all",
    "time_controls": {
     "blitz": 0,
@@ -606,45 +606,45 @@
   "profile": [
    {
     "frequency": 16,
-    "last_seen": "2026-07-08T04:49:37.962507",
+    "last_seen": "2026-07-02T14:18:41.404205",
     "severity": 326.8125,
     "theme": "back_rank",
-    "updated_at": "2026-07-22T04:49:37.962507"
+    "updated_at": "2026-07-16T14:18:41.404205"
    },
    {
     "frequency": 16,
-    "last_seen": "2026-07-14T04:49:37.962507",
+    "last_seen": "2026-07-08T14:18:41.404205",
     "severity": 316.625,
     "theme": "endgame",
-    "updated_at": "2026-07-22T04:49:37.962507"
+    "updated_at": "2026-07-16T14:18:41.404205"
    },
    {
     "frequency": 16,
-    "last_seen": "2026-07-14T04:49:37.962507",
+    "last_seen": "2026-07-08T14:18:41.404205",
     "severity": 314.5,
     "theme": "king_safety",
-    "updated_at": "2026-07-22T04:49:37.962507"
+    "updated_at": "2026-07-16T14:18:41.404205"
    },
    {
     "frequency": 18,
-    "last_seen": "2026-07-13T04:49:37.962507",
+    "last_seen": "2026-07-07T14:18:41.404205",
     "severity": 263.6111111111111,
     "theme": "missed_fork",
-    "updated_at": "2026-07-22T04:49:37.962507"
+    "updated_at": "2026-07-16T14:18:41.404205"
    },
    {
     "frequency": 16,
-    "last_seen": "2026-07-15T04:49:37.962507",
+    "last_seen": "2026-07-09T14:18:41.404205",
     "severity": 138.1875,
     "theme": "missed_pin",
-    "updated_at": "2026-07-22T04:49:37.962507"
+    "updated_at": "2026-07-16T14:18:41.404205"
    },
    {
     "frequency": 16,
-    "last_seen": "2026-07-09T04:49:37.962507",
+    "last_seen": "2026-07-03T14:18:41.404205",
     "severity": 107.5,
     "theme": "positional",
-    "updated_at": "2026-07-22T04:49:37.962507"
+    "updated_at": "2026-07-16T14:18:41.404205"
    }
   ],
   "stats": {
@@ -715,8 +715,8 @@
  },
  "/profile/demo?tc=rapid": {
   "meta": {
-   "earliest_game": "2026-05-25T04:49:37.165832",
-   "latest_game": "2026-07-22T04:49:37.165832",
+   "earliest_game": "2026-05-19T14:18:41.361117",
+   "latest_game": "2026-07-16T14:18:41.361117",
    "time_control": "rapid",
    "time_controls": {
     "blitz": 0,
@@ -1015,5 +1015,382 @@
    "king_attack": 12.8,
    "sacrifice_rate": 0.0
   }
+ },
+ "/timeline/demo": {
+  "points": [
+   {
+    "avg_cp_loss": 256.5,
+    "blunders": 2,
+    "date": "2026-05-19",
+    "game_id": "demo_0029"
+   },
+   {
+    "avg_cp_loss": 245.0,
+    "blunders": 1,
+    "date": "2026-05-20",
+    "game_id": "demo_0028"
+   },
+   {
+    "avg_cp_loss": 286.8,
+    "blunders": 3,
+    "date": "2026-05-22",
+    "game_id": "demo_0027"
+   },
+   {
+    "avg_cp_loss": 209.0,
+    "blunders": 1,
+    "date": "2026-05-24",
+    "game_id": "demo_0026"
+   },
+   {
+    "avg_cp_loss": 232.0,
+    "blunders": 2,
+    "date": "2026-05-26",
+    "game_id": "demo_0025"
+   },
+   {
+    "avg_cp_loss": 314.5,
+    "blunders": 1,
+    "date": "2026-05-29",
+    "game_id": "demo_0024"
+   },
+   {
+    "avg_cp_loss": 157.7,
+    "blunders": 1,
+    "date": "2026-05-31",
+    "game_id": "demo_0023"
+   },
+   {
+    "avg_cp_loss": 345.7,
+    "blunders": 3,
+    "date": "2026-06-02",
+    "game_id": "demo_0022"
+   },
+   {
+    "avg_cp_loss": 189.2,
+    "blunders": 2,
+    "date": "2026-06-04",
+    "game_id": "demo_0021"
+   },
+   {
+    "avg_cp_loss": 266.2,
+    "blunders": 3,
+    "date": "2026-06-05",
+    "game_id": "demo_0020"
+   },
+   {
+    "avg_cp_loss": 267.0,
+    "blunders": 2,
+    "date": "2026-06-07",
+    "game_id": "demo_0019"
+   },
+   {
+    "avg_cp_loss": 234.0,
+    "blunders": 1,
+    "date": "2026-06-09",
+    "game_id": "demo_0018"
+   },
+   {
+    "avg_cp_loss": 282.7,
+    "blunders": 2,
+    "date": "2026-06-12",
+    "game_id": "demo_0017"
+   },
+   {
+    "avg_cp_loss": 241.4,
+    "blunders": 3,
+    "date": "2026-06-14",
+    "game_id": "demo_0016"
+   },
+   {
+    "avg_cp_loss": 221.2,
+    "blunders": 3,
+    "date": "2026-06-15",
+    "game_id": "demo_0015"
+   },
+   {
+    "avg_cp_loss": 251.0,
+    "blunders": 1,
+    "date": "2026-06-17",
+    "game_id": "demo_0014"
+   },
+   {
+    "avg_cp_loss": 255.0,
+    "blunders": 2,
+    "date": "2026-06-19",
+    "game_id": "demo_0013"
+   },
+   {
+    "avg_cp_loss": 306.0,
+    "blunders": 2,
+    "date": "2026-06-22",
+    "game_id": "demo_0012"
+   },
+   {
+    "avg_cp_loss": 128.0,
+    "blunders": 0,
+    "date": "2026-06-23",
+    "game_id": "demo_0011"
+   },
+   {
+    "avg_cp_loss": 238.7,
+    "blunders": 2,
+    "date": "2026-06-26",
+    "game_id": "demo_0010"
+   },
+   {
+    "avg_cp_loss": 217.3,
+    "blunders": 1,
+    "date": "2026-06-28",
+    "game_id": "demo_0009"
+   },
+   {
+    "avg_cp_loss": 313.5,
+    "blunders": 4,
+    "date": "2026-06-29",
+    "game_id": "demo_0008"
+   },
+   {
+    "avg_cp_loss": 195.8,
+    "blunders": 2,
+    "date": "2026-07-01",
+    "game_id": "demo_0007"
+   },
+   {
+    "avg_cp_loss": 321.5,
+    "blunders": 1,
+    "date": "2026-07-04",
+    "game_id": "demo_0006"
+   },
+   {
+    "avg_cp_loss": 116.0,
+    "blunders": 0,
+    "date": "2026-07-06",
+    "game_id": "demo_0005"
+   },
+   {
+    "avg_cp_loss": 279.8,
+    "blunders": 4,
+    "date": "2026-07-08",
+    "game_id": "demo_0004"
+   },
+   {
+    "avg_cp_loss": 263.2,
+    "blunders": 3,
+    "date": "2026-07-10",
+    "game_id": "demo_0003"
+   },
+   {
+    "avg_cp_loss": 216.5,
+    "blunders": 2,
+    "date": "2026-07-12",
+    "game_id": "demo_0002"
+   },
+   {
+    "avg_cp_loss": 241.7,
+    "blunders": 2,
+    "date": "2026-07-14",
+    "game_id": "demo_0001"
+   },
+   {
+    "avg_cp_loss": 225.3,
+    "blunders": 2,
+    "date": "2026-07-16",
+    "game_id": "demo_0000"
+   }
+  ]
+ },
+ "/timeline/demo?tc=blitz": {
+  "points": []
+ },
+ "/timeline/demo?tc=bullet": {
+  "points": []
+ },
+ "/timeline/demo?tc=classical": {
+  "points": []
+ },
+ "/timeline/demo?tc=rapid": {
+  "points": [
+   {
+    "avg_cp_loss": 256.5,
+    "blunders": 2,
+    "date": "2026-05-19",
+    "game_id": "demo_0029"
+   },
+   {
+    "avg_cp_loss": 245.0,
+    "blunders": 1,
+    "date": "2026-05-20",
+    "game_id": "demo_0028"
+   },
+   {
+    "avg_cp_loss": 286.8,
+    "blunders": 3,
+    "date": "2026-05-22",
+    "game_id": "demo_0027"
+   },
+   {
+    "avg_cp_loss": 209.0,
+    "blunders": 1,
+    "date": "2026-05-24",
+    "game_id": "demo_0026"
+   },
+   {
+    "avg_cp_loss": 232.0,
+    "blunders": 2,
+    "date": "2026-05-26",
+    "game_id": "demo_0025"
+   },
+   {
+    "avg_cp_loss": 314.5,
+    "blunders": 1,
+    "date": "2026-05-29",
+    "game_id": "demo_0024"
+   },
+   {
+    "avg_cp_loss": 157.7,
+    "blunders": 1,
+    "date": "2026-05-31",
+    "game_id": "demo_0023"
+   },
+   {
+    "avg_cp_loss": 345.7,
+    "blunders": 3,
+    "date": "2026-06-02",
+    "game_id": "demo_0022"
+   },
+   {
+    "avg_cp_loss": 189.2,
+    "blunders": 2,
+    "date": "2026-06-04",
+    "game_id": "demo_0021"
+   },
+   {
+    "avg_cp_loss": 266.2,
+    "blunders": 3,
+    "date": "2026-06-05",
+    "game_id": "demo_0020"
+   },
+   {
+    "avg_cp_loss": 267.0,
+    "blunders": 2,
+    "date": "2026-06-07",
+    "game_id": "demo_0019"
+   },
+   {
+    "avg_cp_loss": 234.0,
+    "blunders": 1,
+    "date": "2026-06-09",
+    "game_id": "demo_0018"
+   },
+   {
+    "avg_cp_loss": 282.7,
+    "blunders": 2,
+    "date": "2026-06-12",
+    "game_id": "demo_0017"
+   },
+   {
+    "avg_cp_loss": 241.4,
+    "blunders": 3,
+    "date": "2026-06-14",
+    "game_id": "demo_0016"
+   },
+   {
+    "avg_cp_loss": 221.2,
+    "blunders": 3,
+    "date": "2026-06-15",
+    "game_id": "demo_0015"
+   },
+   {
+    "avg_cp_loss": 251.0,
+    "blunders": 1,
+    "date": "2026-06-17",
+    "game_id": "demo_0014"
+   },
+   {
+    "avg_cp_loss": 255.0,
+    "blunders": 2,
+    "date": "2026-06-19",
+    "game_id": "demo_0013"
+   },
+   {
+    "avg_cp_loss": 306.0,
+    "blunders": 2,
+    "date": "2026-06-22",
+    "game_id": "demo_0012"
+   },
+   {
+    "avg_cp_loss": 128.0,
+    "blunders": 0,
+    "date": "2026-06-23",
+    "game_id": "demo_0011"
+   },
+   {
+    "avg_cp_loss": 238.7,
+    "blunders": 2,
+    "date": "2026-06-26",
+    "game_id": "demo_0010"
+   },
+   {
+    "avg_cp_loss": 217.3,
+    "blunders": 1,
+    "date": "2026-06-28",
+    "game_id": "demo_0009"
+   },
+   {
+    "avg_cp_loss": 313.5,
+    "blunders": 4,
+    "date": "2026-06-29",
+    "game_id": "demo_0008"
+   },
+   {
+    "avg_cp_loss": 195.8,
+    "blunders": 2,
+    "date": "2026-07-01",
+    "game_id": "demo_0007"
+   },
+   {
+    "avg_cp_loss": 321.5,
+    "blunders": 1,
+    "date": "2026-07-04",
+    "game_id": "demo_0006"
+   },
+   {
+    "avg_cp_loss": 116.0,
+    "blunders": 0,
+    "date": "2026-07-06",
+    "game_id": "demo_0005"
+   },
+   {
+    "avg_cp_loss": 279.8,
+    "blunders": 4,
+    "date": "2026-07-08",
+    "game_id": "demo_0004"
+   },
+   {
+    "avg_cp_loss": 263.2,
+    "blunders": 3,
+    "date": "2026-07-10",
+    "game_id": "demo_0003"
+   },
+   {
+    "avg_cp_loss": 216.5,
+    "blunders": 2,
+    "date": "2026-07-12",
+    "game_id": "demo_0002"
+   },
+   {
+    "avg_cp_loss": 241.7,
+    "blunders": 2,
+    "date": "2026-07-14",
+    "game_id": "demo_0001"
+   },
+   {
+    "avg_cp_loss": 225.3,
+    "blunders": 2,
+    "date": "2026-07-16",
+    "game_id": "demo_0000"
+   }
+  ]
  }
 }
