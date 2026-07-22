@@ -26,12 +26,14 @@
 | Dashboard — performance overview | Weakness fingerprint |
 |---|---|
 | ![Dashboard](docs/screenshots/dashboard.png) | ![Weaknesses](docs/screenshots/weaknesses.png) |
-| Games, blunder rate, and severity-by-theme, filterable by time control. | Themes sorted by how many points they cost you; click any row to see the exact blunder on a board with the played vs. best move highlighted. |
+| Accuracy-over-time trend, your most costly blunder on a board, and severity-by-theme — filterable by time control. | Themes sorted by how many points they cost you; click any row to see the exact blunder on a board with the played vs. best move highlighted. |
 
-| Style comparison vs. a grandmaster | AI coach |
+| Blunder trainer | Style comparison vs. a grandmaster |
 |---|---|
-| ![Style gap](docs/screenshots/style-gap.png) | ![Coach](docs/screenshots/coach.png) |
-| Your play mapped against a GM's historical fingerprint across five style axes. | Agentic tool-use over your live game data, with inline interactive boards. |
+| ![Train](docs/screenshots/train.png) | ![Style gap](docs/screenshots/style-gap.png) |
+| Re-solve the positions you actually got wrong: find the engine's move on your own games. | Your play mapped against a GM's historical fingerprint across five style axes. |
+
+*(The AI coach is shown at the top of this README.)*
 
 ---
 

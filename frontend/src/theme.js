@@ -36,6 +36,21 @@ export const THEME = {
 export const AXIS_TICK = { color: THEME.dim, font: { size: 11, family: THEME.mono } };
 export const GRID = { color: "rgba(43,38,32,0.08)" };
 
+/**
+ * Chart.js `animation` value that respects the user's reduced-motion preference.
+ * Returns `false` (draw instantly) when reduced motion is requested, else
+ * `undefined` (Chart.js default animation). Also makes headless screenshots
+ * deterministic, since rAF-driven animations don't advance in headless Chromium.
+ */
+export function chartAnimation() {
+  try {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
+  } catch {
+    /* no matchMedia */
+  }
+  return undefined;
+}
+
 export const boardSquareStyles = {
   customLightSquareStyle: { backgroundColor: THEME.sqLight },
   customDarkSquareStyle: { backgroundColor: THEME.sqDark },

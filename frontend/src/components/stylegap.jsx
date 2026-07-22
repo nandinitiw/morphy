@@ -4,6 +4,7 @@ import AiTooltip from "./AiTooltip";
 import RecommendButton from "./RecommendButton";
 import CoachMarkdown from "./CoachMarkdown.jsx";
 import Chart from "chart.js/auto";
+import { chartAnimation } from "../theme.js";
 
 const STAT_LABELS = {
   avg_game_length:   "Avg game length",
@@ -84,8 +85,7 @@ export default function StyleGap({ username, onNavigateCoach }) {
     const youData = AXIS_KEYS.map((key) => style.you[key]);
     const gmData  = AXIS_KEYS.map((key) => style.gm[key]);
 
-    if (radarChart.current) radarChart.current.destroy();
-    radarChart.current = new Chart(radarRef.current, {
+    const chart = new Chart(radarRef.current, {
       type: "radar",
       data: {
         labels,
@@ -112,6 +112,7 @@ export default function StyleGap({ username, onNavigateCoach }) {
         ],
       },
       options: {
+        animation: chartAnimation(),
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
@@ -130,12 +131,11 @@ export default function StyleGap({ username, onNavigateCoach }) {
       },
     });
 
-
-    // Chart.js measures label widths at construction; if the webfont lands after
-    // that it under-reserves axis space and clips labels. Re-fit once ready.
-    document.fonts?.ready?.then(() => { try { radarChart.current?.resize(); } catch { /* chart gone */ } });
-
-    return () => radarChart.current?.destroy();
+    radarChart.current = chart;
+    return () => {
+      chart.destroy();
+      if (radarChart.current === chart) radarChart.current = null;
+    };
   }, [style, gmSlug]);
 
   async function askRecommendations() {

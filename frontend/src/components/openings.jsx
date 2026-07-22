@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import CoachMarkdown from "./CoachMarkdown.jsx";
 import { fetchOpeningStats, sendCoachMessage } from "../api/client";
 import Chart from "chart.js/auto";
+import { chartAnimation } from "../theme.js";
 
 const CHART_GREEN = "#4E6B41";
 const CHART_RED = "#B5502F";
@@ -99,8 +100,7 @@ export default function Openings({ username, refreshKey = 0 }) {
       o.avg_accuracy > 25 ? CHART_RED : o.avg_accuracy > 20 ? CHART_AMBER : CHART_GREEN,
     );
 
-    if (chartInstance.current) chartInstance.current.destroy();
-    chartInstance.current = new Chart(chartRef.current, {
+    const chart = new Chart(chartRef.current, {
       type: "bar",
       data: {
         labels: all.map((o) => `${o.eco}`),
@@ -111,6 +111,7 @@ export default function Openings({ username, refreshKey = 0 }) {
         }],
       },
       options: {
+        animation: chartAnimation(),
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
@@ -161,12 +162,11 @@ export default function Openings({ username, refreshKey = 0 }) {
       },
     });
 
-
-    // Chart.js measures label widths at construction; if the webfont lands after
-    // that it under-reserves axis space and clips labels. Re-fit once ready.
-    document.fonts?.ready?.then(() => { try { chartInstance.current?.resize(); } catch { /* chart gone */ } });
-
-    return () => chartInstance.current?.destroy();
+    chartInstance.current = chart;
+    return () => {
+      chart.destroy();
+      if (chartInstance.current === chart) chartInstance.current = null;
+    };
   }, [openings]);
 
   async function handleSelect(opening, color) {

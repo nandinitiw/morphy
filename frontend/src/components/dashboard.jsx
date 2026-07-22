@@ -5,6 +5,7 @@ import { fetchWeaknessProfile, fetchBlunderExamples, fetchTimeline, formatAnalys
 import { uciToSan } from "../notation.js";
 import TimeControlFilter from "./TimeControlFilter";
 import Chart from "chart.js/auto";
+import { chartAnimation } from "../theme.js";
 
 const CHART_GREEN = "#4E6B41";
 const CHART_RED = "#B5502F";
@@ -127,21 +128,17 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
   // Accuracy-over-time line: per-game avg cp loss (faint) with a moving-average
   // trend (bold). Answers "am I improving?" — lower is better.
   useEffect(() => {
-    if (trendChart.current) {
-      trendChart.current.destroy();
-      trendChart.current = null;
-    }
-    if (!trendRef.current || timeline.length < 2) return;
+    if (!trendRef.current || timeline.length < 2) return undefined;
 
     const raw = timeline.map((p) => p.avg_cp_loss);
-    const window = Math.max(3, Math.round(timeline.length / 6));
+    const windowSize = Math.max(3, Math.round(timeline.length / 6));
     const trend = raw.map((_, i) => {
-      const from = Math.max(0, i - window + 1);
+      const from = Math.max(0, i - windowSize + 1);
       const slice = raw.slice(from, i + 1);
       return Math.round((slice.reduce((a, b) => a + b, 0) / slice.length) * 10) / 10;
     });
 
-    trendChart.current = new Chart(trendRef.current, {
+    const chart = new Chart(trendRef.current, {
       type: "line",
       data: {
         labels: timeline.map((p) => p.date),
@@ -167,6 +164,7 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
         ],
       },
       options: {
+        animation: chartAnimation(),
         responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
@@ -207,22 +205,21 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
     });
 
 
-    // Chart.js measures label widths at construction; if the webfont lands after
-    // that it under-reserves axis space and clips labels. Re-fit once ready.
-    document.fonts?.ready?.then(() => { try { trendChart.current?.resize(); } catch { /* chart gone */ } });
-
-    return () => trendChart.current?.destroy();
-  }, [timeline]);
+    // Hold the instance in a local, not just the ref. React 18 StrictMode runs
+    // effects mount → cleanup → mount; a cleanup that reads the ref can destroy
+    // the chart the second run just created, leaving a blank canvas.
+    trendChart.current = chart;
+    return () => {
+      chart.destroy();
+      if (trendChart.current === chart) trendChart.current = null;
+    };
+  }, [timeline, loading]);
 
   useEffect(() => {
-    if (accuracyChart.current) {
-      accuracyChart.current.destroy();
-      accuracyChart.current = null;
-    }
-    if (!stats || !accuracyRef.current || weaknesses.length === 0) return;
+    if (!stats || !accuracyRef.current || weaknesses.length === 0) return undefined;
 
     const top = weaknesses.slice(0, 6);
-    accuracyChart.current = new Chart(accuracyRef.current, {
+    const chart = new Chart(accuracyRef.current, {
       type: "bar",
       data: {
         labels: top.map((w) => themeLabel(w.theme)),
@@ -236,6 +233,7 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
         }],
       },
       options: {
+        animation: chartAnimation(),
         indexAxis: "y",
         responsive: true,
         maintainAspectRatio: false,
@@ -269,13 +267,12 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
       },
     });
 
-
-    // Chart.js measures label widths at construction; if the webfont lands after
-    // that it under-reserves axis space and clips labels. Re-fit once ready.
-    document.fonts?.ready?.then(() => { try { accuracyChart.current?.resize(); } catch { /* chart gone */ } });
-
-    return () => accuracyChart.current?.destroy();
-  }, [stats, weaknesses]);
+    accuracyChart.current = chart;
+    return () => {
+      chart.destroy();
+      if (accuracyChart.current === chart) accuracyChart.current = null;
+    };
+  }, [stats, weaknesses, loading]);
 
   if (error) return <div className="error">Failed to load profile: {error.message}</div>;
   if (loading) return <div className="loading">Loading your analysis…</div>;
