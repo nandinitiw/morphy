@@ -63,6 +63,10 @@ export default function UsernameSetup() {
   }
 
   async function handleDemo() {
+    // Demo read-data is served from a bundled snapshot, so the views below load
+    // instantly with no backend. Warm the server in the background anyway — the
+    // AI coach is the one demo feature that still needs it.
+    checkBackendHealth().catch(() => {});
     setDemoError("");
     setDemoStartedAt(Date.now());
     setDemoLoading(true);

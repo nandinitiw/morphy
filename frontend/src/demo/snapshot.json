@@ -1,0 +1,1019 @@
+{
+ "/blunders/demo": {
+  "blunders": [
+   {
+    "best_move": "d4e6",
+    "centipawn_loss": 464,
+    "fen": "1rb1k2r/2qnb1p1/p2p2p1/1p6/3N4/2N2Q2/PPP4P/2KR1B1R w k - 0 17",
+    "game_id": "demo_0024",
+    "move_number": 11,
+    "move_played": "d4b3",
+    "theme": "endgame"
+   },
+   {
+    "best_move": "d4e6",
+    "centipawn_loss": 462,
+    "fen": "1rb1k2r/2qnb1p1/p2p2p1/1p6/3N4/2N2Q2/PPP4P/2KR1B1R w k - 0 17",
+    "game_id": "demo_0009",
+    "move_number": 30,
+    "move_played": "d4b3",
+    "theme": "endgame"
+   },
+   {
+    "best_move": "d4e6",
+    "centipawn_loss": 459,
+    "fen": "1rb1k2r/2qnb1p1/p2p2p1/1p6/3N4/2N2Q2/PPP4P/2KR1B1R w k - 0 17",
+    "game_id": "demo_0003",
+    "move_number": 30,
+    "move_played": "d4b3",
+    "theme": "endgame"
+   },
+   {
+    "best_move": "f8f7",
+    "centipawn_loss": 410,
+    "fen": "r2q1rk1/pp4p1/1bnpp2p/8/3P3B/5N2/PP3PPP/R2QR1K1 b - - 2 16",
+    "game_id": "demo_0020",
+    "move_number": 17,
+    "move_played": "d8d7",
+    "theme": "back_rank"
+   },
+   {
+    "best_move": "f8f7",
+    "centipawn_loss": 407,
+    "fen": "r2q1rk1/pp4p1/1bnpp2p/8/3P3B/5N2/PP3PPP/R2QR1K1 b - - 2 16",
+    "game_id": "demo_0022",
+    "move_number": 14,
+    "move_played": "d8d7",
+    "theme": "back_rank"
+   },
+   {
+    "best_move": "f8f7",
+    "centipawn_loss": 407,
+    "fen": "r2q1rk1/pp4p1/1bnpp2p/8/3P3B/5N2/PP3PPP/R2QR1K1 b - - 2 16",
+    "game_id": "demo_0027",
+    "move_number": 19,
+    "move_played": "d8d7",
+    "theme": "back_rank"
+   },
+   {
+    "best_move": "d3c3",
+    "centipawn_loss": 366,
+    "fen": "r2qk2r/ppp2ppp/2n5/3pP3/3P4/2bQBP2/P1P4P/R3KB1R w KQkq - 0 11",
+    "game_id": "demo_0019",
+    "move_number": 14,
+    "move_played": "e1d1",
+    "theme": "king_safety"
+   },
+   {
+    "best_move": "d3c3",
+    "centipawn_loss": 362,
+    "fen": "r2qk2r/ppp2ppp/2n5/3pP3/3P4/2bQBP2/P1P4P/R3KB1R w KQkq - 0 11",
+    "game_id": "demo_0004",
+    "move_number": 14,
+    "move_played": "e1d1",
+    "theme": "king_safety"
+   },
+   {
+    "best_move": "d3c3",
+    "centipawn_loss": 359,
+    "fen": "r2qk2r/ppp2ppp/2n5/3pP3/3P4/2bQBP2/P1P4P/R3KB1R w KQkq - 0 11",
+    "game_id": "demo_0027",
+    "move_number": 35,
+    "move_played": "e1d1",
+    "theme": "king_safety"
+   },
+   {
+    "best_move": "f6e4",
+    "centipawn_loss": 325,
+    "fen": "r1bq1rk1/p1p2ppp/5n2/3p2B1/1b6/2NB4/PPP2PPP/R2Q1RK1 b - - 3 10",
+    "game_id": "demo_0003",
+    "move_number": 33,
+    "move_played": "f6d7",
+    "theme": "missed_fork"
+   },
+   {
+    "best_move": "f6e4",
+    "centipawn_loss": 323,
+    "fen": "r1bq1rk1/p1p2ppp/5n2/3p2B1/1b6/2NB4/PPP2PPP/R2Q1RK1 b - - 3 10",
+    "game_id": "demo_0010",
+    "move_number": 27,
+    "move_played": "f6d7",
+    "theme": "missed_fork"
+   },
+   {
+    "best_move": "f6e4",
+    "centipawn_loss": 320,
+    "fen": "r1bq1rk1/p1p2ppp/5n2/3p2B1/1b6/2NB4/PPP2PPP/R2Q1RK1 b - - 3 10",
+    "game_id": "demo_0025",
+    "move_number": 25,
+    "move_played": "f6d7",
+    "theme": "missed_fork"
+   }
+  ]
+ },
+ "/blunders/demo?tc=blitz": {
+  "blunders": []
+ },
+ "/blunders/demo?tc=bullet": {
+  "blunders": []
+ },
+ "/blunders/demo?tc=classical": {
+  "blunders": []
+ },
+ "/blunders/demo?tc=rapid": {
+  "blunders": [
+   {
+    "best_move": "d4e6",
+    "centipawn_loss": 464,
+    "fen": "1rb1k2r/2qnb1p1/p2p2p1/1p6/3N4/2N2Q2/PPP4P/2KR1B1R w k - 0 17",
+    "game_id": "demo_0024",
+    "move_number": 11,
+    "move_played": "d4b3",
+    "theme": "endgame"
+   },
+   {
+    "best_move": "d4e6",
+    "centipawn_loss": 462,
+    "fen": "1rb1k2r/2qnb1p1/p2p2p1/1p6/3N4/2N2Q2/PPP4P/2KR1B1R w k - 0 17",
+    "game_id": "demo_0009",
+    "move_number": 30,
+    "move_played": "d4b3",
+    "theme": "endgame"
+   },
+   {
+    "best_move": "d4e6",
+    "centipawn_loss": 459,
+    "fen": "1rb1k2r/2qnb1p1/p2p2p1/1p6/3N4/2N2Q2/PPP4P/2KR1B1R w k - 0 17",
+    "game_id": "demo_0003",
+    "move_number": 30,
+    "move_played": "d4b3",
+    "theme": "endgame"
+   },
+   {
+    "best_move": "f8f7",
+    "centipawn_loss": 410,
+    "fen": "r2q1rk1/pp4p1/1bnpp2p/8/3P3B/5N2/PP3PPP/R2QR1K1 b - - 2 16",
+    "game_id": "demo_0020",
+    "move_number": 17,
+    "move_played": "d8d7",
+    "theme": "back_rank"
+   },
+   {
+    "best_move": "f8f7",
+    "centipawn_loss": 407,
+    "fen": "r2q1rk1/pp4p1/1bnpp2p/8/3P3B/5N2/PP3PPP/R2QR1K1 b - - 2 16",
+    "game_id": "demo_0022",
+    "move_number": 14,
+    "move_played": "d8d7",
+    "theme": "back_rank"
+   },
+   {
+    "best_move": "f8f7",
+    "centipawn_loss": 407,
+    "fen": "r2q1rk1/pp4p1/1bnpp2p/8/3P3B/5N2/PP3PPP/R2QR1K1 b - - 2 16",
+    "game_id": "demo_0027",
+    "move_number": 19,
+    "move_played": "d8d7",
+    "theme": "back_rank"
+   },
+   {
+    "best_move": "d3c3",
+    "centipawn_loss": 366,
+    "fen": "r2qk2r/ppp2ppp/2n5/3pP3/3P4/2bQBP2/P1P4P/R3KB1R w KQkq - 0 11",
+    "game_id": "demo_0019",
+    "move_number": 14,
+    "move_played": "e1d1",
+    "theme": "king_safety"
+   },
+   {
+    "best_move": "d3c3",
+    "centipawn_loss": 362,
+    "fen": "r2qk2r/ppp2ppp/2n5/3pP3/3P4/2bQBP2/P1P4P/R3KB1R w KQkq - 0 11",
+    "game_id": "demo_0004",
+    "move_number": 14,
+    "move_played": "e1d1",
+    "theme": "king_safety"
+   },
+   {
+    "best_move": "d3c3",
+    "centipawn_loss": 359,
+    "fen": "r2qk2r/ppp2ppp/2n5/3pP3/3P4/2bQBP2/P1P4P/R3KB1R w KQkq - 0 11",
+    "game_id": "demo_0027",
+    "move_number": 35,
+    "move_played": "e1d1",
+    "theme": "king_safety"
+   },
+   {
+    "best_move": "f6e4",
+    "centipawn_loss": 325,
+    "fen": "r1bq1rk1/p1p2ppp/5n2/3p2B1/1b6/2NB4/PPP2PPP/R2Q1RK1 b - - 3 10",
+    "game_id": "demo_0003",
+    "move_number": 33,
+    "move_played": "f6d7",
+    "theme": "missed_fork"
+   },
+   {
+    "best_move": "f6e4",
+    "centipawn_loss": 323,
+    "fen": "r1bq1rk1/p1p2ppp/5n2/3p2B1/1b6/2NB4/PPP2PPP/R2Q1RK1 b - - 3 10",
+    "game_id": "demo_0010",
+    "move_number": 27,
+    "move_played": "f6d7",
+    "theme": "missed_fork"
+   },
+   {
+    "best_move": "f6e4",
+    "centipawn_loss": 320,
+    "fen": "r1bq1rk1/p1p2ppp/5n2/3p2B1/1b6/2NB4/PPP2PPP/R2Q1RK1 b - - 3 10",
+    "game_id": "demo_0025",
+    "move_number": 25,
+    "move_played": "f6d7",
+    "theme": "missed_fork"
+   }
+  ]
+ },
+ "/gms": {
+  "gms": [
+   {
+    "birth_year": 1837,
+    "display_name": "Paul Morphy",
+    "games_analyzed": 211,
+    "slug": "morphy"
+   },
+   {
+    "birth_year": 1936,
+    "display_name": "Mikhail Tal",
+    "games_analyzed": 2431,
+    "slug": "tal"
+   },
+   {
+    "birth_year": 1943,
+    "display_name": "Bobby Fischer",
+    "games_analyzed": 827,
+    "slug": "fischer"
+   },
+   {
+    "birth_year": 1963,
+    "display_name": "Garry Kasparov",
+    "games_analyzed": 2128,
+    "slug": "kasparov"
+   },
+   {
+    "birth_year": 1990,
+    "display_name": "Magnus Carlsen",
+    "games_analyzed": 7484,
+    "slug": "carlsen"
+   }
+  ]
+ },
+ "/openings/demo": {
+  "black": [
+   {
+    "avg_accuracy": 186,
+    "draw_rate": 0,
+    "eco": "B90",
+    "example_game": {
+     "game_id": "demo_0001",
+     "move_number": 17,
+     "url": "https://www.chess.com/game/live/demo_0001"
+    },
+    "games": 3,
+    "loss_rate": 67,
+    "moves_notation": "1.e4 c5 2.Nf3 d6 3.d4 cxd4",
+    "name": "Sicilian Defense: Najdorf",
+    "win_rate": 33
+   },
+   {
+    "avg_accuracy": 289,
+    "draw_rate": 0,
+    "eco": "C02",
+    "example_game": {
+     "game_id": "demo_0022",
+     "move_number": 14,
+     "url": "https://www.chess.com/game/live/demo_0022"
+    },
+    "games": 3,
+    "loss_rate": 0,
+    "moves_notation": "1.e4 e6 2.d4 d5 3.e5 c5",
+    "name": "French Defense: Advance",
+    "win_rate": 100
+   },
+   {
+    "avg_accuracy": 225,
+    "draw_rate": 33,
+    "eco": "D37",
+    "example_game": {
+     "game_id": "demo_0003",
+     "move_number": 30,
+     "url": "https://www.chess.com/game/live/demo_0003"
+    },
+    "games": 3,
+    "loss_rate": 67,
+    "moves_notation": "1.d4 d5 2.c4 e6 3.Nc3 Nf6",
+    "name": "Queen's Gambit Declined",
+    "win_rate": 0
+   },
+   {
+    "avg_accuracy": 282,
+    "draw_rate": 33,
+    "eco": "E62",
+    "example_game": {
+     "game_id": "demo_0024",
+     "move_number": 11,
+     "url": "https://www.chess.com/game/live/demo_0024"
+    },
+    "games": 3,
+    "loss_rate": 0,
+    "moves_notation": "1.d4 Nf6 2.c4 g6 3.Nc3 Bg7",
+    "name": "King's Indian Defense",
+    "win_rate": 67
+   },
+   {
+    "avg_accuracy": 190,
+    "draw_rate": 0,
+    "eco": "B12",
+    "example_game": {
+     "game_id": "demo_0025",
+     "move_number": 25,
+     "url": "https://www.chess.com/game/live/demo_0025"
+    },
+    "games": 3,
+    "loss_rate": 0,
+    "moves_notation": "1.e4 c6 2.d4 d5 3.e5 Bf5",
+    "name": "Caro-Kann Defense",
+    "win_rate": 100
+   },
+   {
+    "avg_accuracy": 247,
+    "draw_rate": 0,
+    "eco": "E32",
+    "example_game": {
+     "game_id": "demo_0009",
+     "move_number": 30,
+     "url": "https://www.chess.com/game/live/demo_0009"
+    },
+    "games": 3,
+    "loss_rate": 67,
+    "moves_notation": "1.d4 Nf6 2.c4 e6 3.Nc3 Bb4",
+    "name": "Nimzo-Indian Defense",
+    "win_rate": 33
+   }
+  ],
+  "white": [
+   {
+    "avg_accuracy": 243,
+    "draw_rate": 0,
+    "eco": "C54",
+    "example_game": {
+     "game_id": "demo_0020",
+     "move_number": 21,
+     "url": "https://www.chess.com/game/live/demo_0020"
+    },
+    "games": 3,
+    "loss_rate": 100,
+    "moves_notation": "1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5",
+    "name": "Italian Game",
+    "win_rate": 0
+   },
+   {
+    "avg_accuracy": 257,
+    "draw_rate": 0,
+    "eco": "D02",
+    "example_game": {
+     "game_id": "demo_0006",
+     "move_number": 22,
+     "url": "https://www.chess.com/game/live/demo_0006"
+    },
+    "games": 3,
+    "loss_rate": 67,
+    "moves_notation": "1.d4 d5 2.Nf3 Nf6 3.Bf4 e6",
+    "name": "London System",
+    "win_rate": 33
+   },
+   {
+    "avg_accuracy": 255,
+    "draw_rate": 0,
+    "eco": "C65",
+    "example_game": {
+     "game_id": "demo_0017",
+     "move_number": 10,
+     "url": "https://www.chess.com/game/live/demo_0017"
+    },
+    "games": 3,
+    "loss_rate": 33,
+    "moves_notation": "1.e4 e5 2.Nf3 Nc6 3.Bb5 Nf6",
+    "name": "Ruy Lopez: Berlin",
+    "win_rate": 67
+   },
+   {
+    "avg_accuracy": 264,
+    "draw_rate": 33,
+    "eco": "E06",
+    "example_game": {
+     "game_id": "demo_0028",
+     "move_number": 16,
+     "url": "https://www.chess.com/game/live/demo_0028"
+    },
+    "games": 3,
+    "loss_rate": 0,
+    "moves_notation": "1.d4 Nf6 2.c4 e6 3.g3 d5",
+    "name": "Catalan Opening",
+    "win_rate": 67
+   }
+  ]
+ },
+ "/openings/demo?tc=blitz": {
+  "black": [],
+  "white": []
+ },
+ "/openings/demo?tc=bullet": {
+  "black": [],
+  "white": []
+ },
+ "/openings/demo?tc=classical": {
+  "black": [],
+  "white": []
+ },
+ "/openings/demo?tc=rapid": {
+  "black": [
+   {
+    "avg_accuracy": 186,
+    "draw_rate": 0,
+    "eco": "B90",
+    "example_game": {
+     "game_id": "demo_0001",
+     "move_number": 17,
+     "url": "https://www.chess.com/game/live/demo_0001"
+    },
+    "games": 3,
+    "loss_rate": 67,
+    "moves_notation": "1.e4 c5 2.Nf3 d6 3.d4 cxd4",
+    "name": "Sicilian Defense: Najdorf",
+    "win_rate": 33
+   },
+   {
+    "avg_accuracy": 289,
+    "draw_rate": 0,
+    "eco": "C02",
+    "example_game": {
+     "game_id": "demo_0022",
+     "move_number": 14,
+     "url": "https://www.chess.com/game/live/demo_0022"
+    },
+    "games": 3,
+    "loss_rate": 0,
+    "moves_notation": "1.e4 e6 2.d4 d5 3.e5 c5",
+    "name": "French Defense: Advance",
+    "win_rate": 100
+   },
+   {
+    "avg_accuracy": 225,
+    "draw_rate": 33,
+    "eco": "D37",
+    "example_game": {
+     "game_id": "demo_0003",
+     "move_number": 30,
+     "url": "https://www.chess.com/game/live/demo_0003"
+    },
+    "games": 3,
+    "loss_rate": 67,
+    "moves_notation": "1.d4 d5 2.c4 e6 3.Nc3 Nf6",
+    "name": "Queen's Gambit Declined",
+    "win_rate": 0
+   },
+   {
+    "avg_accuracy": 282,
+    "draw_rate": 33,
+    "eco": "E62",
+    "example_game": {
+     "game_id": "demo_0024",
+     "move_number": 11,
+     "url": "https://www.chess.com/game/live/demo_0024"
+    },
+    "games": 3,
+    "loss_rate": 0,
+    "moves_notation": "1.d4 Nf6 2.c4 g6 3.Nc3 Bg7",
+    "name": "King's Indian Defense",
+    "win_rate": 67
+   },
+   {
+    "avg_accuracy": 190,
+    "draw_rate": 0,
+    "eco": "B12",
+    "example_game": {
+     "game_id": "demo_0025",
+     "move_number": 25,
+     "url": "https://www.chess.com/game/live/demo_0025"
+    },
+    "games": 3,
+    "loss_rate": 0,
+    "moves_notation": "1.e4 c6 2.d4 d5 3.e5 Bf5",
+    "name": "Caro-Kann Defense",
+    "win_rate": 100
+   },
+   {
+    "avg_accuracy": 247,
+    "draw_rate": 0,
+    "eco": "E32",
+    "example_game": {
+     "game_id": "demo_0009",
+     "move_number": 30,
+     "url": "https://www.chess.com/game/live/demo_0009"
+    },
+    "games": 3,
+    "loss_rate": 67,
+    "moves_notation": "1.d4 Nf6 2.c4 e6 3.Nc3 Bb4",
+    "name": "Nimzo-Indian Defense",
+    "win_rate": 33
+   }
+  ],
+  "white": [
+   {
+    "avg_accuracy": 243,
+    "draw_rate": 0,
+    "eco": "C54",
+    "example_game": {
+     "game_id": "demo_0020",
+     "move_number": 21,
+     "url": "https://www.chess.com/game/live/demo_0020"
+    },
+    "games": 3,
+    "loss_rate": 100,
+    "moves_notation": "1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5",
+    "name": "Italian Game",
+    "win_rate": 0
+   },
+   {
+    "avg_accuracy": 257,
+    "draw_rate": 0,
+    "eco": "D02",
+    "example_game": {
+     "game_id": "demo_0006",
+     "move_number": 22,
+     "url": "https://www.chess.com/game/live/demo_0006"
+    },
+    "games": 3,
+    "loss_rate": 67,
+    "moves_notation": "1.d4 d5 2.Nf3 Nf6 3.Bf4 e6",
+    "name": "London System",
+    "win_rate": 33
+   },
+   {
+    "avg_accuracy": 255,
+    "draw_rate": 0,
+    "eco": "C65",
+    "example_game": {
+     "game_id": "demo_0017",
+     "move_number": 10,
+     "url": "https://www.chess.com/game/live/demo_0017"
+    },
+    "games": 3,
+    "loss_rate": 33,
+    "moves_notation": "1.e4 e5 2.Nf3 Nc6 3.Bb5 Nf6",
+    "name": "Ruy Lopez: Berlin",
+    "win_rate": 67
+   },
+   {
+    "avg_accuracy": 264,
+    "draw_rate": 33,
+    "eco": "E06",
+    "example_game": {
+     "game_id": "demo_0028",
+     "move_number": 16,
+     "url": "https://www.chess.com/game/live/demo_0028"
+    },
+    "games": 3,
+    "loss_rate": 0,
+    "moves_notation": "1.d4 Nf6 2.c4 e6 3.g3 d5",
+    "name": "Catalan Opening",
+    "win_rate": 67
+   }
+  ]
+ },
+ "/profile/demo": {
+  "meta": {
+   "earliest_game": "2026-05-25T04:49:37.165832",
+   "latest_game": "2026-07-22T04:49:37.165832",
+   "time_control": "all",
+   "time_controls": {
+    "blitz": 0,
+    "bullet": 0,
+    "classical": 0,
+    "other": 0,
+    "rapid": 30
+   }
+  },
+  "profile": [
+   {
+    "frequency": 16,
+    "last_seen": "2026-07-08T04:49:37.962507",
+    "severity": 326.8125,
+    "theme": "back_rank",
+    "updated_at": "2026-07-22T04:49:37.962507"
+   },
+   {
+    "frequency": 16,
+    "last_seen": "2026-07-14T04:49:37.962507",
+    "severity": 316.625,
+    "theme": "endgame",
+    "updated_at": "2026-07-22T04:49:37.962507"
+   },
+   {
+    "frequency": 16,
+    "last_seen": "2026-07-14T04:49:37.962507",
+    "severity": 314.5,
+    "theme": "king_safety",
+    "updated_at": "2026-07-22T04:49:37.962507"
+   },
+   {
+    "frequency": 18,
+    "last_seen": "2026-07-13T04:49:37.962507",
+    "severity": 263.6111111111111,
+    "theme": "missed_fork",
+    "updated_at": "2026-07-22T04:49:37.962507"
+   },
+   {
+    "frequency": 16,
+    "last_seen": "2026-07-15T04:49:37.962507",
+    "severity": 138.1875,
+    "theme": "missed_pin",
+    "updated_at": "2026-07-22T04:49:37.962507"
+   },
+   {
+    "frequency": 16,
+    "last_seen": "2026-07-09T04:49:37.962507",
+    "severity": 107.5,
+    "theme": "positional",
+    "updated_at": "2026-07-22T04:49:37.962507"
+   }
+  ],
+  "stats": {
+   "blunder_rate": 1.93,
+   "games_analyzed": 30,
+   "total_blunders": 58
+  }
+ },
+ "/profile/demo?tc=blitz": {
+  "meta": {
+   "earliest_game": null,
+   "latest_game": null,
+   "time_control": "blitz",
+   "time_controls": {
+    "blitz": 0,
+    "bullet": 0,
+    "classical": 0,
+    "other": 0,
+    "rapid": 30
+   }
+  },
+  "profile": [],
+  "stats": {
+   "blunder_rate": 0,
+   "games_analyzed": 0,
+   "total_blunders": 0
+  }
+ },
+ "/profile/demo?tc=bullet": {
+  "meta": {
+   "earliest_game": null,
+   "latest_game": null,
+   "time_control": "bullet",
+   "time_controls": {
+    "blitz": 0,
+    "bullet": 0,
+    "classical": 0,
+    "other": 0,
+    "rapid": 30
+   }
+  },
+  "profile": [],
+  "stats": {
+   "blunder_rate": 0,
+   "games_analyzed": 0,
+   "total_blunders": 0
+  }
+ },
+ "/profile/demo?tc=classical": {
+  "meta": {
+   "earliest_game": null,
+   "latest_game": null,
+   "time_control": "classical",
+   "time_controls": {
+    "blitz": 0,
+    "bullet": 0,
+    "classical": 0,
+    "other": 0,
+    "rapid": 30
+   }
+  },
+  "profile": [],
+  "stats": {
+   "blunder_rate": 0,
+   "games_analyzed": 0,
+   "total_blunders": 0
+  }
+ },
+ "/profile/demo?tc=rapid": {
+  "meta": {
+   "earliest_game": "2026-05-25T04:49:37.165832",
+   "latest_game": "2026-07-22T04:49:37.165832",
+   "time_control": "rapid",
+   "time_controls": {
+    "blitz": 0,
+    "bullet": 0,
+    "classical": 0,
+    "other": 0,
+    "rapid": 30
+   }
+  },
+  "profile": [
+   {
+    "frequency": 16,
+    "last_seen": null,
+    "severity": 326.8125,
+    "theme": "back_rank",
+    "updated_at": null
+   },
+   {
+    "frequency": 16,
+    "last_seen": null,
+    "severity": 316.625,
+    "theme": "endgame",
+    "updated_at": null
+   },
+   {
+    "frequency": 16,
+    "last_seen": null,
+    "severity": 314.5,
+    "theme": "king_safety",
+    "updated_at": null
+   },
+   {
+    "frequency": 18,
+    "last_seen": null,
+    "severity": 263.6111111111111,
+    "theme": "missed_fork",
+    "updated_at": null
+   },
+   {
+    "frequency": 16,
+    "last_seen": null,
+    "severity": 138.1875,
+    "theme": "missed_pin",
+    "updated_at": null
+   },
+   {
+    "frequency": 16,
+    "last_seen": null,
+    "severity": 107.5,
+    "theme": "positional",
+    "updated_at": null
+   }
+  ],
+  "stats": {
+   "blunder_rate": 1.93,
+   "games_analyzed": 30,
+   "total_blunders": 58
+  }
+ },
+ "/style-gap/demo?gm=carlsen": {
+  "gm": {
+   "aggression": 57.4,
+   "decisiveness": 49.0,
+   "endgame_tendency": 72.1,
+   "king_attack": 63.2,
+   "sacrifice_rate": 54.4
+  },
+  "gm_meta": {
+   "games_analyzed": 7484,
+   "name": "Magnus Carlsen",
+   "slug": "carlsen"
+  },
+  "morphy": {
+   "aggression": 57.4,
+   "decisiveness": 49.0,
+   "endgame_tendency": 72.1,
+   "king_attack": 63.2,
+   "sacrifice_rate": 54.4
+  },
+  "stats": {
+   "carlsen": {
+    "avg_game_length": 45.9,
+    "decisive_games": "69%",
+    "development_speed": "move 4.7",
+    "endgame_reach": "40%",
+    "king_attack_freq": "13%",
+    "open_file_control": "48%",
+    "sacrifice_rate": "6.4%"
+   },
+   "you": {
+    "avg_game_length": 6.9,
+    "decisive_games": "90%",
+    "development_speed": "move 4.6",
+    "endgame_reach": "0%",
+    "king_attack_freq": "3%",
+    "open_file_control": "0%",
+    "sacrifice_rate": "1.3%"
+   }
+  },
+  "you": {
+   "aggression": 17.9,
+   "decisiveness": 83.3,
+   "endgame_tendency": 0.0,
+   "king_attack": 12.8,
+   "sacrifice_rate": 0.0
+  }
+ },
+ "/style-gap/demo?gm=fischer": {
+  "gm": {
+   "aggression": 53.5,
+   "decisiveness": 48.6,
+   "endgame_tendency": 47.7,
+   "king_attack": 59.0,
+   "sacrifice_rate": 47.2
+  },
+  "gm_meta": {
+   "games_analyzed": 827,
+   "name": "Bobby Fischer",
+   "slug": "fischer"
+  },
+  "morphy": {
+   "aggression": 53.5,
+   "decisiveness": 48.6,
+   "endgame_tendency": 47.7,
+   "king_attack": 59.0,
+   "sacrifice_rate": 47.2
+  },
+  "stats": {
+   "fischer": {
+    "avg_game_length": 40.4,
+    "decisive_games": "69%",
+    "development_speed": "move 4.6",
+    "endgame_reach": "32%",
+    "king_attack_freq": "12%",
+    "open_file_control": "45%",
+    "sacrifice_rate": "5.8%"
+   },
+   "you": {
+    "avg_game_length": 6.9,
+    "decisive_games": "90%",
+    "development_speed": "move 4.6",
+    "endgame_reach": "0%",
+    "king_attack_freq": "3%",
+    "open_file_control": "0%",
+    "sacrifice_rate": "1.3%"
+   }
+  },
+  "you": {
+   "aggression": 17.9,
+   "decisiveness": 83.3,
+   "endgame_tendency": 0.0,
+   "king_attack": 12.8,
+   "sacrifice_rate": 0.0
+  }
+ },
+ "/style-gap/demo?gm=kasparov": {
+  "gm": {
+   "aggression": 50.5,
+   "decisiveness": 31.9,
+   "endgame_tendency": 28.0,
+   "king_attack": 53.0,
+   "sacrifice_rate": 41.1
+  },
+  "gm_meta": {
+   "games_analyzed": 2128,
+   "name": "Garry Kasparov",
+   "slug": "kasparov"
+  },
+  "morphy": {
+   "aggression": 50.5,
+   "decisiveness": 31.9,
+   "endgame_tendency": 28.0,
+   "king_attack": 53.0,
+   "sacrifice_rate": 41.1
+  },
+  "stats": {
+   "kasparov": {
+    "avg_game_length": 38.0,
+    "decisive_games": "59%",
+    "development_speed": "move 5.0",
+    "endgame_reach": "25%",
+    "king_attack_freq": "11%",
+    "open_file_control": "46%",
+    "sacrifice_rate": "5.3%"
+   },
+   "you": {
+    "avg_game_length": 6.9,
+    "decisive_games": "90%",
+    "development_speed": "move 4.6",
+    "endgame_reach": "0%",
+    "king_attack_freq": "3%",
+    "open_file_control": "0%",
+    "sacrifice_rate": "1.3%"
+   }
+  },
+  "you": {
+   "aggression": 17.9,
+   "decisiveness": 83.3,
+   "endgame_tendency": 0.0,
+   "king_attack": 12.8,
+   "sacrifice_rate": 0.0
+  }
+ },
+ "/style-gap/demo?gm=morphy": {
+  "gm": {
+   "aggression": 80.3,
+   "decisiveness": 85.8,
+   "endgame_tendency": 15.4,
+   "king_attack": 82.1,
+   "sacrifice_rate": 98.1
+  },
+  "gm_meta": {
+   "games_analyzed": 211,
+   "name": "Paul Morphy",
+   "slug": "morphy"
+  },
+  "morphy": {
+   "aggression": 80.3,
+   "decisiveness": 85.8,
+   "endgame_tendency": 15.4,
+   "king_attack": 82.1,
+   "sacrifice_rate": 98.1
+  },
+  "stats": {
+   "morphy": {
+    "avg_game_length": 32.5,
+    "decisive_games": "91%",
+    "development_speed": "move 4.4",
+    "endgame_reach": "20%",
+    "king_attack_freq": "16%",
+    "open_file_control": "46%",
+    "sacrifice_rate": "9.8%"
+   },
+   "you": {
+    "avg_game_length": 6.9,
+    "decisive_games": "90%",
+    "development_speed": "move 4.6",
+    "endgame_reach": "0%",
+    "king_attack_freq": "3%",
+    "open_file_control": "0%",
+    "sacrifice_rate": "1.3%"
+   }
+  },
+  "you": {
+   "aggression": 17.9,
+   "decisiveness": 83.3,
+   "endgame_tendency": 0.0,
+   "king_attack": 12.8,
+   "sacrifice_rate": 0.0
+  }
+ },
+ "/style-gap/demo?gm=tal": {
+  "gm": {
+   "aggression": 47.2,
+   "decisiveness": 19.4,
+   "endgame_tendency": 18.0,
+   "king_attack": 52.2,
+   "sacrifice_rate": 40.5
+  },
+  "gm_meta": {
+   "games_analyzed": 2431,
+   "name": "Mikhail Tal",
+   "slug": "tal"
+  },
+  "morphy": {
+   "aggression": 47.2,
+   "decisiveness": 19.4,
+   "endgame_tendency": 18.0,
+   "king_attack": 52.2,
+   "sacrifice_rate": 40.5
+  },
+  "stats": {
+   "tal": {
+    "avg_game_length": 35.4,
+    "decisive_games": "52%",
+    "development_speed": "move 4.7",
+    "endgame_reach": "21%",
+    "king_attack_freq": "10%",
+    "open_file_control": "46%",
+    "sacrifice_rate": "5.2%"
+   },
+   "you": {
+    "avg_game_length": 6.9,
+    "decisive_games": "90%",
+    "development_speed": "move 4.6",
+    "endgame_reach": "0%",
+    "king_attack_freq": "3%",
+    "open_file_control": "0%",
+    "sacrifice_rate": "1.3%"
+   }
+  },
+  "you": {
+   "aggression": 17.9,
+   "decisiveness": 83.3,
+   "endgame_tendency": 0.0,
+   "king_attack": 12.8,
+   "sacrifice_rate": 0.0
+  }
+ }
+}

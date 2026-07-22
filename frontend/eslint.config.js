@@ -21,6 +21,7 @@ export default [
         URLSearchParams: "readonly",
         URL: "readonly",
         AbortController: "readonly",
+        structuredClone: "readonly",
         localStorage: "readonly",
         Number: "readonly",
         Math: "readonly",

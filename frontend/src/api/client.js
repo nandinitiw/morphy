@@ -3,10 +3,26 @@
 // Local dev: leave VITE_API_URL empty — Vite proxies to localhost:8000 (see vite.config.js)
 // Production (Vercel): set VITE_API_URL to your hosted backend, e.g. https://morphy-api.onrender.com
 
+import DEMO_SNAPSHOT from "../demo/snapshot.json";
+
 const BASE = import.meta.env.VITE_API_URL ?? "";
 
 export function getApiBase() {
   return BASE || window.location.origin;
+}
+
+// The demo user's data is static (pre-seeded fixtures), so we bundle a snapshot
+// of every demo read-endpoint and serve it locally. This makes the demo load
+// instantly and work even when the free-tier backend is cold or asleep — only
+// the live AI coach still needs the server. Regenerate after changing demo data:
+//   see scripts/snapshot_demo.py (curls the backend into src/demo/snapshot.json)
+// Any path not in the snapshot falls through to a real request, so partial
+// coverage degrades gracefully rather than breaking.
+function demoSnapshot(path) {
+  if (Object.prototype.hasOwnProperty.call(DEMO_SNAPSHOT, path)) {
+    return structuredClone(DEMO_SNAPSHOT[path]);
+  }
+  return undefined;
 }
 
 const THEME_LABELS = {
@@ -78,6 +94,8 @@ async function request(path, options = {}) {
 }
 
 async function get(path) {
+  const snap = demoSnapshot(path);
+  if (snap !== undefined) return snap;
   return request(path);
 }
 
