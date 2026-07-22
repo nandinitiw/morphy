@@ -367,6 +367,66 @@ body {
   .hero-board { width: 100%; max-width: 300px; margin: 0 auto; }
 }
 
+/* ── Blunder trainer ── */
+.trainer-score {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--green);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 11px;
+}
+.trainer-card { display: flex; gap: 26px; align-items: center; }
+.trainer-board {
+  width: 340px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.trainer-side { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.trainer-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+.trainer-prompt { font-size: 14px; line-height: 1.6; color: var(--text-muted); margin: 0 0 18px; }
+.trainer-bad { font-family: var(--mono); color: var(--red); }
+.trainer-good { font-family: var(--mono); color: var(--green); }
+.trainer-verdict { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+.trainer-verdict.ok { color: var(--green); }
+.trainer-verdict.no { color: var(--red); }
+.trainer-reveal-btn, .trainer-next-btn {
+  align-self: flex-start;
+  padding: 9px 15px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: var(--mono);
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s;
+}
+.trainer-reveal-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.trainer-reveal-btn:hover { border-color: var(--text-muted); color: var(--text-muted); }
+.trainer-next-btn {
+  background: rgba(129,182,76,0.12);
+  border: 1px solid rgba(129,182,76,0.35);
+  color: var(--green);
+}
+.trainer-next-btn:hover { background: rgba(129,182,76,0.2); border-color: var(--green); }
+.trainer-done { font-size: 14px; color: var(--text); }
+
+@media (max-width: 900px) {
+  .trainer-card { flex-direction: column; align-items: stretch; }
+  .trainer-board { width: 100%; max-width: 340px; margin: 0 auto; }
+}
+
 /* ── Chart wrapper ── */
 .chart-wrap { position: relative; width: 100%; }
 

@@ -6,6 +6,7 @@ import Dashboard from "./components/dashboard.jsx";
 import IngestBanner from "./components/IngestBanner.jsx";
 import Openings from "./components/openings.jsx";
 import StyleGap from "./components/stylegap.jsx";
+import Trainer from "./components/trainer.jsx";
 import UsernameSetup from "./components/UsernameSetup.jsx";
 import Weaknesses from "./components/weaknesses.jsx";
 import { useUsername } from "./context/UsernameContext.jsx";
@@ -15,6 +16,7 @@ const NAV = [
   { id: "dashboard", label: "Dashboard", icon: "ti-layout-dashboard" },
   { id: "openings", label: "Openings", icon: "ti-chess" },
   { id: "weaknesses", label: "Weaknesses", icon: "ti-report-analytics" },
+  { id: "train", label: "Train", icon: "ti-target-arrow" },
   { id: "coach", label: "Coach", icon: "ti-message-circle" },
   { id: "style", label: "Style gap", icon: "ti-user-star" },
   { id: "about", label: "About", icon: "ti-info-circle" },
@@ -78,6 +80,7 @@ export default function App() {
         {page === "weaknesses" && (
           <Weaknesses username={username} refreshKey={refreshKey} tc={tc} onNavigateCoach={goToCoach} />
         )}
+        {page === "train" && <Trainer username={username} refreshKey={refreshKey} tc={tc} />}
         {page === "coach" && <Coach username={username} seedMessage={coachSeed} />}
         {page === "style" && <StyleGap username={username} onNavigateCoach={goToCoach} />}
         {page === "about" && <About />}
