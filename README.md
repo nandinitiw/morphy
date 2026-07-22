@@ -1,6 +1,6 @@
 # MORPHY
 
-**An AI chess coach that ingests your Chess.com games, runs Stockfish on every position, profiles your recurring mistakes, and lets you chat with a Claude-powered agent that has live access to all of it — and shows you the positions on a real board.**
+**An AI chess coach that ingests your Chess.com games, runs Stockfish on every position, profiles your recurring mistakes,  lets you chat with a Claude-powered agent that has live access, and shows you the positions on a real board.**
 
 **[Try the live demo →](https://morphy-jade.vercel.app)** *(no account needed — click "Try demo")*
 
@@ -12,7 +12,7 @@
 
 ## Why this project is interesting (for engineers)
 
-- **A real agentic loop, not a single prompt.** `/coach` runs Claude in a tool-use loop (up to 10 iterations) with five tools over your live database. Claude decides what data it needs, calls tools, reasons over the results, and can call more before answering. ([`backend/agent/coach_agent.py`](backend/agent/coach_agent.py))
+- **An agentic loop.** `/coach` runs Claude in a tool-use loop (up to 10 iterations) with five tools over your live database. Claude decides what data it needs, calls tools, reasons over the results, and can call more before answering. ([`backend/agent/coach_agent.py`](backend/agent/coach_agent.py))
 - **Grounded, position-aware output.** Tool results embed the FEN of every blunder, so the model renders *your* real positions on an interactive board instead of inventing them. The system prompt forces it to explain the engine's reasoning and tie mistakes to your recurring weakness themes. ([`backend/agent/tools.py`](backend/agent/tools.py), [`backend/agent/prompts.py`](backend/agent/prompts.py))
 - **Prompt caching for latency + cost.** The static system prompt and tool definitions are marked `cache_control: ephemeral` and kept separate from per-user context, so the cache is shared across turns.
 - **A genuine analysis pipeline.** Chess.com ingest → per-position Stockfish evaluation → rule-based tactical-motif classification (fork, pin, skewer, back-rank, discovered check…) → per-theme weakness profiling with feature-vector centroids. A FEN-keyed cache means identical positions are never re-analyzed. ([`backend/analysis/`](backend/analysis), [`backend/profiler/`](backend/profiler))
@@ -43,7 +43,7 @@
 2. **Analyses** every position with Stockfish — best move, centipawn loss, blunder classification.
 3. **Classifies** each blunder's tactical motif with python-chess board logic (missed fork, pin, skewer, back-rank mate, discovered check, hanging piece, king safety…).
 4. **Profiles** your persistent weaknesses by aggregating motifs across all games — frequency, severity, and a stored position-feature centroid per theme.
-5. **Compares** your style to grandmasters (Morphy, Tal, Fischer, Kasparov, Carlsen) across decisiveness, endgame tendency, king attack, check frequency, and aggression — axes chosen because they actually separate players, and normalized against the spread measured across ~13k GM games.
+5. **Compares** your style to grandmasters (Morphy, Tal, Fischer, Kasparov, Carlsen) across decisiveness, endgame tendency, king attack, check frequency, and aggression. These axes were chosen because they actually separate players, and normalized against the spread measured across ~13k GM games.
 6. **Coaches** you through a multi-turn Claude agent that pulls all of the above — plus Lichess practice puzzles — mid-conversation and renders positions on an interactive board.
 
 ---
