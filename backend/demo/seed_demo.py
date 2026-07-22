@@ -29,6 +29,31 @@ from db.models import Base, Game, Position, WeaknessProfile
 DEMO_USER = "demo"
 random.seed(42)  # deterministic demo data
 
+DEMO_GAMES = 30
+
+# The demo player improves over time, so the "Accuracy over time" chart tells a
+# real story instead of drifting flat. game_num 0 is the most recent game and
+# DEMO_GAMES-1 the oldest, so older games are scaled *up* (sloppier) and recent
+# ones *down* (cleaner). Applied to both centipawn loss and blunder frequency.
+SKILL_BEST = 0.62   # multiplier on the newest game's centipawn loss
+SKILL_WORST = 1.45  # multiplier on the oldest game's centipawn loss
+
+
+def improvement_factor(game_num: int, total: int = DEMO_GAMES) -> float:
+    """1.0-ish scale factor for a game's mistakes; higher = sloppier (older)."""
+    if total <= 1:
+        return 1.0
+    progress = min(max(game_num / (total - 1), 0.0), 1.0)  # 0 newest → 1 oldest
+    return SKILL_BEST + (SKILL_WORST - SKILL_BEST) * progress
+
+
+def blunders_for_game(game_num: int, total: int = DEMO_GAMES) -> int:
+    """Recent games have fewer blunders than old ones (1–3 vs 3–5)."""
+    progress = min(max(game_num / max(total - 1, 1), 0.0), 1.0)
+    lo = 1 + round(2 * progress)
+    hi = 3 + round(2 * progress)
+    return random.randint(lo, hi)
+
 # ── Opening library ──────────────────────────────────────────────────────────
 
 OPENINGS: list[dict] = [
@@ -268,7 +293,7 @@ def make_game_record(opening: dict, game_num: int, base_date: datetime) -> Game:
     )
 
 
-def make_position(blunder: dict, game_id: str, move_number: int) -> Position | None:
+def make_position(blunder: dict, game_id: str, move_number: int, skill: float = 1.0) -> Position | None:
     try:
         if "fen" in blunder:
             board = chess.Board(blunder["fen"])
@@ -293,7 +318,12 @@ def make_position(blunder: dict, game_id: str, move_number: int) -> Position | N
         move_number=move_number,
         move_played=blunder["move_played"],
         best_move=blunder["best_move"],
-        centipawn_loss=float(blunder["centipawn_loss"] + random.randint(-20, 20)),
+        # Scale by the player's skill at the time, then add proportional noise so
+        # the trend line looks organic rather than a ruler-straight slope.
+        centipawn_loss=round(
+            max(25.0, blunder["centipawn_loss"] * skill * random.uniform(0.86, 1.14)),
+            1,
+        ),
         classification=blunder["classification"],
         is_your_move=True,
         tactical_motif=blunder["theme"],
@@ -345,14 +375,18 @@ def seed(reset: bool = False) -> None:
         positions: list[Position] = []
 
         # Create ~30 games by cycling through openings
-        for i in range(30):
+        for i in range(DEMO_GAMES):
             opening = OPENINGS[i % len(OPENINGS)]
-            # Vary results slightly (overall 60% win rate)
+            # Results improve alongside accuracy: ~72% wins in the most recent
+            # games down to ~45% in the oldest, so the improvement story is
+            # consistent across the dashboard, openings and style pages.
             varied = dict(opening)
+            progress = i / max(DEMO_GAMES - 1, 1)  # 0 newest → 1 oldest
+            win_p = 0.72 - 0.27 * progress
             roll = random.random()
-            if roll < 0.60:
+            if roll < win_p:
                 varied["result"] = "win"
-            elif roll < 0.85:
+            elif roll < win_p + 0.22:
                 varied["result"] = "loss"
             else:
                 varied["result"] = "draw"
@@ -363,15 +397,18 @@ def seed(reset: bool = False) -> None:
         db.add_all(games)
         db.flush()
 
-        # Distribute blunders across games (2–5 blunders per game)
-        game_ids = [g.id for g in games]
+        # Distribute blunders across games. Both the number of blunders and how
+        # costly they are scale with how long ago the game was played, so the
+        # demo player visibly improves.
         blunder_idx = 0
-        for game_id in game_ids:
-            n = random.randint(2, 5)
-            for j in range(n):
+        for i, game in enumerate(games):
+            skill = improvement_factor(i)
+            for _ in range(blunders_for_game(i)):
                 blunder = TACTICAL_BLUNDERS[blunder_idx % len(TACTICAL_BLUNDERS)]
                 blunder_idx += 1
-                pos = make_position(blunder, game_id, move_number=random.randint(10, 35))
+                pos = make_position(
+                    blunder, game.id, move_number=random.randint(10, 35), skill=skill
+                )
                 if pos:
                     positions.append(pos)
 
