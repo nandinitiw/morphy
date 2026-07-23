@@ -4,19 +4,19 @@ Compute 5 style axes from a PGN corpus for a named player.
 Axes (all 0–100):
   decisiveness     – % of games that end decisively rather than drawn
   endgame_tendency – % of games played down into an endgame
-  king_attack      – how often moves land near the opponent's king
-  sacrifice_rate   – check frequency; proxy for tactical/sacrificial play
-  aggression       – composite: king attack + checks + pawn advances
+  patience         – average game length (grinders play long, attackers short)
+  simplification   – how much material gets traded off by game's end
+  attack           – check frequency; proxy for attacking/tactical play
 
-Axis choice note: development speed and rook-on-open-file rate are still
-computed and surfaced as stats, but they are deliberately NOT axes. Every
-elite player develops by move ~4.7 and puts rooks on open files ~46% of the
-time, so those metrics measure competence, not style — they made all five GM
-radars near-identical. Decisiveness and endgame tendency actually separate
-them (e.g. Carlsen reaches an endgame in 40% of games vs Morphy's 20%).
-
-Normalization windows are fitted to the measured spread across the GM corpora,
-not guessed; see tests/test_compute_style.py for the regression guards.
+Axis choice note: the axes are chosen to *separate grandmasters from each other*,
+not just Morphy from everyone. Metrics that measure competence rather than style —
+development speed, rook-on-open-file rate, king-attack-zone frequency — converge
+among elite players (they all do them well) and made four of the five radars
+near-identical, so they are computed only as stats, never as axes. The five axes
+above each have real spread across the corpora, verified in
+tests/test_compute_style.py; normalization windows are fitted to that measured
+spread (e.g. Carlsen reaches an endgame in 40% of games vs Tal's 21%; Carlsen's
+games run ~46 moves vs Morphy's ~32).
 """
 
 from __future__ import annotations
@@ -64,6 +64,7 @@ class _Accum:
     decided_games: int = 0    # games with a non-"*" result
     endgame_games: int = 0    # games reaching ENDGAME_MATERIAL or less
     finished_games: int = 0   # games whose final position we measured
+    final_materials: list[int] = field(default_factory=list)  # material left at game end
 
 
 def _material(board: chess.Board) -> int:
@@ -160,7 +161,9 @@ def _analyze_game(game: chess.pgn.Game, target_color: chess.Color, accum: _Accum
     # decided while the board was still full? Separates grinders (Carlsen) from
     # players who finish it in the middlegame (Morphy, Tal).
     accum.finished_games += 1
-    if _material(board) <= ENDGAME_MATERIAL:
+    final_material = _material(board)
+    accum.final_materials.append(final_material)
+    if final_material <= ENDGAME_MATERIAL:
         accum.endgame_games += 1
 
 
@@ -226,38 +229,39 @@ def compute_style(pgn_text: str, player_name: str | list[str]) -> dict:
     avg_game_len   = sum(accum.game_lengths) / len(accum.game_lengths)
     decisive_rate  = accum.decisive_games / max(accum.decided_games, 1)
     endgame_rate   = accum.endgame_games / max(accum.finished_games, 1)
+    avg_final_mat  = sum(accum.final_materials) / len(accum.final_materials) if accum.final_materials else STARTING_MATERIAL
+    material_traded = STARTING_MATERIAL - avg_final_mat  # higher = simplifies more
 
-    # Normalize to 0–100.
-    # Windows are fitted to the spread actually measured across the GM corpora,
-    # wide enough that club-level users don't clamp:
-    #   decisiveness:     40% decisive → 0, 100% → 100
-    #                     (Morphy 91.5%, Carlsen 69.4%, Kasparov 59.1%, Tal 51.6%)
-    #   endgame_tendency: 15% of games reaching an endgame → 0, 50%+ → 100
-    #                     (Carlsen 40.2%, Fischer 31.7%, Tal 21.3%, Morphy 20.4%)
-    #   king_attack:      0% moves near opp king → 0, 20%+ → 100
-    #   sacrifice_rate (check freq): 2% → 0, 10%+ → 100
-    #                     Morphy ~10%, Carlsen ~6.4%, Fischer ~5.8%, Kasparov ~5.3%
-    #   aggression:       composite of the above
-    dec_score  = _normalize(decisive_rate * 100, lo=40, hi=100)
-    endg_score = _normalize(endgame_rate * 100, lo=15, hi=50)
-    ka_score   = _normalize(king_atk_rate * 100, lo=0, hi=20)
-    sac_score  = _normalize(check_rate * 100, lo=2.0, hi=10.0)
-    agg_score  = (ka_score * 0.4 + sac_score * 0.3 + _normalize(pawn_adv_rate * 100, lo=0, hi=15) * 0.3)
+    # Normalize to 0–100. Windows are fitted to the spread measured across the GM
+    # corpora (full corpus, not sampled) so the five grandmasters spread out
+    # rather than clustering. Reference values (raw):
+    #   decisiveness   decisive%:  Morphy 92, Carlsen/Fischer 69, Kasparov 59, Tal 52
+    #   endgame        endgame%:   Carlsen 40, Fischer 32, Kasparov 25, Tal 21, Morphy 20
+    #   patience       avg length: Carlsen 46, Fischer 40, Kasparov 38, Tal 35, Morphy 32
+    #   simplification 78−final:   Carlsen 50.6, Fischer 46.9, Kasparov 42.8, Morphy/Tal 40
+    #   attack         check%:     Morphy 10.8, Carlsen 5.8, Fischer 5.4, Kasparov 4.8, Tal 4.5
+    dec_score   = _normalize(decisive_rate * 100, lo=48, hi=92)
+    endg_score  = _normalize(endgame_rate * 100, lo=18, hi=42)
+    patience    = _normalize(avg_game_len, lo=31, hi=47)
+    simplify    = _normalize(material_traded, lo=40, hi=51)
+    attack      = _normalize(check_rate * 100, lo=4.0, hi=11.0)
 
     return {
         "decisiveness":     round(dec_score, 1),
         "endgame_tendency": round(endg_score, 1),
-        "king_attack":      round(ka_score, 1),
-        "sacrifice_rate":   round(sac_score, 1),
-        "aggression":       round(agg_score, 1),
+        "patience":         round(patience, 1),
+        "simplification":   round(simplify, 1),
+        "attack":           round(attack, 1),
         "games_analyzed": games_processed,
         "avg_game_length": round(avg_game_len, 1),
-        # Human-readable for comparison table. Development speed and open-file
-        # rate stay here as stats even though they're no longer axes.
-        "sacrifice_rate_pct":  f"{check_rate * 100:.1f}%",  # check frequency
+        # Human-readable for the head-to-head comparison table. Development speed,
+        # open-file rate and king-attack rate stay here as stats even though they
+        # are no longer axes (they measure competence, not style).
+        "check_rate_pct":      f"{check_rate * 100:.1f}%",
         "open_file_pct":       f"{open_file_rate * 100:.0f}%",
         "king_attack_pct":     f"{king_atk_rate * 100:.0f}%",
         "development_speed":   f"move {avg_dev_move:.1f}",
         "decisive_pct":        f"{decisive_rate * 100:.0f}%",
         "endgame_pct":         f"{endgame_rate * 100:.0f}%",
+        "avg_final_material":  round(avg_final_mat, 1),
     }

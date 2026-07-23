@@ -12,7 +12,7 @@ import pytest
 from gm.compute_style import ENDGAME_MATERIAL, compute_style
 from gm.seed_gms import PROFILES_JSON
 
-AXES = ("decisiveness", "endgame_tendency", "king_attack", "sacrifice_rate", "aggression")
+AXES = ("decisiveness", "endgame_tendency", "patience", "simplification", "attack")
 
 # A drawn game played in a bare king-and-pawn endgame (2 points of material,
 # far below ENDGAME_MATERIAL). Uses a SetUp/FEN header rather than 40 moves of
@@ -44,12 +44,13 @@ class TestAxisShape:
             assert axis in style, f"missing axis {axis}"
 
     def test_dropped_axes_are_gone(self):
-        # development/open_files are still computed as *stats*, never as axes.
+        # Competence metrics (development, open files, king-attack zone, the old
+        # aggression composite) are computed only as stats now, never as axes.
         style = compute_style(DECISIVE_SHORT_PGN, "Testplayer")
-        assert "development" not in style
-        assert "open_files" not in style
-        assert "development_speed" in style
-        assert "open_file_pct" in style
+        for gone in ("development", "open_files", "king_attack", "sacrifice_rate", "aggression"):
+            assert gone not in style, f"{gone} should not be an axis"
+        assert "development_speed" in style  # still a stat
+        assert "open_file_pct" in style      # still a stat
 
     def test_axes_are_within_range(self):
         style = compute_style(DECISIVE_SHORT_PGN, "Testplayer")
@@ -93,29 +94,35 @@ class TestGmProfilesDiscriminate:
     def profiles(self):
         return json.loads(PROFILES_JSON.read_text())
 
-    @pytest.mark.parametrize("axis,min_spread", [
-        ("decisiveness", 40.0),
-        ("endgame_tendency", 40.0),
-        ("sacrifice_rate", 40.0),
-    ])
-    def test_axis_spreads_gms_apart(self, profiles, axis, min_spread):
+    @pytest.mark.parametrize("axis", AXES)
+    def test_every_axis_spreads_gms_apart(self, profiles, axis):
+        # Every axis must span a wide range across the GMs — an axis where they
+        # cluster (like the old king-attack/checks) is what made the radars look
+        # identical for everyone but Morphy.
         values = [p[axis] for p in profiles.values()]
         spread = max(values) - min(values)
-        assert spread >= min_spread, (
-            f"{axis} only spans {spread:.1f} points across GMs — it is not "
-            f"discriminating between them (the bug the old axes had)"
+        assert spread >= 40.0, f"{axis} only spans {spread:.1f} points across GMs"
+
+    def test_no_two_gm_radars_are_close(self, profiles):
+        # The real regression guard: every pair of GMs must be visibly distinct on
+        # the radar, not just Morphy-vs-everyone. Euclidean distance across the five
+        # 0–100 axes; the closest pair should still be clearly separated.
+        import itertools, math
+        pts = {s: [p[a] for a in AXES] for s, p in profiles.items()}
+        closest = min(
+            math.dist(pts[a], pts[b]) for a, b in itertools.combinations(pts, 2)
         )
+        assert closest >= 25.0, f"closest GM pair is only {closest:.1f} apart on the radar"
 
     def test_carlsen_reaches_more_endgames_than_morphy(self, profiles):
         # Sanity-check against chess reality: Carlsen grinds endgames, Morphy
         # finished games in the middlegame.
         assert profiles["carlsen"]["endgame_tendency"] > profiles["morphy"]["endgame_tendency"]
 
-    def test_morphy_is_the_most_decisive(self, profiles):
-        # 1850s romantic chess vs. weak opposition — almost no draws.
-        top = max(profiles.items(), key=lambda kv: kv[1]["decisiveness"])[0]
-        assert top == "morphy"
+    def test_carlsen_plays_longer_than_morphy(self, profiles):
+        assert profiles["carlsen"]["patience"] > profiles["morphy"]["patience"]
 
-    def test_no_two_gms_have_identical_radars(self, profiles):
-        shapes = {slug: tuple(p[a] for a in AXES) for slug, p in profiles.items()}
-        assert len(set(shapes.values())) == len(shapes), "two GMs have identical radars"
+    def test_morphy_is_the_most_decisive_and_attacking(self, profiles):
+        # 1850s romantic chess vs. weak opposition — almost no draws, lots of checks.
+        assert max(profiles.items(), key=lambda kv: kv[1]["decisiveness"])[0] == "morphy"
+        assert max(profiles.items(), key=lambda kv: kv[1]["attack"])[0] == "morphy"

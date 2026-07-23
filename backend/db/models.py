@@ -49,20 +49,21 @@ class GmProfile(Base):
     slug         = Column(String, primary_key=True)   # "morphy", "tal", etc.
     display_name = Column(String, nullable=False)
     birth_year   = Column(Integer)
-    # 0–100 style axes
+    # 0–100 style axes (each chosen to separate GMs from each other)
     decisiveness     = Column(Float, default=0.0)
     endgame_tendency = Column(Float, default=0.0)
-    king_attack      = Column(Float, default=0.0)
-    sacrifice_rate   = Column(Float, default=0.0)
-    aggression       = Column(Float, default=0.0)
+    patience         = Column(Float, default=0.0)   # avg game length
+    simplification   = Column(Float, default=0.0)   # material traded off
+    attack           = Column(Float, default=0.0)   # check frequency
     # Human-readable stats for the comparison table
     avg_game_length      = Column(Float)
-    sacrifice_rate_pct   = Column(String)
+    check_rate_pct       = Column(String)
     open_file_pct        = Column(String)
     king_attack_pct      = Column(String)
     development_speed    = Column(String)   # e.g. "move 5.1"
     decisive_pct         = Column(String)   # e.g. "92%"
     endgame_pct          = Column(String)   # e.g. "40%"
+    avg_final_material   = Column(Float)
     games_analyzed = Column(Integer, default=0)
     updated_at     = Column(DateTime)
 

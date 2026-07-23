@@ -25,7 +25,7 @@ class TestProfilesJson:
 
     def test_style_axes_are_in_range(self):
         data = json.loads(PROFILES_JSON.read_text())
-        axes = ("decisiveness", "endgame_tendency", "king_attack", "sacrifice_rate", "aggression")
+        axes = ("decisiveness", "endgame_tendency", "patience", "simplification", "attack")
         for slug, profile in data.items():
             for axis in axes:
                 assert 0 <= profile[axis] <= 100, f"{slug}.{axis} out of range"

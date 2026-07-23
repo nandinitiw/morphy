@@ -778,11 +778,11 @@
  },
  "/style-gap/demo?gm=carlsen": {
   "gm": {
-   "aggression": 57.4,
-   "decisiveness": 49.0,
-   "endgame_tendency": 72.1,
-   "king_attack": 63.2,
-   "sacrifice_rate": 54.4
+   "attack": 33.6,
+   "decisiveness": 48.7,
+   "endgame_tendency": 92.6,
+   "patience": 93.4,
+   "simplification": 96.1
   },
   "gm_meta": {
    "games_analyzed": 7484,
@@ -790,47 +790,43 @@
    "slug": "carlsen"
   },
   "morphy": {
-   "aggression": 57.4,
-   "decisiveness": 49.0,
-   "endgame_tendency": 72.1,
-   "king_attack": 63.2,
-   "sacrifice_rate": 54.4
+   "attack": 33.6,
+   "decisiveness": 48.7,
+   "endgame_tendency": 92.6,
+   "patience": 93.4,
+   "simplification": 96.1
   },
   "stats": {
    "carlsen": {
     "avg_game_length": 45.9,
+    "check_frequency": "6.4%",
     "decisive_games": "69%",
     "development_speed": "move 4.7",
-    "endgame_reach": "40%",
-    "king_attack_freq": "13%",
-    "open_file_control": "48%",
-    "sacrifice_rate": "6.4%"
+    "endgame_reach": "40%"
    },
    "you": {
     "avg_game_length": 6.9,
+    "check_frequency": "1.3%",
     "decisive_games": "80%",
     "development_speed": "move 4.6",
-    "endgame_reach": "0%",
-    "king_attack_freq": "3%",
-    "open_file_control": "0%",
-    "sacrifice_rate": "1.3%"
+    "endgame_reach": "0%"
    }
   },
   "you": {
-   "aggression": 17.9,
-   "decisiveness": 66.7,
+   "attack": 0.0,
+   "decisiveness": 72.7,
    "endgame_tendency": 0.0,
-   "king_attack": 12.8,
-   "sacrifice_rate": 0.0
+   "patience": 0.0,
+   "simplification": 0.0
   }
  },
  "/style-gap/demo?gm=fischer": {
   "gm": {
-   "aggression": 53.5,
-   "decisiveness": 48.6,
-   "endgame_tendency": 47.7,
-   "king_attack": 59.0,
-   "sacrifice_rate": 47.2
+   "attack": 25.3,
+   "decisiveness": 48.1,
+   "endgame_tendency": 57.0,
+   "patience": 59.0,
+   "simplification": 62.8
   },
   "gm_meta": {
    "games_analyzed": 827,
@@ -838,47 +834,43 @@
    "slug": "fischer"
   },
   "morphy": {
-   "aggression": 53.5,
-   "decisiveness": 48.6,
-   "endgame_tendency": 47.7,
-   "king_attack": 59.0,
-   "sacrifice_rate": 47.2
+   "attack": 25.3,
+   "decisiveness": 48.1,
+   "endgame_tendency": 57.0,
+   "patience": 59.0,
+   "simplification": 62.8
   },
   "stats": {
    "fischer": {
     "avg_game_length": 40.4,
+    "check_frequency": "5.8%",
     "decisive_games": "69%",
     "development_speed": "move 4.6",
-    "endgame_reach": "32%",
-    "king_attack_freq": "12%",
-    "open_file_control": "45%",
-    "sacrifice_rate": "5.8%"
+    "endgame_reach": "32%"
    },
    "you": {
     "avg_game_length": 6.9,
+    "check_frequency": "1.3%",
     "decisive_games": "80%",
     "development_speed": "move 4.6",
-    "endgame_reach": "0%",
-    "king_attack_freq": "3%",
-    "open_file_control": "0%",
-    "sacrifice_rate": "1.3%"
+    "endgame_reach": "0%"
    }
   },
   "you": {
-   "aggression": 17.9,
-   "decisiveness": 66.7,
+   "attack": 0.0,
+   "decisiveness": 72.7,
    "endgame_tendency": 0.0,
-   "king_attack": 12.8,
-   "sacrifice_rate": 0.0
+   "patience": 0.0,
+   "simplification": 0.0
   }
  },
  "/style-gap/demo?gm=kasparov": {
   "gm": {
-   "aggression": 50.5,
-   "decisiveness": 31.9,
-   "endgame_tendency": 28.0,
-   "king_attack": 53.0,
-   "sacrifice_rate": 41.1
+   "attack": 18.4,
+   "decisiveness": 25.3,
+   "endgame_tendency": 28.4,
+   "patience": 43.6,
+   "simplification": 25.2
   },
   "gm_meta": {
    "games_analyzed": 2128,
@@ -886,47 +878,43 @@
    "slug": "kasparov"
   },
   "morphy": {
-   "aggression": 50.5,
-   "decisiveness": 31.9,
-   "endgame_tendency": 28.0,
-   "king_attack": 53.0,
-   "sacrifice_rate": 41.1
+   "attack": 18.4,
+   "decisiveness": 25.3,
+   "endgame_tendency": 28.4,
+   "patience": 43.6,
+   "simplification": 25.2
   },
   "stats": {
    "kasparov": {
     "avg_game_length": 38.0,
+    "check_frequency": "5.3%",
     "decisive_games": "59%",
     "development_speed": "move 5.0",
-    "endgame_reach": "25%",
-    "king_attack_freq": "11%",
-    "open_file_control": "46%",
-    "sacrifice_rate": "5.3%"
+    "endgame_reach": "25%"
    },
    "you": {
     "avg_game_length": 6.9,
+    "check_frequency": "1.3%",
     "decisive_games": "80%",
     "development_speed": "move 4.6",
-    "endgame_reach": "0%",
-    "king_attack_freq": "3%",
-    "open_file_control": "0%",
-    "sacrifice_rate": "1.3%"
+    "endgame_reach": "0%"
    }
   },
   "you": {
-   "aggression": 17.9,
-   "decisiveness": 66.7,
+   "attack": 0.0,
+   "decisiveness": 72.7,
    "endgame_tendency": 0.0,
-   "king_attack": 12.8,
-   "sacrifice_rate": 0.0
+   "patience": 0.0,
+   "simplification": 0.0
   }
  },
  "/style-gap/demo?gm=morphy": {
   "gm": {
-   "aggression": 80.3,
-   "decisiveness": 85.8,
-   "endgame_tendency": 15.4,
-   "king_attack": 82.1,
-   "sacrifice_rate": 98.1
+   "attack": 83.5,
+   "decisiveness": 98.8,
+   "endgame_tendency": 9.9,
+   "patience": 9.1,
+   "simplification": 4.3
   },
   "gm_meta": {
    "games_analyzed": 211,
@@ -934,47 +922,43 @@
    "slug": "morphy"
   },
   "morphy": {
-   "aggression": 80.3,
-   "decisiveness": 85.8,
-   "endgame_tendency": 15.4,
-   "king_attack": 82.1,
-   "sacrifice_rate": 98.1
+   "attack": 83.5,
+   "decisiveness": 98.8,
+   "endgame_tendency": 9.9,
+   "patience": 9.1,
+   "simplification": 4.3
   },
   "stats": {
    "morphy": {
     "avg_game_length": 32.5,
+    "check_frequency": "9.8%",
     "decisive_games": "91%",
     "development_speed": "move 4.4",
-    "endgame_reach": "20%",
-    "king_attack_freq": "16%",
-    "open_file_control": "46%",
-    "sacrifice_rate": "9.8%"
+    "endgame_reach": "20%"
    },
    "you": {
     "avg_game_length": 6.9,
+    "check_frequency": "1.3%",
     "decisive_games": "80%",
     "development_speed": "move 4.6",
-    "endgame_reach": "0%",
-    "king_attack_freq": "3%",
-    "open_file_control": "0%",
-    "sacrifice_rate": "1.3%"
+    "endgame_reach": "0%"
    }
   },
   "you": {
-   "aggression": 17.9,
-   "decisiveness": 66.7,
+   "attack": 0.0,
+   "decisiveness": 72.7,
    "endgame_tendency": 0.0,
-   "king_attack": 12.8,
-   "sacrifice_rate": 0.0
+   "patience": 0.0,
+   "simplification": 0.0
   }
  },
  "/style-gap/demo?gm=tal": {
   "gm": {
-   "aggression": 47.2,
-   "decisiveness": 19.4,
-   "endgame_tendency": 18.0,
-   "king_attack": 52.2,
-   "sacrifice_rate": 40.5
+   "attack": 17.7,
+   "decisiveness": 8.3,
+   "endgame_tendency": 13.8,
+   "patience": 27.4,
+   "simplification": 0.4
   },
   "gm_meta": {
    "games_analyzed": 2431,
@@ -982,38 +966,34 @@
    "slug": "tal"
   },
   "morphy": {
-   "aggression": 47.2,
-   "decisiveness": 19.4,
-   "endgame_tendency": 18.0,
-   "king_attack": 52.2,
-   "sacrifice_rate": 40.5
+   "attack": 17.7,
+   "decisiveness": 8.3,
+   "endgame_tendency": 13.8,
+   "patience": 27.4,
+   "simplification": 0.4
   },
   "stats": {
    "tal": {
     "avg_game_length": 35.4,
+    "check_frequency": "5.2%",
     "decisive_games": "52%",
     "development_speed": "move 4.7",
-    "endgame_reach": "21%",
-    "king_attack_freq": "10%",
-    "open_file_control": "46%",
-    "sacrifice_rate": "5.2%"
+    "endgame_reach": "21%"
    },
    "you": {
     "avg_game_length": 6.9,
+    "check_frequency": "1.3%",
     "decisive_games": "80%",
     "development_speed": "move 4.6",
-    "endgame_reach": "0%",
-    "king_attack_freq": "3%",
-    "open_file_control": "0%",
-    "sacrifice_rate": "1.3%"
+    "endgame_reach": "0%"
    }
   },
   "you": {
-   "aggression": 17.9,
-   "decisiveness": 66.7,
+   "attack": 0.0,
+   "decisiveness": 72.7,
    "endgame_tendency": 0.0,
-   "king_attack": 12.8,
-   "sacrifice_rate": 0.0
+   "patience": 0.0,
+   "simplification": 0.0
   }
  },
  "/timeline/demo": {

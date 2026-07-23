@@ -10,23 +10,21 @@ const STAT_LABELS = {
   avg_game_length:   "Avg game length",
   decisive_games:    "Decisive games",
   endgame_reach:     "Reached an endgame",
-  sacrifice_rate:    "Check frequency",
-  king_attack_freq:  "King attack frequency",
-  open_file_control: "Open file control",
+  check_frequency:   "Check frequency",
   development_speed: "Development speed",
 };
 
 const AXIS_HELP = {
   Decisiveness: "How often your games end in a win or loss rather than a draw — high means you play for the win and rarely settle.",
   Endgames: "How often your games are played down into an endgame, instead of being decided while the board is still full.",
-  "King attack": "Frequency of kingside attacks and direct threats to the enemy king.",
-  Checks: "How often you give check — a reliable signal of tactical, attacking play.",
-  Aggression: "Overall tendency toward forcing, active play vs. quiet maneuvering.",
+  Patience: "How long your games run on average — grinders play long games, attackers finish quickly.",
+  Simplifying: "How much material comes off the board by the end — high means you trade down toward clean, technical positions.",
+  Attack: "How often you give check — a reliable signal of attacking, tactical play.",
 };
 
 // Radar axes, in display order. Keys must match the /style-gap payload.
-const AXIS_KEYS   = ["decisiveness", "endgame_tendency", "king_attack", "sacrifice_rate", "aggression"];
-const AXIS_LABELS = ["Decisiveness", "Endgames", "King attack", "Checks", "Aggression"];
+const AXIS_KEYS   = ["decisiveness", "endgame_tendency", "patience", "simplification", "attack"];
+const AXIS_LABELS = ["Decisiveness", "Endgames", "Patience", "Simplifying", "Attack"];
 
 const RADAR_YOU = "#2B2620";   // ink
 const RADAR_GM  = "#C1793A";   // ochre

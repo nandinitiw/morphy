@@ -39,16 +39,17 @@ PROFILES_JSON = Path(__file__).parent / "profiles.json"
 STYLE_FIELDS = (
     "decisiveness",
     "endgame_tendency",
-    "king_attack",
-    "sacrifice_rate",
-    "aggression",
+    "patience",
+    "simplification",
+    "attack",
     "avg_game_length",
-    "sacrifice_rate_pct",
+    "check_rate_pct",
     "open_file_pct",
     "king_attack_pct",
     "development_speed",
     "decisive_pct",
     "endgame_pct",
+    "avg_final_material",
     "games_analyzed",
 )
 
@@ -141,7 +142,7 @@ def seed_gm(gm: dict, db, recompute: bool = False) -> bool:
 
     print(f"[seed]   {style['games_analyzed']} games · axes: "
           f"dec={style['decisiveness']} endg={style['endgame_tendency']} "
-          f"ka={style['king_attack']} sac={style['sacrifice_rate']} agg={style['aggression']}")
+          f"pat={style['patience']} simp={style['simplification']} atk={style['attack']}")
 
     existing = db.query(GmProfile).filter_by(slug=gm["slug"]).first()
     if existing:

@@ -424,34 +424,30 @@ def get_style_gap(username: str, gm_slug: str, db: Session) -> dict | None:
     gm_axes = {
         "decisiveness":     gm.decisiveness,
         "endgame_tendency": gm.endgame_tendency,
-        "king_attack":      gm.king_attack,
-        "sacrifice_rate":   gm.sacrifice_rate,
-        "aggression":       gm.aggression,
+        "patience":         gm.patience,
+        "simplification":   gm.simplification,
+        "attack":           gm.attack,
     }
     gm_stats = {
         "avg_game_length":   gm.avg_game_length,
-        "sacrifice_rate":    gm.sacrifice_rate_pct or f"{gm.sacrifice_rate:.0f}%",
+        "check_frequency":   gm.check_rate_pct or "—",
         "decisive_games":    gm.decisive_pct or "—",
         "endgame_reach":     gm.endgame_pct or "—",
-        "open_file_control": gm.open_file_pct or "—",
-        "king_attack_freq":  gm.king_attack_pct or f"{gm.king_attack:.0f}%",
         "development_speed": gm.development_speed or "—",
     }
 
     you_axes = {
         "decisiveness":     user_style.get("decisiveness", 0),
         "endgame_tendency": user_style.get("endgame_tendency", 0),
-        "king_attack":      user_style.get("king_attack", 0),
-        "sacrifice_rate":   user_style.get("sacrifice_rate", 0),
-        "aggression":       user_style.get("aggression", 0),
+        "patience":         user_style.get("patience", 0),
+        "simplification":   user_style.get("simplification", 0),
+        "attack":           user_style.get("attack", 0),
     }
     you_stats = {
         "avg_game_length":   user_style.get("avg_game_length", "—"),
-        "sacrifice_rate":    user_style.get("sacrifice_rate_pct", "—"),
+        "check_frequency":   user_style.get("check_rate_pct", "—"),
         "decisive_games":    user_style.get("decisive_pct", "—"),
         "endgame_reach":     user_style.get("endgame_pct", "—"),
-        "open_file_control": user_style.get("open_file_pct", "—"),
-        "king_attack_freq":  user_style.get("king_attack_pct", "—"),
         "development_speed": user_style.get("development_speed", "—"),
     }
 

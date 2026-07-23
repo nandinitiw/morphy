@@ -178,7 +178,7 @@ class TestComputeUserStyle:
         make_game(db, id="g1", username="demo", raw_pgn=SAMPLE_PGN, color="white")
         result = compute_user_style("demo", db)
         assert result != {}
-        for axis in ("decisiveness", "endgame_tendency", "king_attack", "sacrifice_rate", "aggression"):
+        for axis in ("decisiveness", "endgame_tendency", "patience", "simplification", "attack"):
             assert axis in result
             assert 0 <= result[axis] <= 100
 
