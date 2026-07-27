@@ -111,6 +111,26 @@ export function checkBackendHealth() {
   return get("/health");
 }
 
+/**
+ * Wait for the backend to be reachable. The free Render instance sleeps after
+ * ~15 min idle and refuses connections for up to a minute while it cold-starts,
+ * so the first real request would otherwise fail with "cannot reach backend".
+ * Polls /health until it responds. Returns true once up, false if it never came
+ * up within the budget. `onAttempt(n)` fires on each failed probe.
+ */
+export async function warmBackend({ retries = 24, delayMs = 2500, onAttempt } = {}) {
+  for (let i = 0; i < retries; i += 1) {
+    try {
+      await checkBackendHealth();
+      return true;
+    } catch {
+      onAttempt?.(i + 1);
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  return false;
+}
+
 export function fetchProfile(username, tc = "all") {
   return get(withTc(`/profile/${username}`, tc));
 }

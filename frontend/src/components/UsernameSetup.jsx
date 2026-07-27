@@ -25,7 +25,7 @@ function demoMessage(sec) {
 
 export default function UsernameSetup() {
   const { setUsername, normalizeUsername } = useUsername();
-  const { startIngest, job, error: ingestError, isRunning, startedAt } = useIngest();
+  const { startIngest, job, error: ingestError, isRunning, warming, startedAt } = useIngest();
   const [input, setInput] = useState("");
   const [validationError, setValidationError] = useState("");
   const [backendOk, setBackendOk] = useState(null);
@@ -127,8 +127,14 @@ export default function UsernameSetup() {
             <p className="setup-error">{validationError || ingestError}</p>
           )}
           <button className="setup-btn" type="submit" disabled={isRunning || !input.trim()}>
-            {isRunning ? "Analyzing your games…" : "Analyze my games"}
+            {warming ? "Waking the server…" : isRunning ? "Analyzing your games…" : "Analyze my games"}
           </button>
+          {warming && (
+            <p className="setup-footnote" style={{ marginTop: 8 }}>
+              The free-tier server sleeps when idle — this first wake-up can take up
+              to a minute. Analysis starts automatically once it&rsquo;s up.
+            </p>
+          )}
         </form>
 
         <div className="setup-divider">

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useState } from "react";
 
-import { fetchIngestStatus, triggerIngest } from "../api/client.js";
+import { fetchIngestStatus, triggerIngest, warmBackend } from "../api/client.js";
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -51,6 +51,7 @@ export function IngestProvider({ children }) {
   const [job, setJob] = useState(null);
   const [error, setError] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+  const [warming, setWarming] = useState(false);
   const [startedAt, setStartedAt] = useState(null);
 
   const startIngest = useCallback(async (username) => {
@@ -58,6 +59,19 @@ export function IngestProvider({ children }) {
     setIsRunning(true);
     setStartedAt(Date.now());
     try {
+      // Free-tier cold start: wait for the instance to boot before the first
+      // real request, so a sleeping server shows "waking up" instead of a scary
+      // "cannot reach backend" on the first click.
+      setWarming(true);
+      const up = await warmBackend();
+      setWarming(false);
+      if (!up) {
+        throw new Error(
+          "The analysis server is taking too long to wake up (free tier). " +
+            "Give it a moment and try again.",
+        );
+      }
+
       const created = await triggerIngest(username);
       setJob(created);
       const finalJob = await pollJob(created.job_id, setJob);
@@ -69,6 +83,7 @@ export function IngestProvider({ children }) {
       setError(err.message ?? "Could not reach the backend");
       throw err;
     } finally {
+      setWarming(false);
       setIsRunning(false);
     }
   }, []);
@@ -79,7 +94,7 @@ export function IngestProvider({ children }) {
     setStartedAt(null);
   }, []);
 
-  const value = { job, error, isRunning, startedAt, startIngest, clearJob };
+  const value = { job, error, isRunning, warming, startedAt, startIngest, clearJob };
 
   return <IngestContext.Provider value={value}>{children}</IngestContext.Provider>;
 }
