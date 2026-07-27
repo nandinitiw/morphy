@@ -183,8 +183,8 @@ export default function UsernameSetup() {
             )}
             {isRunning && (job.status === "analyzing" || job.status === "ingesting") && (
               <p className="setup-progress-hint">
-                Stockfish analyzes about one game per minute on the free server, so this
-                takes a few minutes. Keep this tab open — it&rsquo;s working.
+                Running deep Stockfish analysis on your recent games. This can take a
+                few minutes; keep this tab open and it&rsquo;ll finish on its own.
               </p>
             )}
           </div>

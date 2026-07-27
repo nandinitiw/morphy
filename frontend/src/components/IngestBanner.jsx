@@ -125,7 +125,7 @@ export default function IngestBanner({ username, onComplete }) {
         )}
         {isRunning && (job?.status === "analyzing" || job?.status === "ingesting") && (
           <div className="ingest-banner-hint">
-            ~1 min per game on the free server — keep this tab open while it works.
+            Running deep Stockfish analysis — this can take a few minutes; keep this tab open and it&rsquo;ll finish on its own.
           </div>
         )}
       </div>
