@@ -83,8 +83,8 @@ export default function About() {
             <span className="tech-detail">Chess.com public game archives</span>
           </div>
           <div className="tech-item">
-            <span className="tech-name">Clustering</span>
-            <span className="tech-detail">HDBSCAN on position embeddings</span>
+            <span className="tech-name">Weakness profiling</span>
+            <span className="tech-detail">Rule-based tactical-motif classification</span>
           </div>
         </div>
       </div>

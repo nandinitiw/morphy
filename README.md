@@ -15,7 +15,7 @@
 - **An agentic loop.** `/coach` runs Claude in a tool-use loop (up to 10 iterations) with five tools over your live database. Claude decides what data it needs, calls tools, reasons over the results, and can call more before answering. ([`backend/agent/coach_agent.py`](backend/agent/coach_agent.py))
 - **Grounded, position-aware output.** Tool results embed the FEN of every blunder, so the model renders *your* real positions on an interactive board instead of inventing them. The system prompt forces it to explain the engine's reasoning and tie mistakes to your recurring weakness themes. ([`backend/agent/tools.py`](backend/agent/tools.py), [`backend/agent/prompts.py`](backend/agent/prompts.py))
 - **Prompt caching for latency + cost.** The static system prompt and tool definitions are marked `cache_control: ephemeral` and kept separate from per-user context, so the cache is shared across turns.
-- **A genuine analysis pipeline.** Chess.com ingest → per-position Stockfish evaluation → rule-based tactical-motif classification (fork, pin, skewer, back-rank, discovered check…) → per-theme weakness profiling with feature-vector centroids. A FEN-keyed cache means identical positions are never re-analyzed. ([`backend/analysis/`](backend/analysis), [`backend/profiler/`](backend/profiler))
+- **A genuine analysis pipeline.** Chess.com ingest → per-position Stockfish evaluation → rule-based tactical-motif classification (fork, pin, skewer, back-rank, discovered check…) → per-motif weakness profiling (frequency + average severity). A FEN-keyed cache means identical positions are never re-analyzed. ([`backend/analysis/`](backend/analysis), [`backend/profiler/`](backend/profiler))
 - **Built to survive real input.** One corrupt game can't kill a batch (per-game failure isolation), duplicate ingest requests are de-duplicated instead of spawning parallel engine runs, and Stockfish resolution falls back across install paths for portable deploys.
 - **Shipped like production.** GitHub Actions CI on every PR (typecheck, lint, 62 tests, build), Dockerized backend on Render, static frontend on Vercel with per-PR preview deployments, and a nightly scheduler that refreshes tracked users' data.
 
@@ -42,7 +42,7 @@
 1. **Ingests** your public Chess.com games via their API (configurable lookback).
 2. **Analyses** every position with Stockfish — best move, centipawn loss, blunder classification.
 3. **Classifies** each blunder's tactical motif with python-chess board logic (missed fork, pin, skewer, back-rank mate, discovered check, hanging piece, king safety…).
-4. **Profiles** your persistent weaknesses by aggregating motifs across all games — frequency, severity, and a stored position-feature centroid per theme.
+4. **Profiles** your persistent weaknesses by aggregating motifs across all games — one row per motif with its frequency and average severity (centipawn loss).
 5. **Compares** your style to grandmasters (Morphy, Tal, Fischer, Kasparov, Carlsen) across decisiveness, endgame tendency, patience (game length), simplification, and attack. These axes were chosen — and their normalization windows fitted — so the grandmasters actually separate from *each other* (verified across ~13k GM games), not just from the amateur baseline.
 6. **Coaches** you through a multi-turn Claude agent that pulls all of the above — plus Lichess practice puzzles — mid-conversation and renders positions on an interactive board.
 
@@ -59,7 +59,7 @@ POST /ingest/{username}                      ← background job; deduped per act
       ├─ fetch games (httpx, month-by-month)
       ├─ Stockfish analysis (FEN-cached, per-game failure isolation)
       ├─ tactical-motif classification (python-chess)
-      ├─ weakness profiling (per-theme aggregation + feature centroids)
+      ├─ weakness profiling (per-motif aggregation: frequency + avg severity)
       └─ persist via SQLAlchemy (SQLite by default; Postgres via DATABASE_URL)
                   │
                   ▼
@@ -91,7 +91,7 @@ History is capped to bound token cost; the static prompt and tool definitions ar
 |---|---|
 | Frontend | React 18, Vite, Chart.js, react-chessboard, react-markdown |
 | Backend | FastAPI, SQLAlchemy, SQLite (Postgres-ready via `DATABASE_URL`) |
-| Analysis | Stockfish via python-chess; NumPy/scikit-learn for position features |
+| Analysis | Stockfish via python-chess; rule-based tactical-motif classification |
 | AI coach | Anthropic Claude — tool-use agentic loop with prompt caching |
 | Puzzles | Lichess API |
 | CI/CD | GitHub Actions · Render (Docker) · Vercel |

@@ -36,7 +36,6 @@ const THEME_LABELS = {
   missed_hanging_piece: "Missed hanging piece",
   missed_back_rank: "Back rank",
   king_safety: "King safety",
-  time_pressure: "Time pressure",
   positional: "Positional play",
 };
 
@@ -51,7 +50,6 @@ const THEME_DESCRIPTIONS = {
   missed_hanging_piece: "An undefended piece was there for the taking.",
   missed_back_rank: "Your king was trapped on the back rank with a mating threat you missed.",
   king_safety: "You left your king exposed — loose pawns, open files, or delayed castling.",
-  time_pressure: "Errors clustered when you were low on the clock.",
   positional: "Not a single-shot tactic — slow mistakes like weak squares, bad trades, passive piece placement, or misjudging pawn structure. Stockfish found a clearly better plan you overlooked.",
 };
 
@@ -150,8 +148,6 @@ export async function fetchWeaknessProfile(username, tc = "all") {
     meta: data.meta ?? {},
   };
 }
-
-export const fetchTimePressure = (username) => get(`/profile/${username}/time-pressure`);
 
 export const fetchOpeningStats = (username, tc = "all") =>
   get(withTc(`/openings/${username}`, tc));

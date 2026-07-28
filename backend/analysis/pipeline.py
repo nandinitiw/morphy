@@ -7,13 +7,10 @@ from analysis.stockfish_worker import (
     stockfish_pool,
 )
 from db.models import Game, Position
-from profiler.embedder import fen_to_vector
 
 
 def _apply_analysis_results(positions: list[Position], results: list[dict]) -> None:
     for position, result in zip(positions, results):
-        position.embedding = fen_to_vector(position.fen)
-
         if not position.is_your_move or result["classification"] is None:
             continue
 
