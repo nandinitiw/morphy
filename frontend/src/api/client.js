@@ -22,6 +22,18 @@ function demoSnapshot(path) {
   if (Object.prototype.hasOwnProperty.call(DEMO_SNAPSHOT, path)) {
     return structuredClone(DEMO_SNAPSHOT[path]);
   }
+  // `limit` and `theme` only cap/narrow results; the demo dataset is small and
+  // the Trainer filters by theme client-side, so drop them and reuse the base
+  // (or tc-filtered) snapshot rather than falling through to a live request.
+  const stripped = path
+    .replace(/([?&])limit=[^&]*/g, "$1")
+    .replace(/([?&])theme=[^&]*/g, "$1")
+    .replace(/[?&]+$/g, "")
+    .replace(/\?&/, "?")
+    .replace(/&&+/g, "&");
+  if (stripped !== path && Object.prototype.hasOwnProperty.call(DEMO_SNAPSHOT, stripped)) {
+    return structuredClone(DEMO_SNAPSHOT[stripped]);
+  }
   return undefined;
 }
 
@@ -158,8 +170,14 @@ export async function fetchWeaknessProfile(username, tc = "all") {
 export const fetchOpeningStats = (username, tc = "all") =>
   get(withTc(`/openings/${username}`, tc));
 
-export const fetchBlunderExamples = (username, tc = "all") =>
-  get(withTc(`/blunders/${username}`, tc)).then((d) => d.blunders ?? []);
+export const fetchBlunderExamples = (username, tc = "all", { theme, limit } = {}) => {
+  let path = withTc(`/blunders/${username}`, tc);
+  const params = [];
+  if (theme) params.push(`theme=${encodeURIComponent(theme)}`);
+  if (limit) params.push(`limit=${limit}`);
+  if (params.length) path += `${path.includes("?") ? "&" : "?"}${params.join("&")}`;
+  return get(path).then((d) => d.blunders ?? []);
+};
 
 export const fetchTimeline = (username, tc = "all") =>
   get(withTc(`/timeline/${username}`, tc)).then((d) => d.points ?? []);
@@ -182,7 +200,7 @@ export async function sendCoachMessage(username, message, history = []) {
     });
     if (!res.ok) throw new Error(`API error ${res.status}`);
     const data = await res.json();
-    return data.response ?? "";
+    return { response: data.response ?? "", action: data.action ?? null };
   } catch (err) {
     if (err.name === "AbortError") throw new Error("Coach timed out — the report took too long. Try a shorter question.");
     throw err;

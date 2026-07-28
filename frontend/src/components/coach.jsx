@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import CoachMarkdown from "./CoachMarkdown.jsx";
-import { sendCoachMessage } from "../api/client";
+import { sendCoachMessage, themeLabel } from "../api/client";
 
 const INITIAL_MESSAGES = [
   {
@@ -17,7 +17,27 @@ const SUGGESTED_PROMPTS = [
   "Which opening should I stop playing?",
 ];
 
-function Message({ msg }) {
+function DrillAction({ action, onStartDrill }) {
+  const { theme, own_count: ownCount = 0, lichess_urls: lichessUrls = [] } = action;
+  const label = themeLabel(theme);
+  const total = ownCount + lichessUrls.length;
+  const detail =
+    ownCount > 0
+      ? `${ownCount} of your own position${ownCount === 1 ? "" : "s"}` +
+        (lichessUrls.length ? ` + ${lichessUrls.length} to top up` : "")
+      : `${lichessUrls.length} practice puzzle${lichessUrls.length === 1 ? "" : "s"}`;
+  return (
+    <div className="coach-drill-cta">
+      <button type="button" className="coach-drill-btn" onClick={() => onStartDrill(theme)}>
+        <i className="ti ti-player-play" aria-hidden="true" /> Drill {total} {label} position
+        {total === 1 ? "" : "s"}
+      </button>
+      <span className="coach-drill-detail">{detail}</span>
+    </div>
+  );
+}
+
+function Message({ msg, onStartDrill }) {
   if (msg.type === "tool") {
     return <div className="tool-call">→ {msg.content}</div>;
   }
@@ -29,12 +49,15 @@ function Message({ msg }) {
         {isAi
           ? <CoachMarkdown>{msg.content}</CoachMarkdown>
           : msg.content}
+        {msg.action?.type === "drill" && onStartDrill && (
+          <DrillAction action={msg.action} onStartDrill={onStartDrill} />
+        )}
       </div>
     </div>
   );
 }
 
-export default function Coach({ username, seedMessage }) {
+export default function Coach({ username, seedMessage, onStartDrill }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -73,8 +96,8 @@ export default function Coach({ username, seedMessage }) {
       .map((m) => ({ role: m.role === "coach" ? "assistant" : "user", content: m.content }));
 
     try {
-      const response = await sendCoachMessage(username, text, history);
-      setMessages((prev) => [...prev, { role: "coach", type: "text", content: response }]);
+      const { response, action } = await sendCoachMessage(username, text, history);
+      setMessages((prev) => [...prev, { role: "coach", type: "text", content: response, action }]);
     } catch (err) {
       setMessages((prev) => [
         ...prev,
@@ -101,7 +124,7 @@ export default function Coach({ username, seedMessage }) {
       <div className="card" style={{ flex: 1 }}>
         <div className="chat-container">
           <div className="chat-messages">
-            {messages.map((msg, i) => <Message key={i} msg={msg} />)}
+            {messages.map((msg, i) => <Message key={i} msg={msg} onStartDrill={onStartDrill} />)}
             {messages.length <= 1 && !loading && (
               <div className="coach-suggestions">
                 {SUGGESTED_PROMPTS.map((prompt) => (

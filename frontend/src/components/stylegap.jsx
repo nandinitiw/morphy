@@ -145,7 +145,7 @@ export default function StyleGap({ username, onNavigateCoach }) {
       .map((key, i) => `${AXIS_LABELS[i]}: you ${style.you[key]} vs ${gmName} ${style.gm[key]}`)
       .join("; ");
     try {
-      const text = await sendCoachMessage(
+      const { response: text } = await sendCoachMessage(
         username,
         `Compare my style to ${gmName}. Radar gaps: ${gaps}. ` +
           `In 3 bullet points, tell me what to practice to close the biggest style gaps. Be specific.`,

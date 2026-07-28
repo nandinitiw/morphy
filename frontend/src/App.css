@@ -417,6 +417,55 @@ body {
   border-radius: 6px;
   padding: 6px 11px;
 }
+.trainer-header-controls { display: flex; align-items: center; gap: 10px; }
+.trainer-theme-select {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  background: var(--surface, #fff);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.trainer-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--green);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Coach → Trainer handoff: "drill your own mistakes" button under a reply. */
+.coach-drill-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.coach-drill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--green);
+  border: none;
+  border-radius: 7px;
+  padding: 9px 15px;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.coach-drill-btn:hover { filter: brightness(1.08); }
+.coach-drill-detail { font-size: 12px; color: var(--text-muted); }
+
 .trainer-card { display: flex; gap: 26px; align-items: center; }
 .trainer-board {
   width: 400px;

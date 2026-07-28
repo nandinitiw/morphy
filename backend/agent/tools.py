@@ -56,13 +56,20 @@ TOOLS = [
         "input_schema": {"type": "object", "properties": {}},
     },
     {
-        "name": "fetch_practice_puzzles",
-        "description": "Fetch Lichess puzzles targeting a specific weakness theme.",
+        "name": "queue_practice",
+        "description": (
+            "Queue a drill of the user's OWN blundered positions for a given weakness "
+            "theme so they can re-solve their real mistakes in the Trainer. Prefer this "
+            "over generic puzzles — drilling the exact positions they got wrong is the "
+            "core of the product. Use the internal theme name (e.g. 'missed_back_rank', "
+            "'missed_fork', 'hangs_piece'). Falls back to generic Lichess puzzles only "
+            "when the user has too few of their own positions in that theme."
+        ),
         "input_schema": {
             "type": "object",
             "properties": {
-                "theme": {"type": "string", "description": "Tactical theme e.g. 'fork', 'pin', 'backRankMate'"},
-                "limit": {"type": "integer", "default": 5},
+                "theme": {"type": "string", "description": "Internal weakness theme, e.g. 'missed_back_rank'"},
+                "limit": {"type": "integer", "description": "How many positions to queue (default 5)"},
             },
             "required": ["theme"],
         },
@@ -70,23 +77,32 @@ TOOLS = [
 ]
 
 
-async def execute_tool(tool_name: str, tool_input: dict, username: str, db: Session) -> str:
+async def execute_tool(
+    tool_name: str, tool_input: dict, username: str, db: Session
+) -> tuple[str, dict | None]:
+    """Run a coach tool. Returns (text_for_model, ui_action_or_none).
+
+    Most tools return (text, None). `queue_practice` also returns a UI action so
+    the frontend can offer a button that jumps straight into the themed drill.
+    """
     try:
         if tool_name == "get_recent_games":
-            return _get_recent_games(username, tool_input.get("limit", 10), db)
+            return _get_recent_games(username, tool_input.get("limit", 10), db), None
         if tool_name == "get_weakness_profile":
-            return _get_weakness_profile(username, db)
+            return _get_weakness_profile(username, db), None
         if tool_name == "get_game_details":
-            return _get_game_details(tool_input["game_id"], username, db)
+            return _get_game_details(tool_input["game_id"], username, db), None
         if tool_name == "get_opening_stats":
-            return _get_opening_stats(username, db)
-        if tool_name == "fetch_practice_puzzles":
-            return await _fetch_puzzles(tool_input["theme"], tool_input.get("limit", 5))
-        return f"Unknown tool: {tool_name}"
+            return _get_opening_stats(username, db), None
+        if tool_name == "queue_practice":
+            return await _queue_practice(
+                tool_input["theme"], tool_input.get("limit", 5), username, db
+            )
+        return f"Unknown tool: {tool_name}", None
     except KeyError as exc:
-        return f"Tool error ({tool_name}): missing required input {exc.args[0]}"
+        return f"Tool error ({tool_name}): missing required input {exc.args[0]}", None
     except Exception as exc:
-        return f"Tool error ({tool_name}): {exc}"
+        return f"Tool error ({tool_name}): {exc}", None
 
 
 def _get_weakness_profile(username: str, db: Session) -> str:
@@ -260,28 +276,76 @@ _LICHESS_THEME_MAP = {
 }
 
 
-async def _fetch_puzzles(theme: str, limit: int) -> str:
-    lichess_theme = _LICHESS_THEME_MAP.get(theme, theme)
-    lines = [f"Practice puzzles for '{theme}':"]
+async def _queue_practice(
+    theme: str, limit: int, username: str, db: Session
+) -> tuple[str, dict | None]:
+    """Queue the user's own blundered positions for a themed drill.
 
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        for _ in range(limit):
-            try:
-                resp = await client.get(
-                    f"https://lichess.org/api/puzzle/next?theme={lichess_theme}",
-                    headers={"Accept": "application/json"},
-                )
-                if resp.status_code != 200:
+    Returns (text_for_model, ui_action). The UI action tells the frontend to
+    offer a button that opens the Trainer pre-filtered to this theme. When the
+    user has too few of their own positions, we top up with generic Lichess
+    puzzles so the drill still has enough material.
+    """
+    from stats import get_blunder_examples  # local import avoids a circular import at module load
+
+    own = get_blunder_examples(username, db, limit_per_theme=limit, theme=theme)
+    own_count = len(own)
+
+    lines: list[str] = []
+    if own_count:
+        lines.append(
+            f"Queued {own_count} of the user's OWN {theme} position"
+            f"{'s' if own_count != 1 else ''} to drill in the Trainer:"
+        )
+        for pos in own:
+            lines.append(
+                f"- game {pos['game_id']} move {pos['move_number']}: played "
+                f"{uci_to_san(pos['fen'], pos['move_played'])}, best was "
+                f"{uci_to_san(pos['fen'], pos['best_move'])} "
+                f"({pos['centipawn_loss']} cp lost)"
+            )
+    else:
+        lines.append(f"The user has no analyzed '{theme}' blunders of their own yet.")
+
+    # Top up with generic Lichess puzzles only when own positions are thin.
+    lichess_urls: list[str] = []
+    if own_count < limit:
+        needed = limit - own_count
+        lichess_theme = _LICHESS_THEME_MAP.get(theme, theme)
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            for _ in range(needed):
+                try:
+                    resp = await client.get(
+                        f"https://lichess.org/api/puzzle/next?theme={lichess_theme}",
+                        headers={"Accept": "application/json"},
+                    )
+                    if resp.status_code != 200:
+                        break
+                    puzzle = resp.json().get("puzzle", {})
+                    pid = puzzle.get("id")
+                    if pid:
+                        lichess_urls.append(
+                            f"https://lichess.org/training/{pid} (rating: {puzzle.get('rating', '?')})"
+                        )
+                except Exception:
                     break
-                data = resp.json()
-                puzzle = data.get("puzzle", {})
-                pid = puzzle.get("id")
-                rating = puzzle.get("rating", "?")
-                if pid:
-                    lines.append(f"- https://lichess.org/training/{pid} (rating: {rating})")
-            except Exception:
-                break
+        if lichess_urls:
+            lines.append(
+                f"\nTopped up with {len(lichess_urls)} generic Lichess puzzle"
+                f"{'s' if len(lichess_urls) != 1 else ''} (not enough own positions yet):"
+            )
+            lines.extend(f"- {url}" for url in lichess_urls)
 
-    if len(lines) == 1:
-        return f"Could not fetch puzzles for theme '{theme}' (lichess theme: '{lichess_theme}')"
-    return "\n".join(lines)
+    if own_count == 0 and not lichess_urls:
+        return (
+            f"No practice material available for theme '{theme}'.",
+            None,
+        )
+
+    action = {
+        "type": "drill",
+        "theme": theme,
+        "own_count": own_count,
+        "lichess_urls": lichess_urls,
+    }
+    return "\n".join(lines), action

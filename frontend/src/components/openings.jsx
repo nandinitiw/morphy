@@ -186,7 +186,7 @@ export default function Openings({ username, refreshKey = 0 }) {
     setSummary("");
     setSummaryLoading(true);
     try {
-      const text = await askCoach(
+      const { response: text } = await askCoach(
         `In 2 short paragraphs, summarize my performance in the ${opening.name} (${opening.eco}) as ${color}. ` +
         `Stats: ${opening.games} games, ${opening.win_rate}% wins, ${opening.avg_accuracy} cp avg loss. ` +
         `Opening moves: ${opening.moves_notation || "unknown"}. ` +

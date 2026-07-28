@@ -122,8 +122,8 @@ async def health_stockfish():
 
 @app.post("/coach")
 async def coach(req: CoachRequest, db: Session = Depends(get_db)):
-    response = await run_coach_session(req.username, req.message, db, history=req.history)
-    return {"response": response}
+    result = await run_coach_session(req.username, req.message, db, history=req.history)
+    return {"response": result["response"], "action": result.get("action")}
 
 
 @app.post("/ingest/{username}")
@@ -211,10 +211,14 @@ async def style_gap(
 async def get_blunders(
     username: str,
     tc: str | None = Query(default=None, description="bullet, blitz, rapid, classical, or all"),
+    theme: str | None = Query(default=None, description="Filter to a single tactical motif, e.g. missed_back_rank"),
+    limit: int = Query(default=3, ge=1, le=30, description="Max positions per theme"),
     db: Session = Depends(get_db),
 ):
-    """Return example blunder positions (with FEN) grouped by tactical theme."""
-    return {"blunders": get_blunder_examples(username, db, tc=tc)}
+    """Return example blunder positions (with FEN), optionally filtered to one theme."""
+    return {
+        "blunders": get_blunder_examples(username, db, tc=tc, limit_per_theme=limit, theme=theme)
+    }
 
 
 @app.get("/openings/{username}")

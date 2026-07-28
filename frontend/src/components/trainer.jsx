@@ -16,25 +16,48 @@ function squaresOf(uci) {
   return { from: uci.slice(0, 2), to: uci.slice(2, 4) };
 }
 
-export default function Trainer({ username, refreshKey = 0, tc = "all" }) {
-  const [blunders, setBlunders] = useState(null);
+export default function Trainer({ username, refreshKey = 0, tc = "all", themeFilter = null }) {
+  const [allBlunders, setAllBlunders] = useState(null);
   const [error, setError] = useState(null);
   const [idx, setIdx] = useState(0);
   const [guess, setGuess] = useState(null); // { uci, correct } | null
   const [score, setScore] = useState({ correct: 0, done: 0 });
+  const [activeTheme, setActiveTheme] = useState(themeFilter);
   const seen = useRef(new Set());
 
+  // When the coach hands off a specific theme, focus the deck on it.
   useEffect(() => {
-    setBlunders(null);
+    setActiveTheme(themeFilter);
+  }, [themeFilter, refreshKey]);
+
+  useEffect(() => {
+    setAllBlunders(null);
     setError(null);
+    // Pull a deep set (up to 20 per theme) so a themed drill has real material,
+    // not just the 3 dashboard examples.
+    fetchBlunderExamples(username, tc, { limit: 20 })
+      .then((list) => setAllBlunders((list || []).filter((b) => b.best_move && b.fen)))
+      .catch((e) => setError(e));
+  }, [username, refreshKey, tc]);
+
+  // Distinct themes present, for the self-filter dropdown.
+  const themes = useMemo(() => {
+    if (!allBlunders) return [];
+    return [...new Set(allBlunders.map((b) => b.theme))];
+  }, [allBlunders]);
+
+  const blunders = useMemo(() => {
+    if (!allBlunders) return null;
+    return activeTheme ? allBlunders.filter((b) => b.theme === activeTheme) : allBlunders;
+  }, [allBlunders, activeTheme]);
+
+  // Reset the run whenever the active deck changes (theme switch or refetch).
+  useEffect(() => {
     setIdx(0);
     setGuess(null);
     setScore({ correct: 0, done: 0 });
     seen.current = new Set();
-    fetchBlunderExamples(username, tc)
-      .then((list) => setBlunders((list || []).filter((b) => b.best_move && b.fen)))
-      .catch((e) => setError(e));
-  }, [username, refreshKey, tc]);
+  }, [activeTheme, allBlunders]);
 
   const current = blunders && blunders[idx];
 
@@ -112,10 +135,27 @@ export default function Trainer({ username, refreshKey = 0, tc = "all" }) {
     setIdx((i) => (blunders && i + 1 < blunders.length ? i + 1 : i));
   }
 
+  const themeSelector = themes.length > 1 && (
+    <select
+      className="trainer-theme-select"
+      value={activeTheme ?? ""}
+      onChange={(e) => setActiveTheme(e.target.value || null)}
+      aria-label="Filter positions by theme"
+    >
+      <option value="">All themes</option>
+      {themes.map((t) => (
+        <option key={t} value={t}>
+          {themeLabel(t)}
+        </option>
+      ))}
+    </select>
+  );
+
   if (error) return <div className="error">Failed to load trainer: {error.message}</div>;
   if (!blunders) return <div className="loading">Loading your positions…</div>;
 
   if (blunders.length === 0) {
+    const filtered = activeTheme && allBlunders && allBlunders.length > 0;
     return (
       <div className="page">
         <div className="page-header">
@@ -123,10 +163,19 @@ export default function Trainer({ username, refreshKey = 0, tc = "all" }) {
           <div className="page-sub">re-solve the positions you got wrong</div>
         </div>
         <div className="card">
-          <div className="card-title">No positions to train yet</div>
+          <div className="card-title">
+            {filtered ? `No ${themeLabel(activeTheme)} positions to drill` : "No positions to train yet"}
+          </div>
           <p className="empty-copy">
-            Analyze some games first — every blunder Stockfish finds becomes a puzzle here,
-            so you can practice the fix on your own games.
+            {filtered ? (
+              <>You have no blunders tagged “{themeLabel(activeTheme)}”.{" "}
+                <button type="button" className="trainer-link-btn" onClick={() => setActiveTheme(null)}>
+                  Show all positions
+                </button>
+              </>
+            ) : (
+              "Analyze some games first — every blunder Stockfish finds becomes a puzzle here, so you can practice the fix on your own games."
+            )}
           </p>
         </div>
       </div>
@@ -140,13 +189,19 @@ export default function Trainer({ username, refreshKey = 0, tc = "all" }) {
     <div className="page">
       <div className="page-header">
         <div>
-          <div className="page-title">Blunder trainer</div>
+          <div className="page-title">
+            {activeTheme ? `Drilling: ${themeLabel(activeTheme)}` : "Blunder trainer"}
+          </div>
           <div className="page-sub">
-            Position {idx + 1} / {blunders.length} · re-solve the moves you got wrong
+            Position {idx + 1} / {blunders.length} ·{" "}
+            {activeTheme ? "your own positions in this theme" : "re-solve the moves you got wrong"}
           </div>
         </div>
-        <div className="trainer-score">
-          {score.correct}/{score.done} solved
+        <div className="trainer-header-controls">
+          {themeSelector}
+          <div className="trainer-score">
+            {score.correct}/{score.done} solved
+          </div>
         </div>
       </div>
 

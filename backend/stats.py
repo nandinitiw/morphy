@@ -172,8 +172,18 @@ def aggregate_openings(username: str, db: Session, tc: str | None = None) -> dic
     return {"white": serialize("white"), "black": serialize("black")}
 
 
-def get_blunder_examples(username: str, db: Session, tc: str | None = None, limit_per_theme: int = 3) -> list[dict]:
-    """Return up to limit_per_theme example blunder positions per tactical theme."""
+def get_blunder_examples(
+    username: str,
+    db: Session,
+    tc: str | None = None,
+    limit_per_theme: int = 3,
+    theme: str | None = None,
+) -> list[dict]:
+    """Return up to limit_per_theme example blunder positions per tactical theme.
+
+    When `theme` is given, only positions of that single motif are returned (used
+    to feed the Trainer a themed drill of the user's own mistakes).
+    """
     q = (
         db.query(Position)
         .join(Game)
@@ -185,6 +195,8 @@ def get_blunder_examples(username: str, db: Session, tc: str | None = None, limi
             Position.fen.isnot(None),
         )
     )
+    if theme:
+        q = q.filter(Position.tactical_motif == theme)
     if tc and tc != "all":
         game_ids = [
             g.id for g in games_query(db, username).all()

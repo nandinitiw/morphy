@@ -131,7 +131,7 @@ export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNav
     setReco(null);
     try {
       const top = weaknesses.slice(0, 3).map((w) => `${w.display} (${w.frequency}×, ${w.severity}cp)`).join(", ");
-      const text = await sendCoachMessage(
+      const { response: text } = await sendCoachMessage(
         username,
         `Based on my top weakness themes (${top || "none yet"}), give me a prioritized study plan with 3 concrete recommendations — puzzles, openings, or habits. Keep it under 200 words.`,
       );

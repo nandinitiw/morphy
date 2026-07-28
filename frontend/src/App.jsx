@@ -27,6 +27,7 @@ export default function App() {
   const [page, setPage] = useState("dashboard");
   const [refreshKey, setRefreshKey] = useState(0);
   const [coachSeed, setCoachSeed] = useState(null);
+  const [practiceTheme, setPracticeTheme] = useState(null);
   const [tc, setTc] = useState("all");
 
   if (!username) {
@@ -38,8 +39,18 @@ export default function App() {
     setPage("coach");
   }
 
+  // Coach hands off into the Trainer, pre-filtered to a weakness theme — the
+  // "drill your own mistakes" loop. Bump refreshKey so the Trainer refetches
+  // even if you were already on it.
+  function startDrill(theme) {
+    setPracticeTheme(theme ?? null);
+    setRefreshKey((k) => k + 1);
+    setPage("train");
+  }
+
   function navigate(id) {
     if (id !== "coach") setCoachSeed(null);
+    if (id !== "train") setPracticeTheme(null);
     setPage(id);
   }
 
@@ -80,8 +91,8 @@ export default function App() {
         {page === "weaknesses" && (
           <Weaknesses username={username} refreshKey={refreshKey} tc={tc} onNavigateCoach={goToCoach} />
         )}
-        {page === "train" && <Trainer username={username} refreshKey={refreshKey} tc={tc} />}
-        {page === "coach" && <Coach username={username} seedMessage={coachSeed} />}
+        {page === "train" && <Trainer username={username} refreshKey={refreshKey} tc={tc} themeFilter={practiceTheme} />}
+        {page === "coach" && <Coach username={username} seedMessage={coachSeed} onStartDrill={startDrill} />}
         {page === "style" && <StyleGap username={username} onNavigateCoach={goToCoach} />}
         {page === "about" && <About />}
       </main>

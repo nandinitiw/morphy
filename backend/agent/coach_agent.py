@@ -20,8 +20,14 @@ async def run_coach_session(
     user_message: str,
     db,
     history: list[dict] | None = None,
-) -> str:
+) -> dict:
+    """Run one coach turn. Returns {"response": str, "action": dict | None}.
+
+    `action` is set when a tool queued a UI follow-up (e.g. a themed drill), so
+    the frontend can render a "drill these positions" button under the reply.
+    """
     messages: list[dict] = []
+    pending_action: dict | None = None
 
     if history:
         capped = history[-(MAX_HISTORY_TURNS * 2):]
@@ -62,11 +68,13 @@ async def run_coach_session(
         tool_use_blocks = [block for block in response.content if block.type == "tool_use"]
 
         if response.stop_reason == "end_turn" or not tool_use_blocks:
-            return "\n".join(text_blocks)
+            return {"response": "\n".join(text_blocks), "action": pending_action}
 
         tool_results = []
         for tool_use in tool_use_blocks:
-            result = await execute_tool(tool_use.name, tool_use.input, username, db)
+            result, action = await execute_tool(tool_use.name, tool_use.input, username, db)
+            if action is not None:
+                pending_action = action  # last queued action wins
             tool_results.append({
                 "type": "tool_result",
                 "tool_use_id": tool_use.id,
@@ -76,4 +84,7 @@ async def run_coach_session(
         messages.append({"role": "assistant", "content": response.content})
         messages.append({"role": "user", "content": tool_results})
 
-    return "Coach session exceeded maximum tool iterations."
+    return {
+        "response": "Coach session exceeded maximum tool iterations.",
+        "action": pending_action,
+    }
