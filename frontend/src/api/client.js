@@ -36,6 +36,9 @@ const THEME_LABELS = {
   missed_hanging_piece: "Missed hanging piece",
   missed_back_rank: "Back rank",
   king_safety: "King safety",
+  hangs_piece: "Hung piece",
+  bad_trade: "Bad trade",
+  pawn_weakness: "Pawn weakness",
   positional: "Positional play",
 };
 
@@ -50,7 +53,10 @@ const THEME_DESCRIPTIONS = {
   missed_hanging_piece: "An undefended piece was there for the taking.",
   missed_back_rank: "Your king was trapped on the back rank with a mating threat you missed.",
   king_safety: "You left your king exposed — loose pawns, open files, or delayed castling.",
-  positional: "Not a single-shot tactic — slow mistakes like weak squares, bad trades, passive piece placement, or misjudging pawn structure. Stockfish found a clearly better plan you overlooked.",
+  hangs_piece: "You moved a piece to a square where your opponent could win it — undefended, or defended too cheaply. Scan what your opponent can capture before you commit.",
+  bad_trade: "You entered an exchange that lost material — giving up more than you got back. Count the value on both sides before you capture.",
+  pawn_weakness: "Your move damaged your own pawn structure, creating a doubled or isolated pawn that becomes a long-term target.",
+  positional: "A genuine slow error — no material or structural signal, but Stockfish found a clearly better plan: a stronger square, a more active piece, or a better pawn break you overlooked.",
 };
 
 export function themeLabel(theme) {

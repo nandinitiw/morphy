@@ -1,5 +1,15 @@
 import chess
 
+PIECE_VALUES = {
+    chess.PAWN: 1,
+    chess.KNIGHT: 3,
+    chess.BISHOP: 3,
+    chess.ROOK: 5,
+    chess.QUEEN: 9,
+    chess.KING: 100,
+}
+
+
 def classify_tactical_motif(fen: str, move_played: str, best_move: str) -> str | None:
 
     """
@@ -9,6 +19,7 @@ def classify_tactical_motif(fen: str, move_played: str, best_move: str) -> str |
 
     board = chess.Board(fen)
     best = chess.Move.from_uci(best_move)
+    played = chess.Move.from_uci(move_played)
 
     # Did best move deliver check?
     board_test = board.copy()
@@ -32,13 +43,113 @@ def classify_tactical_motif(fen: str, move_played: str, best_move: str) -> str |
     if captures_hanging_piece(board, best):
         return "missed_hanging_piece"
 
-    if is_king_safety_issue(board, chess.Move.from_uci(move_played)):
+    if is_king_safety_issue(board, played):
         return "king_safety"
 
     if is_back_rank_threat(board, best):
         return "missed_back_rank"
 
-    return "positional"  # Catch-all for non-tactical errors
+    # Not a missed tactic — look at what the *played* move did wrong. These
+    # sub-types turn the old "positional" catch-all into something a player can
+    # actually act on: did they hang a piece, lose a trade, or wreck their
+    # pawn structure? Only when none of those fit is it a genuine slow /
+    # positional error.
+    if board.is_capture(played):
+        if is_losing_trade(board, played):
+            return "bad_trade"
+    elif leaves_piece_hanging(board, played):
+        return "hangs_piece"
+
+    if creates_pawn_weakness(board, played):
+        return "pawn_weakness"
+
+    return "positional"  # Genuine slow error: no material or structural signal
+
+
+def _min_attacker_value(board: chess.Board, color: chess.Color, square: chess.Square) -> int | None:
+    """Value of the cheapest `color` piece attacking `square`, or None if none."""
+
+    values = [
+        PIECE_VALUES[board.piece_at(sq).piece_type]
+        for sq in board.attackers(color, square)
+    ]
+    return min(values) if values else None
+
+
+def _material_lost_on_square(
+    board_after: chess.Board, square: chess.Square, owner: chess.Color, piece_value: int
+) -> int:
+    """Approximate material the `owner` loses on `square` to opponent captures.
+
+    A lightweight static-exchange check: if the square is undefended the whole
+    piece is lost; if the cheapest attacker is worth less than the piece, the
+    owner loses the difference on the exchange; otherwise nothing.
+    """
+
+    min_attacker = _min_attacker_value(board_after, not owner, square)
+    if min_attacker is None:
+        return 0
+    if not board_after.attackers(owner, square):
+        return piece_value  # undefended — hangs outright
+    if min_attacker < piece_value:
+        return piece_value - min_attacker  # loses the exchange
+    return 0
+
+
+def leaves_piece_hanging(board: chess.Board, move: chess.Move) -> bool:
+    """A quiet (non-capturing) move that parks a piece where the opponent wins material on it."""
+
+    owner = board.turn
+    after = board.copy()
+    after.push(move)
+
+    piece = after.piece_at(move.to_square)
+    if not piece or piece.color != owner or piece.piece_type == chess.KING:
+        return False
+
+    value = PIECE_VALUES[piece.piece_type]
+    return _material_lost_on_square(after, move.to_square, owner, value) > 0
+
+
+def is_losing_trade(board: chess.Board, move: chess.Move) -> bool:
+    """A capture that initiates an exchange netting material against the player."""
+
+    owner = board.turn
+    captured = board.piece_at(move.to_square)
+    captured_value = PIECE_VALUES[captured.piece_type] if captured else 1  # en passant → pawn
+
+    after = board.copy()
+    after.push(move)
+
+    piece = after.piece_at(move.to_square)
+    if not piece or piece.piece_type == chess.KING:
+        return False
+
+    lost = _material_lost_on_square(after, move.to_square, owner, PIECE_VALUES[piece.piece_type])
+    return lost > captured_value  # gave up more than the capture won
+
+
+def _pawn_defect_count(board: chess.Board, color: chess.Color) -> int:
+    """Count structural pawn defects (doubled files + isolated pawns) for `color`."""
+
+    files = [chess.square_file(sq) for sq in board.pieces(chess.PAWN, color)]
+    unique = set(files)
+    doubled = sum(1 for f in unique if files.count(f) >= 2)
+    isolated = sum(1 for f in files if f - 1 not in unique and f + 1 not in unique)
+    return doubled + isolated
+
+
+def creates_pawn_weakness(board: chess.Board, move: chess.Move) -> bool:
+    """A pawn move that adds a new doubled or isolated pawn to the player's structure."""
+
+    piece = board.piece_at(move.from_square)
+    if not piece or piece.piece_type != chess.PAWN:
+        return False
+
+    owner = board.turn
+    after = board.copy()
+    after.push(move)
+    return _pawn_defect_count(after, owner) > _pawn_defect_count(board, owner)
 
 
 def is_fork(board: chess.Board, move: chess.Move) -> bool:

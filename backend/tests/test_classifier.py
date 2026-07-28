@@ -66,6 +66,27 @@ class TestClassifyTacticalMotif:
         motif = classify_tactical_motif(fen, move_played="a2a3", best_move="e2e4")
         assert motif == "positional"
 
+    def test_hangs_piece(self):
+        # White rook on a1 slides to a5, where the black b6 pawn wins it for free.
+        # Best move is a quiet, safe king step so no tactic is "missed".
+        fen = "7k/8/1p6/8/8/8/8/R3K3 w - - 0 1"
+        motif = classify_tactical_motif(fen, move_played="a1a5", best_move="e1e2")
+        assert motif == "hangs_piece"
+
+    def test_bad_trade(self):
+        # White queen on d1 captures the b3 pawn, but the a4 pawn recaptures the
+        # queen — giving up a 9-point piece to win a 1-point pawn.
+        fen = "7k/8/8/8/p7/1p6/8/3QK3 w - - 0 1"
+        motif = classify_tactical_motif(fen, move_played="d1b3", best_move="e1e2")
+        assert motif == "bad_trade"
+
+    def test_pawn_weakness(self):
+        # c2xb3 doubles white's b-pawns (b2 + b3) and isolates them. Best move is
+        # a quiet king step, so nothing tactical is missed.
+        fen = "7k/8/8/8/8/1p6/1PP5/4K3 w - - 0 1"
+        motif = classify_tactical_motif(fen, move_played="c2b3", best_move="e1e2")
+        assert motif == "pawn_weakness"
+
     def test_returns_string_or_none_never_raises(self):
         # Malformed-ish but legal inputs should not raise
         fen = "8/8/8/8/8/8/8/K6k w - - 0 1"
