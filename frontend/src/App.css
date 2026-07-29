@@ -563,6 +563,29 @@ body {
 }
 .trainer-next-btn:hover { background: var(--green-dim); border-color: var(--green); }
 .trainer-done { font-size: 14px; color: var(--text); }
+.trainer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.trainer-ask-coach-btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 15px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: var(--mono);
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: border-color 0.14s, color 0.14s;
+}
+.trainer-ask-coach-btn:hover { border-color: var(--green); color: var(--green); }
 
 @media (max-width: 900px) {
   .trainer-card { flex-direction: column; align-items: stretch; }

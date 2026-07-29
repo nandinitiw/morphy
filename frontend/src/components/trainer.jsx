@@ -26,7 +26,7 @@ function formatNextDue(iso) {
   return `in ${days} days`;
 }
 
-export default function Trainer({ username, refreshKey = 0, tc = "all", themeFilter = null }) {
+export default function Trainer({ username, refreshKey = 0, tc = "all", themeFilter = null, onAskCoach }) {
   const isDemo = username === "demo";
   const [deck, setDeck] = useState(null);
   const [masteryThemes, setMasteryThemes] = useState([]);
@@ -174,6 +174,21 @@ export default function Trainer({ username, refreshKey = 0, tc = "all", themeFil
     setIdx((i) => (blunders && i + 1 < blunders.length ? i + 1 : i));
   }
 
+  // Hand this exact position into a grounded coach conversation. The prompt is
+  // self-contained (FEN + both moves) so the coach can render the board and
+  // explain the mistake against the user's real game.
+  function askCoach() {
+    if (!current || !onAskCoach) return;
+    const cp = Math.round(current.centipawn_loss ?? 0);
+    onAskCoach(
+      `Look at this position from one of my games (theme: ${themeLabel(current.theme)}` +
+        `${current.move_number ? `, move ${current.move_number}` : ""}). ` +
+        `FEN: ${current.fen}. I played ${playedSan} and lost about ${cp} centipawns; ` +
+        `the engine preferred ${bestSan}. Explain why ${bestSan} is better and what I ` +
+        `should have been looking for. Show the position on a board.`,
+    );
+  }
+
   const themeSelector = themes.length > 1 && (
     <select
       className="trainer-theme-select"
@@ -318,15 +333,22 @@ export default function Trainer({ username, refreshKey = 0, tc = "all", themeFil
                   )}
                 </div>
               )}
-              {finished ? (
-                <div className="trainer-done">
-                  Done — you solved <strong>{score.correct}</strong> of {score.done}.
-                </div>
-              ) : (
-                <button type="button" className="trainer-next-btn" onClick={next}>
-                  Next position →
-                </button>
-              )}
+              <div className="trainer-actions">
+                {onAskCoach && (
+                  <button type="button" className="trainer-ask-coach-btn" onClick={askCoach}>
+                    <i className="ti ti-message-chatbot" aria-hidden="true" /> Ask the coach why
+                  </button>
+                )}
+                {finished ? (
+                  <div className="trainer-done">
+                    Done — you solved <strong>{score.correct}</strong> of {score.done}.
+                  </div>
+                ) : (
+                  <button type="button" className="trainer-next-btn" onClick={next}>
+                    Next position →
+                  </button>
+                )}
+              </div>
             </>
           )}
         </div>

@@ -10,6 +10,16 @@ const INITIAL_MESSAGES = [
   },
 ];
 
+// Fired automatically on first open so the coach leads with a grounded, specific
+// observation about the user's real games instead of a blank prompt. Sent behind
+// the scenes — no visible "you" bubble.
+const OPENING_PROMPT =
+  "Open the session with ONE specific, grounded observation about my recent games. " +
+  "Cite something real from my data (a weakness theme with its frequency, or a recent " +
+  "game and result), keep it to 2-3 sentences, and end with a concrete next step or a " +
+  "question inviting me to dig in. If I don't have enough analyzed games yet, say so " +
+  "briefly and suggest I analyze some.";
+
 const SUGGESTED_PROMPTS = [
   "What's my biggest weakness right now?",
   "Review my worst recent game",
@@ -57,36 +67,74 @@ function Message({ msg, onStartDrill }) {
   );
 }
 
-export default function Coach({ username, seedMessage, onStartDrill }) {
+export default function Coach({ username, seedMessage, seedQuestion, onStartDrill }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const bottomRef = useRef(null);
-  const seededRef = useRef(false);
+  const initedRef = useRef(false);
   const timerRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // One-time init on open, in priority order:
+  //  1. A position/question handed in from another page → ask it as the user.
+  //  2. A legacy "Continue in Coach" recommendation → show it as a coach bubble.
+  //  3. Otherwise lead with a grounded proactive observation (once per session).
   useEffect(() => {
-    if (seedMessage && !seededRef.current) {
-      seededRef.current = true;
-      setMessages((prev) => [
-        ...prev,
-        { role: "coach", type: "text", content: seedMessage },
-      ]);
-    }
-  }, [seedMessage]);
+    if (initedRef.current) return;
+    initedRef.current = true;
 
-  async function send(overrideText) {
+    if (seedQuestion) {
+      send(seedQuestion, "Explain this position — why was my move a mistake?");
+      return;
+    }
+    if (seedMessage) {
+      setMessages((prev) => [...prev, { role: "coach", type: "text", content: seedMessage }]);
+      return;
+    }
+    // Proactive opener — gated to once per user per browser session so switching
+    // tabs doesn't re-spend an agent call on every visit.
+    const key = `morphy_greeted_${username}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, "1");
+    } catch {
+      /* sessionStorage unavailable — just greet */
+    }
+    openProactively();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function openProactively() {
+    setLoading(true);
+    setElapsed(0);
+    timerRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
+    try {
+      const { response, action } = await sendCoachMessage(username, OPENING_PROMPT, []);
+      // Replace the static greeting with the grounded one.
+      setMessages([{ role: "coach", type: "text", content: response, action }]);
+    } catch {
+      /* backend unreachable — keep the static greeting */
+    } finally {
+      clearInterval(timerRef.current);
+      setLoading(false);
+      setElapsed(0);
+    }
+  }
+
+  // `displayText` lets us show a short, friendly "you" bubble while sending a
+  // longer, context-rich prompt (e.g. a FEN + move details) to the agent.
+  async function send(overrideText, displayText) {
     const text = (overrideText ?? input).trim();
     if (!text || loading) return;
     setInput("");
 
     const priorMessages = messages;
-    setMessages((prev) => [...prev, { role: "user", type: "text", content: text }]);
+    setMessages((prev) => [...prev, { role: "user", type: "text", content: displayText ?? text }]);
     setLoading(true);
     setElapsed(0);
     timerRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);

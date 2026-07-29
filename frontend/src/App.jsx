@@ -27,6 +27,7 @@ export default function App() {
   const [page, setPage] = useState("dashboard");
   const [refreshKey, setRefreshKey] = useState(0);
   const [coachSeed, setCoachSeed] = useState(null);
+  const [coachQuestion, setCoachQuestion] = useState(null);
   const [practiceTheme, setPracticeTheme] = useState(null);
   const [tc, setTc] = useState("all");
 
@@ -36,6 +37,15 @@ export default function App() {
 
   function goToCoach(context) {
     setCoachSeed(context ?? null);
+    setCoachQuestion(null);
+    setPage("coach");
+  }
+
+  // "Ask the coach about this position" — hands a context-rich question into a
+  // grounded coach conversation (the coach answers with the board + explanation).
+  function askCoachAboutPosition(question) {
+    setCoachQuestion(question ?? null);
+    setCoachSeed(null);
     setPage("coach");
   }
 
@@ -49,7 +59,10 @@ export default function App() {
   }
 
   function navigate(id) {
-    if (id !== "coach") setCoachSeed(null);
+    if (id !== "coach") {
+      setCoachSeed(null);
+      setCoachQuestion(null);
+    }
     if (id !== "train") setPracticeTheme(null);
     setPage(id);
   }
@@ -91,8 +104,8 @@ export default function App() {
         {page === "weaknesses" && (
           <Weaknesses username={username} refreshKey={refreshKey} tc={tc} onNavigateCoach={goToCoach} />
         )}
-        {page === "train" && <Trainer username={username} refreshKey={refreshKey} tc={tc} themeFilter={practiceTheme} />}
-        {page === "coach" && <Coach username={username} seedMessage={coachSeed} onStartDrill={startDrill} />}
+        {page === "train" && <Trainer username={username} refreshKey={refreshKey} tc={tc} themeFilter={practiceTheme} onAskCoach={askCoachAboutPosition} />}
+        {page === "coach" && <Coach username={username} seedMessage={coachSeed} seedQuestion={coachQuestion} onStartDrill={startDrill} />}
         {page === "style" && <StyleGap username={username} onNavigateCoach={goToCoach} />}
         {page === "about" && <About />}
       </main>
