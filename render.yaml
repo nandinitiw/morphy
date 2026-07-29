@@ -1,3 +1,14 @@
+# Managed Postgres so user-ingested games, weakness profiles and (future)
+# spaced-repetition drill schedules survive restarts and deploys. The free
+# Postgres plan is real but EXPIRES ~30 days after creation — upgrade the
+# database plan before then to keep the data. The app also runs fine on
+# SQLite locally (the default when DATABASE_URL is unset).
+databases:
+  - name: morphy-db
+    plan: free
+    databaseName: morphy
+    postgresMajorVersion: "16"
+
 services:
   - type: web
     name: morphy-api
@@ -7,23 +18,13 @@ services:
     dockerContext: ./backend
     healthCheckPath: /health
     envVars:
-      # Free instances have no persistent disk, so SQLite lives in the
-      # container and resets when the service restarts or spins down.
-      # Demo + GM profiles re-seed automatically on startup (see main.py
-      # lifespan); user-ingested games do not survive a restart.
-      #
-      # To make data persistent, either:
-      #   1. attach a Render Postgres instance and set DATABASE_URL to its
-      #      connection string, or
-      #   2. move to a paid plan and re-add a disk:
-      #        plan: starter
-      #        disk:
-      #          name: morphy-data
-      #          mountPath: /data
-      #          sizeGB: 1
-      #        DATABASE_URL: sqlite:////data/morphy.db
+      # Wired to the managed Postgres above; Render injects its connection
+      # string here. db/database.py normalizes the postgres:// scheme and
+      # enables pool_pre_ping so idle-dropped connections don't crash queries.
       - key: DATABASE_URL
-        value: sqlite:////app/morphy.db
+        fromDatabase:
+          name: morphy-db
+          property: connectionString
       # Free tier is ~0.1 CPU / 512 MB and restarts under sustained load, which
       # kills long analysis jobs mid-run. Keep each job short enough to finish:
       #   - shallower search (depth 15 -> 12) roughly halves per-game time
