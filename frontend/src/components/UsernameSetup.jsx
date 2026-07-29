@@ -116,7 +116,7 @@ export default function UsernameSetup() {
             id="chess-username"
             className="setup-input"
             type="text"
-            placeholder="e.g. hikaru"
+            placeholder="e.g. anishgiri"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             autoComplete="username"
