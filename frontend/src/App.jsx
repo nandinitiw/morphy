@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import About from "./components/About.jsx";
 import Coach from "./components/coach.jsx";
@@ -12,24 +12,44 @@ import Weaknesses from "./components/weaknesses.jsx";
 import { useUsername } from "./context/UsernameContext.jsx";
 import "./App.css";
 
+// Coach leads — it's the product's identity (a coach that talks to your data),
+// so it sits first and is the default landing surface for real users.
 const NAV = [
+  { id: "coach", label: "Coach", primary: true },
   { id: "dashboard", label: "Dashboard" },
-  { id: "openings", label: "Openings" },
   { id: "weaknesses", label: "Weaknesses" },
   { id: "train", label: "Train" },
-  { id: "coach", label: "Coach" },
+  { id: "openings", label: "Openings" },
   { id: "style", label: "Style gap" },
   { id: "about", label: "About" },
 ];
 
 export default function App() {
   const { username, clearUsername } = useUsername();
-  const [page, setPage] = useState("dashboard");
+  // Real users land in the coach (greeted by its proactive, grounded observation);
+  // the demo lands on the snapshot-backed Dashboard so its offline showcase loads
+  // instantly instead of firing a cold agent call.
+  const landingPage = (name) => (name && name !== "demo" ? "coach" : "dashboard");
+  const [page, setPage] = useState(() => landingPage(username));
   const [refreshKey, setRefreshKey] = useState(0);
   const [coachSeed, setCoachSeed] = useState(null);
   const [coachQuestion, setCoachQuestion] = useState(null);
   const [practiceTheme, setPracticeTheme] = useState(null);
   const [tc, setTc] = useState("all");
+  const landedRef = useRef(false);
+
+  // Send the user to their landing page once, when they first sign in (the page
+  // state was initialized before we knew who they were on a fresh login).
+  useEffect(() => {
+    if (!username) {
+      landedRef.current = false;
+      return;
+    }
+    if (!landedRef.current) {
+      landedRef.current = true;
+      setPage(landingPage(username));
+    }
+  }, [username]);
 
   if (!username) {
     return <UsernameSetup />;
@@ -78,11 +98,12 @@ export default function App() {
           {NAV.map((n) => (
             <button
               key={n.id}
-              className={`nav-item ${page === n.id ? "active" : ""}`}
+              className={`nav-item ${page === n.id ? "active" : ""} ${n.primary ? "nav-item-primary" : ""}`}
               onClick={() => navigate(n.id)}
             >
               <span className="nav-dot" aria-hidden="true" />
               <span>{n.label}</span>
+              {n.primary && <i className="ti ti-sparkles nav-item-icon" aria-hidden="true" />}
             </button>
           ))}
         </div>
