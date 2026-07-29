@@ -1,35 +1,31 @@
-# Managed Postgres so user-ingested games, weakness profiles and (future)
-# spaced-repetition drill schedules survive restarts and deploys. The free
-# Postgres plan is real but EXPIRES ~30 days after creation — upgrade the
-# database plan before then to keep the data. The app also runs fine on
-# SQLite locally (the default when DATABASE_URL is unset).
-databases:
-  - name: morphy-db
-    plan: free
-    databaseName: morphy
-    postgresMajorVersion: "16"
+# Persistence lives in an external managed Postgres (Neon free tier), not a
+# Render database: Render's free Postgres deletes data after 30 days, and the
+# $7/mo budget buys more here as a Starter *web service* (no cold start + ~5x
+# CPU for Stockfish) than it would as a managed DB.
+#
+# Set DATABASE_URL in the Render dashboard to the Neon connection string
+# (postgresql://...?sslmode=require). db/database.py normalizes the postgres://
+# scheme and enables pool_pre_ping/pool_recycle so idle-dropped connections
+# don't crash queries — which also covers Neon scaling to zero when idle.
+# Leaving DATABASE_URL unset falls back to local SQLite (fine for dev).
 
 services:
   - type: web
     name: morphy-api
     runtime: docker
-    plan: free
+    # Starter: never sleeps (no 30-60s cold start) and ~0.5 CPU instead of the
+    # free tier's ~0.1, so Stockfish analysis is faster and no longer gets
+    # killed mid-job under sustained load.
+    plan: starter
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     healthCheckPath: /health
     envVars:
-      # Wired to the managed Postgres above; Render injects its connection
-      # string here. db/database.py normalizes the postgres:// scheme and
-      # enables pool_pre_ping so idle-dropped connections don't crash queries.
+      # External Postgres (Neon) — paste the connection string in the dashboard.
       - key: DATABASE_URL
-        fromDatabase:
-          name: morphy-db
-          property: connectionString
-      # Free tier is ~0.1 CPU / 512 MB and restarts under sustained load, which
-      # kills long analysis jobs mid-run. Keep each job short enough to finish:
-      #   - shallower search (depth 15 -> 12) roughly halves per-game time
-      #   - cap the Stockfish loop to the 20 most-recent games
-      # Raise/remove both on a paid instance for deeper, fuller analysis.
+        sync: false
+      # Tuned for the constrained free tier. On Starter there's headroom to go
+      # deeper/wider — raise these once you've confirmed jobs finish comfortably.
       - key: ANALYSIS_DEPTH
         value: "12"
       - key: MAX_ANALYZE_GAMES
