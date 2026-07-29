@@ -20,7 +20,16 @@ async def ingest_user_games(
     username: str,
     db: Session,
     on_progress: Callable[[int], None] | None = None,
+    max_new_games: int | None = None,
 ) -> list[str]:
+    """Ingest a user's games newest-first.
+
+    `max_new_games` bounds how many *newly seen* games we fetch+parse+store. Since
+    analysis is capped to the most-recent N games anyway, ingesting everything (a
+    hyperactive account can have thousands per month) just wastes minutes and DB
+    writes. Stopping once we have enough new material keeps every account fast.
+    None means unlimited (dev/local default).
+    """
     ingested_ids: list[str] = []
 
     async for raw_game in fetch_all_games(username):
@@ -67,5 +76,8 @@ async def ingest_user_games(
         db.commit()
         if on_progress:
             on_progress(len(ingested_ids))
+
+        if max_new_games is not None and len(ingested_ids) >= max_new_games:
+            break
 
     return ingested_ids

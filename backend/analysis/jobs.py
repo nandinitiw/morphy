@@ -91,10 +91,15 @@ async def run_ingest_job(job_id: str) -> None:
         def report_ingest_progress(count: int) -> None:
             _update_job(db, job, games_ingested=count)
 
+        # Only ingest as many new games as we'll actually analyze — ingesting a
+        # hyperactive account's full 6-month history just to analyze the newest
+        # 20 is what made heavy accounts take 15+ minutes. 0 => unlimited (dev).
+        ingest_cap = MAX_ANALYZE_GAMES or None
         ingested_ids = await ingest_user_games(
             job.username,
             db,
             on_progress=report_ingest_progress,
+            max_new_games=ingest_cap,
         )
         logger.info("Job %s ingested %d games", job_id, len(ingested_ids))
         _update_job(db, job, games_ingested=len(ingested_ids))

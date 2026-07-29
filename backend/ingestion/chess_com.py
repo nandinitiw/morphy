@@ -73,6 +73,10 @@ async def fetch_all_games(
         lookback = months_back if months_back is not None else INGEST_MONTHS_BACK
         for year, month in reversed(_month_range(lookback)):
             games = await fetch_monthly_games(client, username, year, month)
-            for game in games:
+            # Chess.com returns each month oldest-first; reverse so the overall
+            # stream is strictly newest-first. This lets a bounded ingest stop
+            # after the genuinely most-recent N games rather than the oldest N
+            # of the newest month.
+            for game in reversed(games):
                 yield game
             await asyncio.sleep(0.25)
