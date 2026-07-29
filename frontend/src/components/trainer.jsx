@@ -324,7 +324,7 @@ export default function Trainer({ username, refreshKey = 0, tc = "all", themeFil
               {attemptResult && (
                 <div className={`trainer-schedule ${attemptResult.mastered ? "mastered" : ""}`}>
                   {attemptResult.mastered ? (
-                    <>★ Mastered — you've got this one down.</>
+                    <>★ Mastered — you&rsquo;ve got this one down.</>
                   ) : (
                     <>
                       {guess.correct ? "Nice — back for review " : "You'll see this again "}

@@ -133,6 +133,7 @@ export function checkBackendHealth() {
  * so the first real request would otherwise fail with "cannot reach backend".
  * Polls /health until it responds. Returns true once up, false if it never came
  * up within the budget. `onAttempt(n)` fires on each failed probe.
+ * @param {{ retries?: number, delayMs?: number, onAttempt?: (n: number) => void }} [opts]
  */
 export async function warmBackend({ retries = 24, delayMs = 2500, onAttempt } = {}) {
   for (let i = 0; i < retries; i += 1) {
@@ -167,6 +168,7 @@ export async function fetchWeaknessProfile(username, tc = "all") {
   };
 }
 
+/** @param {string} username @param {{ theme?: string, limit?: number }} [opts] */
 export const fetchDrillQueue = (username, { theme, limit = 20 } = {}) => {
   let path = `/drill/${username}/queue?limit=${limit}`;
   if (theme) path += `&theme=${encodeURIComponent(theme)}`;
@@ -182,6 +184,7 @@ export const fetchMastery = (username) =>
 export const fetchOpeningStats = (username, tc = "all") =>
   get(withTc(`/openings/${username}`, tc));
 
+/** @param {string} username @param {string} [tc] @param {{ theme?: string, limit?: number }} [opts] */
 export const fetchBlunderExamples = (username, tc = "all", { theme, limit } = {}) => {
   let path = withTc(`/blunders/${username}`, tc);
   const params = [];

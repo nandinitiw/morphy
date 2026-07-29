@@ -100,8 +100,8 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
     // tabs doesn't re-spend an agent call on every visit.
     const key = `morphy_greeted_${username}`;
     try {
-      if (sessionStorage.getItem(key)) return;
-      sessionStorage.setItem(key, "1");
+      if (window.sessionStorage.getItem(key)) return;
+      window.sessionStorage.setItem(key, "1");
     } catch {
       /* sessionStorage unavailable — just greet */
     }
