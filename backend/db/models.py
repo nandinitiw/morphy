@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Float, Boolean, JSON, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, Float, Boolean, JSON, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import declarative_base, relationship
 Base = declarative_base()
 
@@ -73,6 +73,32 @@ class CoachingSession(Base):
     created_at = Column(DateTime)
     report = Column(String)                         # Full coaching report text
     games_analyzed = Column(JSON)                   # List of game IDs included
+
+
+class DrillCard(Base):
+    """Spaced-repetition state for one user drilling one of their own blundered positions.
+
+    Keyed to a stable positions.id (ingest skips games it already has, so position
+    rows never get recreated). Uses a Leitner box system: correct answers promote
+    the card and push its next review out; wrong answers demote it and resurface
+    it soon. A card in the top box is considered mastered.
+    """
+    __tablename__ = "drill_cards"
+    __table_args__ = (UniqueConstraint("username", "position_id", name="uq_drill_user_position"),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String, nullable=False, index=True)
+    position_id = Column(Integer, ForeignKey("positions.id"), nullable=False, index=True)
+    theme = Column(String, index=True)              # denormalized motif for fast mastery rollups
+    box = Column(Integer, default=0)                # Leitner box 0..5
+    attempts = Column(Integer, default=0)
+    correct = Column(Integer, default=0)
+    streak = Column(Integer, default=0)             # consecutive correct answers
+    last_reviewed_at = Column(DateTime)
+    next_due_at = Column(DateTime, index=True)      # when the card resurfaces for review
+    created_at = Column(DateTime)
+
+    position = relationship("Position")
 
 
 class IngestJob(Base):

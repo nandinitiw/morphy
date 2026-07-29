@@ -437,6 +437,57 @@ body {
   text-decoration: underline;
   cursor: pointer;
 }
+.trainer-review-badge {
+  display: inline-block;
+  margin-left: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, transparent);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.trainer-schedule {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.trainer-schedule.mastered {
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* Mastery progress chip on the Weaknesses page (drill-loop feedback). */
+.mastery-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+.mastery-bar-track {
+  display: inline-block;
+  width: 54px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+}
+.mastery-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--green);
+}
+.mastery-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+.mastery-due { color: var(--amber); }
 
 /* Coach → Trainer handoff: "drill your own mistakes" button under a reply. */
 .coach-drill-cta {

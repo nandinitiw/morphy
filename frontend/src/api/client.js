@@ -167,6 +167,18 @@ export async function fetchWeaknessProfile(username, tc = "all") {
   };
 }
 
+export const fetchDrillQueue = (username, { theme, limit = 20 } = {}) => {
+  let path = `/drill/${username}/queue?limit=${limit}`;
+  if (theme) path += `&theme=${encodeURIComponent(theme)}`;
+  return get(path).then((d) => d.positions ?? []);
+};
+
+export const recordDrillAttempt = (username, positionId, correct) =>
+  post(`/drill/${username}/attempt`, { position_id: positionId, correct });
+
+export const fetchMastery = (username) =>
+  get(`/drill/${username}/mastery`).then((d) => d.mastery ?? []);
+
 export const fetchOpeningStats = (username, tc = "all") =>
   get(withTc(`/openings/${username}`, tc));
 

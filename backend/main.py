@@ -18,6 +18,7 @@ from analysis.stockfish_worker import stockfish_pool
 from db.database import get_db
 from demo.seed_demo import seed as seed_demo
 from gm.seed_gms import GM_REGISTRY, seed_gm
+from profiler.spaced_repetition import get_drill_queue, get_mastery, is_mastered, record_attempt
 from stats import aggregate_openings, build_profile, build_timeline, get_blunder_examples, get_style_gap, list_gm_profiles
 
 logger = logging.getLogger(__name__)
@@ -81,6 +82,11 @@ class CoachRequest(BaseModel):
     username: str
     message: str
     history: list[dict] | None = None
+
+
+class DrillAttemptRequest(BaseModel):
+    position_id: int
+    correct: bool
 
 
 @app.get("/")
@@ -219,6 +225,42 @@ async def get_blunders(
     return {
         "blunders": get_blunder_examples(username, db, tc=tc, limit_per_theme=limit, theme=theme)
     }
+
+
+@app.get("/drill/{username}/queue")
+async def drill_queue(
+    username: str,
+    theme: str | None = Query(default=None, description="Filter to a single tactical motif"),
+    limit: int = Query(default=20, ge=1, le=50),
+    db: Session = Depends(get_db),
+):
+    """Positions to drill next: due spaced-repetition reviews first, then new material."""
+    return {"positions": get_drill_queue(username, db, theme=theme, limit=limit)}
+
+
+@app.post("/drill/{username}/attempt")
+async def drill_attempt(
+    username: str,
+    req: DrillAttemptRequest,
+    db: Session = Depends(get_db),
+):
+    """Record a drill attempt and reschedule the card via spaced repetition."""
+    card = record_attempt(username, req.position_id, req.correct, db)
+    return {
+        "position_id": card.position_id,
+        "box": card.box,
+        "streak": card.streak,
+        "attempts": card.attempts,
+        "correct": card.correct,
+        "mastered": is_mastered(card),
+        "next_due_at": card.next_due_at.isoformat() if card.next_due_at else None,
+    }
+
+
+@app.get("/drill/{username}/mastery")
+async def drill_mastery(username: str, db: Session = Depends(get_db)):
+    """Per-theme drill progress (total positions, carded, mastered, due, solve rate)."""
+    return {"mastery": get_mastery(username, db)}
 
 
 @app.get("/openings/{username}")

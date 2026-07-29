@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import CoachMarkdown from "./CoachMarkdown.jsx";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
-import { fetchWeaknessProfile, fetchBlunderExamples, sendCoachMessage, themeLabel } from "../api/client";
+import { fetchWeaknessProfile, fetchBlunderExamples, fetchMastery, sendCoachMessage, themeLabel } from "../api/client";
 import AiTooltip from "./AiTooltip";
 import { uciToSan } from "../notation.js";
 import RecommendButton from "./RecommendButton";
@@ -16,6 +16,25 @@ const severityColor = (s) => {
 function uciSquares(uci) {
   if (!uci || uci.length < 4) return { from: null, to: null };
   return { from: uci.slice(0, 2), to: uci.slice(2, 4) };
+}
+
+// Drill progress for a theme: how many of your positions you've mastered, plus a
+// nudge when reviews are due. Hidden entirely when there's no drill data (e.g.
+// the demo, or a theme you've never drilled) so it never shows an empty "0/0".
+function MasteryChip({ m }) {
+  if (!m || !m.total_positions) return null;
+  const pct = Math.round((m.mastered / m.total_positions) * 100);
+  return (
+    <span className="mastery-chip" title="Positions you've drilled to mastery in this theme">
+      <span className="mastery-bar-track">
+        <span className="mastery-bar-fill" style={{ width: `${pct}%` }} />
+      </span>
+      <span className="mastery-label">
+        {m.mastered}/{m.total_positions} mastered
+        {m.due > 0 && <span className="mastery-due"> · {m.due} due</span>}
+      </span>
+    </span>
+  );
 }
 
 function BoardPanel({ blunders, theme }) {
@@ -105,6 +124,7 @@ function BoardPanel({ blunders, theme }) {
 export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNavigateCoach }) {
   const [weaknesses, setWeaknesses] = useState([]);
   const [blunders, setBlunders] = useState([]);
+  const [mastery, setMastery] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [recoLoading, setRecoLoading] = useState(false);
@@ -117,10 +137,13 @@ export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNav
     Promise.all([
       fetchWeaknessProfile(username, tc),
       fetchBlunderExamples(username, tc).catch(() => []),
+      // Drill progress is real-user only; the offline demo has no backend for it.
+      fetchMastery(username).catch(() => []),
     ])
-      .then(([profileData, blunderData]) => {
+      .then(([profileData, blunderData, masteryData]) => {
         setWeaknesses(profileData.weaknesses);
         setBlunders(blunderData);
+        setMastery(Object.fromEntries((masteryData || []).map((m) => [m.theme, m])));
       })
       .catch(setError)
       .finally(() => setLoading(false));
@@ -213,6 +236,7 @@ export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNav
                   <div className="weakness-header">
                     <span className="weakness-name">
                       <AiTooltip label={w.display}>{w.description}</AiTooltip>
+                      <MasteryChip m={mastery[w.theme]} />
                     </span>
                     <span className="weakness-count">
                       {w.frequency}× occurrences
