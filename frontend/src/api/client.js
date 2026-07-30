@@ -203,6 +203,8 @@ export const fetchGmList = () =>
 export const fetchStyleGap = (username, gmSlug = "morphy") =>
   get(`/style-gap/${username}?gm=${encodeURIComponent(gmSlug)}`);
 
+export const fetchStyleMatch = (username) => get(`/style/${username}/match`);
+
 export async function sendCoachMessage(username, message, history = []) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 120_000);

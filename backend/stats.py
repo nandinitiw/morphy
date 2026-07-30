@@ -426,6 +426,49 @@ def compute_user_style(username: str, db: Session) -> dict:
     return compute_style(combined, username)
 
 
+STYLE_AXES = ["decisiveness", "endgame_tendency", "patience", "simplification", "attack"]
+
+
+def _match_percent(you_axes: dict, gm_axes: dict) -> int:
+    """How closely a player's style matches a GM's, 0–100.
+
+    Mean absolute difference across the five 0–100 axes, inverted: identical
+    styles score 100, and every average point of divergence per axis drops it
+    by one. Interpretable ("you're ~30 points off Tal on average") rather than a
+    raw distance.
+    """
+    diffs = [abs((you_axes.get(a) or 0) - (gm_axes.get(a) or 0)) for a in STYLE_AXES]
+    mad = sum(diffs) / len(STYLE_AXES)
+    return max(0, min(100, round(100 - mad)))
+
+
+def get_style_match(username: str, db: Session) -> dict:
+    """Rank every seeded GM by how closely the user's style matches theirs.
+
+    Powers "you play like X, training toward Y" — the closest GM is the user's
+    natural style; the user separately picks an idol to train toward. Returns the
+    user's axes plus each GM's axes and match %, sorted most-similar first.
+    """
+    profiles = db.query(GmProfile).order_by(GmProfile.birth_year).all()
+    user_style = compute_user_style(username, db)
+    you = {a: user_style.get(a, 0) for a in STYLE_AXES} if user_style else None
+
+    gms = []
+    for p in profiles:
+        gm_axes = {a: getattr(p, a) for a in STYLE_AXES}
+        gms.append(
+            {
+                "slug": p.slug,
+                "name": p.display_name,
+                "axes": gm_axes,
+                "match": _match_percent(you, gm_axes) if you else None,
+            }
+        )
+    if you is not None:
+        gms.sort(key=lambda g: g["match"], reverse=True)
+    return {"you": you, "gms": gms}
+
+
 def get_style_gap(username: str, gm_slug: str, db: Session) -> dict | None:
     gm = db.query(GmProfile).filter_by(slug=gm_slug).first()
     if not gm:

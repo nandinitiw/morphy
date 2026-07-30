@@ -37,6 +37,7 @@ def paths():
         yield with_tc("/blunders/demo", tc)
         yield with_tc("/timeline/demo", tc)
     yield "/gms"
+    yield "/style/demo/match"
     for gm in GMS:
         yield f"/style-gap/demo?gm={gm}"
 

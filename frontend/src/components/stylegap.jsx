@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { fetchStyleGap, fetchGmList, sendCoachMessage } from "../api/client";
+import { fetchStyleGap, fetchGmList, fetchStyleMatch, sendCoachMessage } from "../api/client";
+import { getIdol, setIdol as persistIdol } from "../idol.js";
 import AiTooltip from "./AiTooltip";
 import RecommendButton from "./RecommendButton";
 import CoachMarkdown from "./CoachMarkdown.jsx";
@@ -38,13 +39,26 @@ function isGoodForYou(key, youVal, gmVal) {
 
 export default function StyleGap({ username, onNavigateCoach }) {
   const [gms, setGms]       = useState([]);
-  const [gmSlug, setGmSlug] = useState("morphy");
+  // Open on the user's idol if they've set one, so the tab reflects their goal.
+  const [idolSlug, setIdolSlug] = useState(() => getIdol(username));
+  const [gmSlug, setGmSlug] = useState(() => getIdol(username) || "morphy");
   const [style, setStyle]   = useState(null);
+  const [match, setMatch]   = useState(null);
   const [error, setError]   = useState(null);
   const [recoLoading, setRecoLoading] = useState(false);
   const [reco, setReco]     = useState(null);
   const radarRef   = useRef(null);
   const radarChart = useRef(null);
+
+  // "You play like X" — nearest GM + match % to each, for the identity banner.
+  useEffect(() => {
+    fetchStyleMatch(username).then(setMatch).catch(() => setMatch(null));
+  }, [username]);
+
+  function handleSetIdol(slug) {
+    persistIdol(username, slug);
+    setIdolSlug(slug);
+  }
 
   // Load available GMs once
   useEffect(() => {
@@ -175,6 +189,30 @@ export default function StyleGap({ username, onNavigateCoach }) {
         {style && <RecommendButton onClick={askRecommendations} loading={recoLoading} label="Give me recommendations" />}
       </div>
 
+      {/* Identity + aspiration banner */}
+      {match?.you && match.gms?.length > 0 && (() => {
+        const closest = match.gms[0];
+        const idolEntry = idolSlug ? match.gms.find((g) => g.slug === idolSlug) : null;
+        return (
+          <div className="card idol-banner">
+            <div className="idol-banner-line">
+              <span className="idol-banner-eyebrow">You play most like</span>
+              <span className="idol-banner-name">{closest.name}</span>
+              <span className="idol-banner-pct">{closest.match}% match</span>
+            </div>
+            {idolEntry ? (
+              <div className="idol-banner-line">
+                <span className="idol-banner-eyebrow">Training toward</span>
+                <span className="idol-banner-name idol-banner-goal">★ {idolEntry.name}</span>
+                <span className="idol-banner-pct">{idolEntry.match}% there</span>
+              </div>
+            ) : (
+              <div className="idol-banner-hint">Pick an idol below to start closing the gap toward their style.</div>
+            )}
+          </div>
+        );
+      })()}
+
       {/* GM selector */}
       <div className="card" style={{ padding: "14px 20px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
@@ -203,6 +241,15 @@ export default function StyleGap({ username, onNavigateCoach }) {
                 {g.display_name}
               </button>
             ))}
+          </div>
+          <div className="idol-set-control">
+            {idolSlug === gmSlug ? (
+              <span className="idol-set-current">★ Your idol</span>
+            ) : (
+              <button type="button" className="idol-set-btn" onClick={() => handleSetIdol(gmSlug)}>
+                ☆ Set {gms.find((g) => g.slug === gmSlug)?.display_name ?? "this GM"} as my idol
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -3,13 +3,53 @@ from __future__ import annotations
 
 import pytest
 
+from db.models import GmProfile
 from stats import (
     build_profile,
     classify_time_control,
     compute_user_style,
     get_blunder_examples,
+    get_style_match,
+    _match_percent,
 )
 from tests.conftest import make_blunder, make_game
+
+
+class TestStyleMatch:
+    AX = dict(decisiveness=50, endgame_tendency=50, patience=50, simplification=50, attack=50)
+
+    def test_identical_axes_score_100(self):
+        assert _match_percent(self.AX, self.AX) == 100
+
+    def test_far_apart_scores_low(self):
+        low = dict(decisiveness=0, endgame_tendency=0, patience=0, simplification=0, attack=0)
+        high = dict(decisiveness=100, endgame_tendency=100, patience=100, simplification=100, attack=100)
+        assert _match_percent(low, high) == 0
+
+    def test_match_is_mean_abs_diff_inverted(self):
+        you = dict(decisiveness=60, endgame_tendency=50, patience=50, simplification=50, attack=50)
+        # one axis differs by 10 → mean abs diff = 2 → match 98
+        assert _match_percent(you, self.AX) == 98
+
+    def test_ranks_closest_gm_first(self, db):
+        db.add(GmProfile(slug="twin", display_name="Twin", birth_year=1900,
+                         decisiveness=50, endgame_tendency=50, patience=50, simplification=50, attack=50))
+        db.add(GmProfile(slug="opposite", display_name="Opposite", birth_year=1910,
+                         decisiveness=0, endgame_tendency=0, patience=0, simplification=0, attack=0))
+        db.commit()
+        make_game(db, id="g1", username="demo", raw_pgn=SAMPLE_PGN, color="white")
+        result = get_style_match("demo", db)
+        assert result["you"] is not None
+        assert [g["slug"] for g in result["gms"]][0] in ("twin", "opposite")  # sorted by match
+        assert result["gms"][0]["match"] >= result["gms"][1]["match"]
+
+    def test_null_match_when_no_user_games(self, db):
+        db.add(GmProfile(slug="x", display_name="X", birth_year=1900,
+                         decisiveness=50, endgame_tendency=50, patience=50, simplification=50, attack=50))
+        db.commit()
+        result = get_style_match("nobody", db)
+        assert result["you"] is None
+        assert result["gms"][0]["match"] is None
 
 
 # ---------------------------------------------------------------------------

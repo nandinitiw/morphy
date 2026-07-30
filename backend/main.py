@@ -19,7 +19,7 @@ from db.database import get_db
 from demo.seed_demo import seed as seed_demo
 from gm.seed_gms import GM_REGISTRY, seed_gm
 from profiler.spaced_repetition import get_drill_queue, get_mastery, is_mastered, record_attempt
-from stats import aggregate_openings, build_profile, build_timeline, get_blunder_examples, get_style_gap, list_gm_profiles
+from stats import aggregate_openings, build_profile, build_timeline, get_blunder_examples, get_style_gap, get_style_match, list_gm_profiles
 
 logger = logging.getLogger(__name__)
 
@@ -211,6 +211,12 @@ async def style_gap(
     if result is None:
         raise HTTPException(status_code=404, detail=f"GM profile '{gm}' not found. Run: python -m gm.seed_gms --slug {gm}")
     return result
+
+
+@app.get("/style/{username}/match")
+async def style_match(username: str, db: Session = Depends(get_db)):
+    """Rank every GM by how closely the user's style matches — powers "you play like X"."""
+    return get_style_match(username, db)
 
 
 @app.get("/blunders/{username}")

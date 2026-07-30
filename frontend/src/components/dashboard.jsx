@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
-import { fetchWeaknessProfile, fetchBlunderExamples, fetchTimeline, formatAnalysisRange, themeLabel } from "../api/client";
+import { fetchWeaknessProfile, fetchBlunderExamples, fetchTimeline, fetchStyleMatch, formatAnalysisRange, themeLabel } from "../api/client";
+import { getIdol, biggestGap } from "../idol.js";
 import { uciToSan } from "../notation.js";
 import TimeControlFilter from "./TimeControlFilter";
 import Chart from "chart.js/auto";
@@ -80,7 +81,61 @@ function HeroBlunder({ blunder, onNavigateCoach }) {
   );
 }
 
-export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcChange, onNavigateCoach }) {
+// "Play like your idol," surfaced on the dashboard: who you naturally play like,
+// who you're training toward, how close you are, and the one habit that closes
+// the biggest gap. Hidden until there's analyzed data to compute style from.
+function StyleHeroCard({ username, onNavigate }) {
+  const [match, setMatch] = useState(null);
+  const idolSlug = getIdol(username);
+
+  useEffect(() => {
+    fetchStyleMatch(username).then(setMatch).catch(() => setMatch(null));
+  }, [username]);
+
+  if (!match || !match.you || !match.gms?.length) return null;
+  const closest = match.gms[0];
+  const idol = idolSlug ? match.gms.find((g) => g.slug === idolSlug) : null;
+  const gap = idol ? biggestGap(match.you, idol.axes, idol.name) : null;
+
+  return (
+    <div className="card style-hero">
+      <div className="style-hero-head">
+        <span className="card-title" style={{ margin: 0 }}>Your style</span>
+        <button type="button" className="link-btn" onClick={() => onNavigate?.("style")}>
+          Open Style →
+        </button>
+      </div>
+      <div className="style-hero-identity">
+        <div className="style-hero-row">
+          <span className="style-hero-eyebrow">Most like</span>
+          <strong>{closest.name}</strong>
+          <span className="style-hero-pct">{closest.match}%</span>
+        </div>
+        {idol ? (
+          <div className="style-hero-row">
+            <span className="style-hero-eyebrow">Idol</span>
+            <strong className="style-hero-goal">★ {idol.name}</strong>
+            <span className="style-hero-pct">{idol.match}% there</span>
+          </div>
+        ) : (
+          <button type="button" className="idol-set-btn" onClick={() => onNavigate?.("style")}>
+            ☆ Pick your idol
+          </button>
+        )}
+      </div>
+      {gap && (
+        <div className="style-hero-gap">
+          <div className="style-hero-gap-label">
+            Biggest gap to {idol.name}: <strong>{gap.label}</strong>
+          </div>
+          <div className="style-hero-habit">{gap.habit}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcChange, onNavigateCoach, onNavigate }) {
   const setTc = onTcChange ?? (() => {});
   const [stats, setStats] = useState(null);
   const [meta, setMeta] = useState(null);
@@ -331,6 +386,8 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
           <div className="metric-value">{weaknesses.length}</div>
         </div>
       </div>
+
+      <StyleHeroCard username={username} onNavigate={onNavigate} />
 
       {timeline.length >= 2 && (
         <div className="card">

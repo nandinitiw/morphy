@@ -120,7 +120,7 @@ export default function App() {
       </nav>
       <main className="main">
         <IngestBanner username={username} onComplete={() => setRefreshKey((k) => k + 1)} />
-        {page === "dashboard" && <Dashboard username={username} refreshKey={refreshKey} tc={tc} onTcChange={setTc} onNavigateCoach={goToCoach} />}
+        {page === "dashboard" && <Dashboard username={username} refreshKey={refreshKey} tc={tc} onTcChange={setTc} onNavigateCoach={goToCoach} onNavigate={navigate} />}
         {page === "openings" && <Openings username={username} refreshKey={refreshKey} tc={tc} />}
         {page === "weaknesses" && (
           <Weaknesses username={username} refreshKey={refreshKey} tc={tc} onNavigateCoach={goToCoach} />
