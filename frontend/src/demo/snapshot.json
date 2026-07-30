@@ -777,223 +777,223 @@
     }
   },
   "/style-gap/demo?gm=carlsen": {
+    "you": {
+      "decisiveness": 72.7,
+      "endgame_tendency": 22.2,
+      "patience": 49.4,
+      "simplification": 78.2,
+      "attack": 35.6
+    },
     "gm": {
-      "attack": 33.6,
       "decisiveness": 48.7,
       "endgame_tendency": 92.6,
       "patience": 93.4,
-      "simplification": 96.1
+      "simplification": 96.1,
+      "attack": 33.6
     },
     "gm_meta": {
-      "games_analyzed": 7484,
+      "slug": "carlsen",
       "name": "Magnus Carlsen",
-      "slug": "carlsen"
-    },
-    "morphy": {
-      "attack": 33.6,
-      "decisiveness": 48.7,
-      "endgame_tendency": 92.6,
-      "patience": 93.4,
-      "simplification": 96.1
+      "games_analyzed": 7484
     },
     "stats": {
+      "you": {
+        "avg_game_length": 38.9,
+        "check_frequency": "6.5%",
+        "decisive_games": "80%",
+        "endgame_reach": "23%",
+        "development_speed": "move 4.6"
+      },
       "carlsen": {
         "avg_game_length": 45.9,
         "check_frequency": "6.4%",
         "decisive_games": "69%",
-        "development_speed": "move 4.7",
-        "endgame_reach": "40%"
-      },
-      "you": {
-        "avg_game_length": 6.9,
-        "check_frequency": "1.3%",
-        "decisive_games": "80%",
-        "development_speed": "move 4.6",
-        "endgame_reach": "0%"
+        "endgame_reach": "40%",
+        "development_speed": "move 4.7"
       }
     },
-    "you": {
-      "attack": 0.0,
-      "decisiveness": 72.7,
-      "endgame_tendency": 0.0,
-      "patience": 0.0,
-      "simplification": 0.0
+    "morphy": {
+      "decisiveness": 48.7,
+      "endgame_tendency": 92.6,
+      "patience": 93.4,
+      "simplification": 96.1,
+      "attack": 33.6
     }
   },
   "/style-gap/demo?gm=fischer": {
+    "you": {
+      "decisiveness": 72.7,
+      "endgame_tendency": 22.2,
+      "patience": 49.4,
+      "simplification": 78.2,
+      "attack": 35.6
+    },
     "gm": {
-      "attack": 25.3,
       "decisiveness": 48.1,
       "endgame_tendency": 57.0,
       "patience": 59.0,
-      "simplification": 62.8
+      "simplification": 62.8,
+      "attack": 25.3
     },
     "gm_meta": {
-      "games_analyzed": 827,
+      "slug": "fischer",
       "name": "Bobby Fischer",
-      "slug": "fischer"
-    },
-    "morphy": {
-      "attack": 25.3,
-      "decisiveness": 48.1,
-      "endgame_tendency": 57.0,
-      "patience": 59.0,
-      "simplification": 62.8
+      "games_analyzed": 827
     },
     "stats": {
+      "you": {
+        "avg_game_length": 38.9,
+        "check_frequency": "6.5%",
+        "decisive_games": "80%",
+        "endgame_reach": "23%",
+        "development_speed": "move 4.6"
+      },
       "fischer": {
         "avg_game_length": 40.4,
         "check_frequency": "5.8%",
         "decisive_games": "69%",
-        "development_speed": "move 4.6",
-        "endgame_reach": "32%"
-      },
-      "you": {
-        "avg_game_length": 6.9,
-        "check_frequency": "1.3%",
-        "decisive_games": "80%",
-        "development_speed": "move 4.6",
-        "endgame_reach": "0%"
+        "endgame_reach": "32%",
+        "development_speed": "move 4.6"
       }
     },
-    "you": {
-      "attack": 0.0,
-      "decisiveness": 72.7,
-      "endgame_tendency": 0.0,
-      "patience": 0.0,
-      "simplification": 0.0
+    "morphy": {
+      "decisiveness": 48.1,
+      "endgame_tendency": 57.0,
+      "patience": 59.0,
+      "simplification": 62.8,
+      "attack": 25.3
     }
   },
   "/style-gap/demo?gm=kasparov": {
+    "you": {
+      "decisiveness": 72.7,
+      "endgame_tendency": 22.2,
+      "patience": 49.4,
+      "simplification": 78.2,
+      "attack": 35.6
+    },
     "gm": {
-      "attack": 18.4,
       "decisiveness": 25.3,
       "endgame_tendency": 28.4,
       "patience": 43.6,
-      "simplification": 25.2
+      "simplification": 25.2,
+      "attack": 18.4
     },
     "gm_meta": {
-      "games_analyzed": 2128,
+      "slug": "kasparov",
       "name": "Garry Kasparov",
-      "slug": "kasparov"
-    },
-    "morphy": {
-      "attack": 18.4,
-      "decisiveness": 25.3,
-      "endgame_tendency": 28.4,
-      "patience": 43.6,
-      "simplification": 25.2
+      "games_analyzed": 2128
     },
     "stats": {
+      "you": {
+        "avg_game_length": 38.9,
+        "check_frequency": "6.5%",
+        "decisive_games": "80%",
+        "endgame_reach": "23%",
+        "development_speed": "move 4.6"
+      },
       "kasparov": {
         "avg_game_length": 38.0,
         "check_frequency": "5.3%",
         "decisive_games": "59%",
-        "development_speed": "move 5.0",
-        "endgame_reach": "25%"
-      },
-      "you": {
-        "avg_game_length": 6.9,
-        "check_frequency": "1.3%",
-        "decisive_games": "80%",
-        "development_speed": "move 4.6",
-        "endgame_reach": "0%"
+        "endgame_reach": "25%",
+        "development_speed": "move 5.0"
       }
     },
-    "you": {
-      "attack": 0.0,
-      "decisiveness": 72.7,
-      "endgame_tendency": 0.0,
-      "patience": 0.0,
-      "simplification": 0.0
+    "morphy": {
+      "decisiveness": 25.3,
+      "endgame_tendency": 28.4,
+      "patience": 43.6,
+      "simplification": 25.2,
+      "attack": 18.4
     }
   },
   "/style-gap/demo?gm=morphy": {
+    "you": {
+      "decisiveness": 72.7,
+      "endgame_tendency": 22.2,
+      "patience": 49.4,
+      "simplification": 78.2,
+      "attack": 35.6
+    },
     "gm": {
-      "attack": 83.5,
       "decisiveness": 98.8,
       "endgame_tendency": 9.9,
       "patience": 9.1,
-      "simplification": 4.3
+      "simplification": 4.3,
+      "attack": 83.5
     },
     "gm_meta": {
-      "games_analyzed": 211,
+      "slug": "morphy",
       "name": "Paul Morphy",
-      "slug": "morphy"
-    },
-    "morphy": {
-      "attack": 83.5,
-      "decisiveness": 98.8,
-      "endgame_tendency": 9.9,
-      "patience": 9.1,
-      "simplification": 4.3
+      "games_analyzed": 211
     },
     "stats": {
+      "you": {
+        "avg_game_length": 38.9,
+        "check_frequency": "6.5%",
+        "decisive_games": "80%",
+        "endgame_reach": "23%",
+        "development_speed": "move 4.6"
+      },
       "morphy": {
         "avg_game_length": 32.5,
         "check_frequency": "9.8%",
         "decisive_games": "91%",
-        "development_speed": "move 4.4",
-        "endgame_reach": "20%"
-      },
-      "you": {
-        "avg_game_length": 6.9,
-        "check_frequency": "1.3%",
-        "decisive_games": "80%",
-        "development_speed": "move 4.6",
-        "endgame_reach": "0%"
+        "endgame_reach": "20%",
+        "development_speed": "move 4.4"
       }
     },
-    "you": {
-      "attack": 0.0,
-      "decisiveness": 72.7,
-      "endgame_tendency": 0.0,
-      "patience": 0.0,
-      "simplification": 0.0
+    "morphy": {
+      "decisiveness": 98.8,
+      "endgame_tendency": 9.9,
+      "patience": 9.1,
+      "simplification": 4.3,
+      "attack": 83.5
     }
   },
   "/style-gap/demo?gm=tal": {
+    "you": {
+      "decisiveness": 72.7,
+      "endgame_tendency": 22.2,
+      "patience": 49.4,
+      "simplification": 78.2,
+      "attack": 35.6
+    },
     "gm": {
-      "attack": 17.7,
       "decisiveness": 8.3,
       "endgame_tendency": 13.8,
       "patience": 27.4,
-      "simplification": 0.4
+      "simplification": 0.4,
+      "attack": 17.7
     },
     "gm_meta": {
-      "games_analyzed": 2431,
+      "slug": "tal",
       "name": "Mikhail Tal",
-      "slug": "tal"
-    },
-    "morphy": {
-      "attack": 17.7,
-      "decisiveness": 8.3,
-      "endgame_tendency": 13.8,
-      "patience": 27.4,
-      "simplification": 0.4
+      "games_analyzed": 2431
     },
     "stats": {
+      "you": {
+        "avg_game_length": 38.9,
+        "check_frequency": "6.5%",
+        "decisive_games": "80%",
+        "endgame_reach": "23%",
+        "development_speed": "move 4.6"
+      },
       "tal": {
         "avg_game_length": 35.4,
         "check_frequency": "5.2%",
         "decisive_games": "52%",
-        "development_speed": "move 4.7",
-        "endgame_reach": "21%"
-      },
-      "you": {
-        "avg_game_length": 6.9,
-        "check_frequency": "1.3%",
-        "decisive_games": "80%",
-        "development_speed": "move 4.6",
-        "endgame_reach": "0%"
+        "endgame_reach": "21%",
+        "development_speed": "move 4.7"
       }
     },
-    "you": {
-      "attack": 0.0,
-      "decisiveness": 72.7,
-      "endgame_tendency": 0.0,
-      "patience": 0.0,
-      "simplification": 0.0
+    "morphy": {
+      "decisiveness": 8.3,
+      "endgame_tendency": 13.8,
+      "patience": 27.4,
+      "simplification": 0.4,
+      "attack": 17.7
     }
   },
   "/timeline/demo": {
@@ -1376,35 +1376,23 @@
   "/style/demo/match": {
     "you": {
       "decisiveness": 72.7,
-      "endgame_tendency": 0.0,
-      "patience": 0.0,
-      "simplification": 0.0,
-      "attack": 0.0
+      "endgame_tendency": 22.2,
+      "patience": 49.4,
+      "simplification": 78.2,
+      "attack": 35.6
     },
     "gms": [
       {
-        "slug": "tal",
-        "name": "Mikhail Tal",
+        "slug": "fischer",
+        "name": "Bobby Fischer",
         "axes": {
-          "decisiveness": 8.3,
-          "endgame_tendency": 13.8,
-          "patience": 27.4,
-          "simplification": 0.4,
-          "attack": 17.7
+          "decisiveness": 48.1,
+          "endgame_tendency": 57.0,
+          "patience": 59.0,
+          "simplification": 62.8,
+          "attack": 25.3
         },
-        "match": 75
-      },
-      {
-        "slug": "morphy",
-        "name": "Paul Morphy",
-        "axes": {
-          "decisiveness": 98.8,
-          "endgame_tendency": 9.9,
-          "patience": 9.1,
-          "simplification": 4.3,
-          "attack": 83.5
-        },
-        "match": 73
+        "match": 81
       },
       {
         "slug": "kasparov",
@@ -1416,19 +1404,7 @@
           "simplification": 25.2,
           "attack": 18.4
         },
-        "match": 67
-      },
-      {
-        "slug": "fischer",
-        "name": "Bobby Fischer",
-        "axes": {
-          "decisiveness": 48.1,
-          "endgame_tendency": 57.0,
-          "patience": 59.0,
-          "simplification": 62.8,
-          "attack": 25.3
-        },
-        "match": 54
+        "match": 74
       },
       {
         "slug": "carlsen",
@@ -1440,7 +1416,31 @@
           "simplification": 96.1,
           "attack": 33.6
         },
-        "match": 32
+        "match": 68
+      },
+      {
+        "slug": "tal",
+        "name": "Mikhail Tal",
+        "axes": {
+          "decisiveness": 8.3,
+          "endgame_tendency": 13.8,
+          "patience": 27.4,
+          "simplification": 0.4,
+          "attack": 17.7
+        },
+        "match": 62
+      },
+      {
+        "slug": "morphy",
+        "name": "Paul Morphy",
+        "axes": {
+          "decisiveness": 98.8,
+          "endgame_tendency": 9.9,
+          "patience": 9.1,
+          "simplification": 4.3,
+          "attack": 83.5
+        },
+        "match": 60
       }
     ]
   }

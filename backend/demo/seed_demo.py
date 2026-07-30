@@ -251,6 +251,42 @@ def board_from_pgn(pgn_str: str) -> chess.Board:
     return board
 
 
+def _pick_continuation_move(board: chess.Board, rng: random.Random) -> chess.Move:
+    """Choose a legal move biased toward captures and the occasional check.
+
+    Random legal rollouts leave demo games as dead opening shuffles, which
+    zeroes the material/endgame/check style axes. Leaning on captures makes the
+    games trade down into endgames and register a believable check rate.
+    """
+    legal = list(board.legal_moves)
+    checks = [m for m in legal if board.gives_check(m)]
+    captures = [m for m in legal if board.is_capture(m)]
+    r = rng.random()
+    if checks and r < 0.08:
+        return rng.choice(checks)
+    if captures and r < 0.20:
+        return rng.choice(captures)
+    return rng.choice(legal)
+
+
+def _extend_game(opening_pgn: str, rng: random.Random, target_plies: int) -> chess.pgn.Game:
+    """Continue an opening fragment into a full, legal game for realistic style.
+
+    Uses a caller-supplied RNG (isolated from the global demo stream) so this
+    only affects the style axes, not the rest of the deterministic demo data.
+    """
+    game = chess.pgn.read_game(io.StringIO(opening_pgn))
+    node = game.end()
+    board = node.board()
+    plies = len(list(game.mainline_moves()))
+    while plies < target_plies and not board.is_game_over():
+        move = _pick_continuation_move(board, rng)
+        node = node.add_main_variation(move)
+        board.push(move)
+        plies += 1
+    return game
+
+
 def _pgn_result(result: str, color: str) -> str:
     """Map a stored result ("win"/"loss"/"draw") + player colour to a PGN Result tag."""
     if result == "draw":
@@ -264,8 +300,11 @@ def make_game_record(opening: dict, game_num: int, base_date: datetime) -> Game:
     color = opening["color"]
     opp = f"demo_opponent_{game_num}"
 
-    board = board_from_pgn(opening["pgn"])
-    pgn_game = chess.pgn.read_game(io.StringIO(opening["pgn"]))
+    # Extend the opening fragment into a full game so the style axes (length,
+    # check rate, material traded, endgame reach) aren't degenerate. Isolated
+    # per-game RNG keeps every other demo value byte-identical.
+    ext_rng = random.Random(1000 + game_num)
+    pgn_game = _extend_game(opening["pgn"], ext_rng, target_plies=ext_rng.randint(64, 96))
     # Inject demo username into headers so compute_style can match the player
     if color == "white":
         pgn_game.headers["White"] = DEMO_USER
