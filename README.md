@@ -1,6 +1,6 @@
 # MORPHY
 
-**An AI chess coach that ingests your Chess.com games, runs Stockfish on every position, profiles your recurring mistakes,  lets you chat with a Claude-powered agent that has live access, and shows you the positions on a real board.**
+**An AI chess coach that ingests your Chess.com games, runs Stockfish on every position, profiles your recurring mistakes, lets you chat with a Claude-powered agent that has live access to your data, drills you on the exact positions you got wrong with spaced repetition, and shows you which legend you play like — and who you're becoming.**
 
 **[Try the live demo →](https://morphy-jade.vercel.app)** *(no account needed — click "Try demo")*
 
@@ -15,9 +15,11 @@
 - **An agentic loop.** `/coach` runs Claude in a tool-use loop (up to 10 iterations) with five tools over your live database. Claude decides what data it needs, calls tools, reasons over the results, and can call more before answering. ([`backend/agent/coach_agent.py`](backend/agent/coach_agent.py))
 - **Grounded, position-aware output.** Tool results embed the FEN of every blunder, so the model renders *your* real positions on an interactive board instead of inventing them. The system prompt forces it to explain the engine's reasoning and tie mistakes to your recurring weakness themes. ([`backend/agent/tools.py`](backend/agent/tools.py), [`backend/agent/prompts.py`](backend/agent/prompts.py))
 - **Prompt caching for latency + cost.** The static system prompt and tool definitions are marked `cache_control: ephemeral` and kept separate from per-user context, so the cache is shared across turns.
-- **A genuine analysis pipeline.** Chess.com ingest → per-position Stockfish evaluation → rule-based tactical-motif classification (fork, pin, skewer, back-rank, discovered check…) → per-motif weakness profiling (frequency + average severity). A FEN-keyed cache means identical positions are never re-analyzed. ([`backend/analysis/`](backend/analysis), [`backend/profiler/`](backend/profiler))
+- **A genuine analysis pipeline.** Chess.com ingest → per-position Stockfish evaluation → rule-based tactical-motif classification (fork, pin, skewer, back-rank, hung piece, bad trade, pawn weakness…) → per-motif weakness profiling (frequency + average severity). A FEN-keyed cache skips repeat positions, and ingest is bounded to the analysis window so even a hyperactive account (hundreds of games/month) stays fast. ([`backend/analysis/`](backend/analysis), [`backend/profiler/`](backend/profiler))
+- **A closed practice loop, not a diagnosis.** The trainer re-serves the exact positions *you* blundered — not generic puzzles — scheduled by a Leitner spaced-repetition system: fail one and it resurfaces, master it and it's pushed out. Per-theme mastery tracking turns the weakness report into a progress bar. ([`backend/profiler/spaced_repetition.py`](backend/profiler/spaced_repetition.py))
+- **"Play like a legend."** Your five style axes are matched against five grandmasters to tell you who you naturally play like *and* how close you are to the idol you're training toward, with the one habit that closes the biggest gap. ([`backend/stats.py`](backend/stats.py))
 - **Built to survive real input.** One corrupt game can't kill a batch (per-game failure isolation), duplicate ingest requests are de-duplicated instead of spawning parallel engine runs, and Stockfish resolution falls back across install paths for portable deploys.
-- **Shipped like production.** GitHub Actions CI on every PR (typecheck, lint, 62 tests, build), Dockerized backend on Render, static frontend on Vercel with per-PR preview deployments, and a nightly scheduler that refreshes tracked users' data.
+- **Shipped like production.** GitHub Actions CI on every PR (typecheck, lint, 140 tests, build), Dockerized backend on Render, static frontend on Vercel with per-PR preview deployments, and a nightly scheduler that refreshes tracked users' data.
 
 ---
 
@@ -28,10 +30,10 @@
 | ![Dashboard](docs/screenshots/dashboard.png) | ![Weaknesses](docs/screenshots/weaknesses.png) |
 | Accuracy-over-time trend, your most costly blunder on a board, and severity-by-theme — filterable by time control. | Themes sorted by how many points they cost you; click any row to see the exact blunder on a board with the played vs. best move highlighted. |
 
-| Blunder trainer | Style comparison vs. a grandmaster |
+| Blunder trainer (spaced repetition) | Legends — play like a legend |
 |---|---|
-| ![Train](docs/screenshots/train.png) | ![Style gap](docs/screenshots/style-gap.png) |
-| Re-solve the positions you actually got wrong: find the engine's move on your own games. | Your play mapped against a GM's historical fingerprint across five style axes. |
+| ![Train](docs/screenshots/train.png) | ![Legends](docs/screenshots/style-gap.png) |
+| Re-solve the positions you actually got wrong. Fail one and it resurfaces; master it and it's pushed out — with per-theme mastery tracking. | Which legend you play like, how close you are to the idol you're training toward, and the one habit that closes the biggest gap. |
 
 *(The AI coach is shown at the top of this README.)*
 
@@ -43,8 +45,9 @@
 2. **Analyses** every position with Stockfish — best move, centipawn loss, blunder classification.
 3. **Classifies** each blunder's tactical motif with python-chess board logic (missed fork, pin, skewer, back-rank mate, discovered check, hanging piece, king safety…).
 4. **Profiles** your persistent weaknesses by aggregating motifs across all games — one row per motif with its frequency and average severity (centipawn loss).
-5. **Compares** your style to grandmasters (Morphy, Tal, Fischer, Kasparov, Carlsen) across decisiveness, endgame tendency, patience (game length), simplification, and attack. These axes were chosen — and their normalization windows fitted — so the grandmasters actually separate from *each other* (verified across ~13k GM games), not just from the amateur baseline.
-6. **Coaches** you through a multi-turn Claude agent that pulls all of the above — plus Lichess practice puzzles — mid-conversation and renders positions on an interactive board.
+5. **Drills** you on the exact positions you blundered — a spaced-repetition trainer (Leitner boxes) that resurfaces the ones you fail and tracks mastery per theme, so the diagnosis becomes deliberate practice on *your own* mistakes.
+6. **Matches** your style to grandmasters (Morphy, Tal, Fischer, Kasparov, Carlsen) across decisiveness, endgame tendency, patience (game length), simplification, and attack — telling you who you play like and how close you are to the idol you're training toward. The axes were chosen (and their normalization windows fitted) so the grandmasters actually separate from *each other* (verified across ~13k GM games), not just from the amateur baseline.
+7. **Coaches** you through a multi-turn Claude agent that pulls all of the above mid-conversation, renders positions on an interactive board, and can queue a drill of your own mistakes (topping up with Lichess puzzles only when you don't have enough of your own).
 
 ---
 
@@ -63,11 +66,15 @@ POST /ingest/{username}                      ← background job; deduped per act
       └─ persist via SQLAlchemy (SQLite by default; Postgres via DATABASE_URL)
                   │
                   ▼
-         GET  /profile/{username}     · weakness fingerprint + summary stats
-         GET  /style-gap/{username}   · style radar vs. a GM
-         GET  /blunders/{username}    · example positions per theme
-         GET  /openings/{username}    · repertoire win/loss + accuracy
-         POST /coach                  · agentic loop: Claude + 5 tools over live data
+         GET  /profile/{username}       · weakness fingerprint + summary stats
+         GET  /style/{username}/match   · who you play like, ranked across all GMs
+         GET  /style-gap/{username}     · style radar vs. one GM
+         GET  /blunders/{username}      · example positions per theme
+         GET  /openings/{username}      · repertoire win/loss + accuracy
+         GET  /drill/{username}/queue   · spaced-repetition drill queue (due reviews first)
+         POST /drill/{username}/attempt · record a drill result; reschedule the card
+         GET  /drill/{username}/mastery · per-theme drill progress
+         POST /coach                    · agentic loop: Claude + 5 tools over live data
 
   APScheduler → nightly refresh of tracked users (ingest → analyze → re-profile)
 ```
@@ -77,7 +84,7 @@ POST /ingest/{username}                      ← background job; deduped per act
 Each message to `/coach` runs an agentic loop:
 
 1. Claude reads conversation history + a prompt-cached system prompt and tool schema.
-2. If it needs data, it calls one or more tools — `get_recent_games`, `get_weakness_profile`, `get_game_details`, `get_opening_stats`, `fetch_practice_puzzles` — executed server-side against your database.
+2. If it needs data, it calls one or more tools — `get_recent_games`, `get_weakness_profile`, `get_game_details`, `get_opening_stats`, `queue_practice` (drills your own blundered positions) — executed server-side against your database.
 3. Tool results (including FENs for every blunder) are fed back; Claude decides whether to call more tools or respond.
 4. The final answer can embed ` ```chess-board ` fenced blocks with a FEN + label, which the frontend renders as interactive boards.
 
@@ -92,8 +99,8 @@ History is capped to bound token cost; the static prompt and tool definitions ar
 | Frontend | React 18, Vite, Chart.js, react-chessboard, react-markdown |
 | Backend | FastAPI, SQLAlchemy, SQLite (Postgres-ready via `DATABASE_URL`) |
 | Analysis | Stockfish via python-chess; rule-based tactical-motif classification |
+| Practice | Leitner spaced repetition over your own blundered positions (Lichess API as fallback) |
 | AI coach | Anthropic Claude — tool-use agentic loop with prompt caching |
-| Puzzles | Lichess API |
 | CI/CD | GitHub Actions · Render (Docker) · Vercel |
 
 ---
@@ -101,7 +108,7 @@ History is capped to bound token cost; the static prompt and tool definitions ar
 ## Engineering practices
 
 - **CI on every push and PR** ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)): backend `pytest`, frontend `tsc --noEmit` typecheck, ESLint, Vitest, and a production build. Any failure blocks the merge.
-- **62 tests.** 55 backend (`pytest`) covering the stats engine, PGN parser, tactical classifier, and job dedupe; 7 frontend (Vitest) covering client utilities.
+- **140 tests.** 123 backend (`pytest`) covering the stats engine, PGN parser, tactical classifier, spaced-repetition scheduler, style-match, and job dedupe; 17 frontend (Vitest) covering client utilities.
 - **Preview deployments.** Vercel builds a live preview for every PR automatically.
 - **Reliability by design.** Per-game failure isolation, ingest-job de-duplication, graceful Stockfish path resolution, and a `/health/stockfish` diagnostic endpoint.
 
@@ -142,8 +149,8 @@ Open [http://localhost:5173](http://localhost:5173). Enter your Chess.com userna
 ### Tests
 
 ```bash
-cd backend && python -m pytest tests/ -v      # 55 backend tests
-cd frontend && npm test                        # 7 frontend tests
+cd backend && python -m pytest tests/ -v      # 123 backend tests
+cd frontend && npm test                        # 17 frontend tests
 npm run lint && npm run typecheck              # ESLint + tsc
 ```
 
