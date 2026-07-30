@@ -64,8 +64,17 @@ export default function StyleGap({ username, onNavigateCoach }) {
   const [error, setError]   = useState(null);
   const [recoLoading, setRecoLoading] = useState(false);
   const [reco, setReco]     = useState(null);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [suggestValue, setSuggestValue] = useState("");
+  const [suggested, setSuggested] = useState(null);
   const radarRef   = useRef(null);
   const radarChart = useRef(null);
+
+  function handleSuggest(e) {
+    e.preventDefault();
+    const name = suggestValue.trim();
+    if (name) setSuggested(name);
+  }
 
   // "You play like X" — nearest GM + match % to each, for the identity banner.
   useEffect(() => {
@@ -284,6 +293,32 @@ export default function StyleGap({ username, onNavigateCoach }) {
               </button>
             )}
           </div>
+        </div>
+
+        <div className="legend-suggest-row">
+          <span className="legend-suggest-note">★ A hand-picked lineup of my personal favorites.</span>
+          {suggested ? (
+            <span className="legend-suggest-done">Noted — {suggested} is on the shortlist ♟</span>
+          ) : suggestOpen ? (
+            <form className="legend-suggest-form" onSubmit={handleSuggest}>
+              <input
+                className="legend-suggest-input"
+                value={suggestValue}
+                onChange={(e) => setSuggestValue(e.target.value)}
+                placeholder="Who should join?"
+                aria-label="Suggest a legend to add"
+                maxLength={40}
+                autoFocus
+              />
+              <button type="submit" className="legend-suggest-submit" disabled={!suggestValue.trim()}>
+                Suggest
+              </button>
+            </form>
+          ) : (
+            <button type="button" className="legend-suggest-toggle" onClick={() => setSuggestOpen(true)}>
+              + Suggest a legend
+            </button>
+          )}
         </div>
       </div>
 

@@ -39,8 +39,9 @@ export default function About() {
               repetition: fail one and it resurfaces, master it and it&apos;s pushed out.
             </li>
             <li>
-              <strong>Match</strong> — Your play is mapped against five grandmasters to show who you
-              play like and how close you are to the idol you&apos;re training toward.
+              <strong>Match</strong> — In <em>Legends</em>, your play is mapped against five hand-picked
+              grandmasters (my personal favorites) to show who you play like and how close you are to
+              the idol you&apos;re training toward.
             </li>
             <li>
               <strong>Coach</strong> — Claude reads your data via tools, renders your real positions on
