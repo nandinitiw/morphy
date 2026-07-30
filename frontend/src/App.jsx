@@ -12,15 +12,16 @@ import Weaknesses from "./components/weaknesses.jsx";
 import { useUsername } from "./context/UsernameContext.jsx";
 import "./App.css";
 
-// Coach leads — it's the product's identity (a coach that talks to your data),
-// so it sits first and is the default landing surface for real users.
+// The two pillars lead the nav: the Coach (a coach that talks to your data)
+// and Legends (play like your idol). Both are accented so they read as the
+// product's identity rather than stats tabs.
 const NAV = [
   { id: "coach", label: "Coach", primary: true },
+  { id: "style", label: "Legends", idol: true },
   { id: "dashboard", label: "Dashboard" },
   { id: "weaknesses", label: "Weaknesses" },
   { id: "train", label: "Train" },
   { id: "openings", label: "Openings" },
-  { id: "style", label: "Style gap" },
   { id: "about", label: "About" },
 ];
 
@@ -98,12 +99,13 @@ export default function App() {
           {NAV.map((n) => (
             <button
               key={n.id}
-              className={`nav-item ${page === n.id ? "active" : ""} ${n.primary ? "nav-item-primary" : ""}`}
+              className={`nav-item ${page === n.id ? "active" : ""} ${n.primary ? "nav-item-primary" : ""} ${n.idol ? "nav-item-idol" : ""}`}
               onClick={() => navigate(n.id)}
             >
               <span className="nav-dot" aria-hidden="true" />
               <span>{n.label}</span>
               {n.primary && <i className="ti ti-sparkles nav-item-icon" aria-hidden="true" />}
+              {n.idol && <i className="ti ti-crown nav-item-icon" aria-hidden="true" />}
             </button>
           ))}
         </div>

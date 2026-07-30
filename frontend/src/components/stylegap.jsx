@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchStyleGap, fetchGmList, fetchStyleMatch, sendCoachMessage } from "../api/client";
-import { getIdol, setIdol as persistIdol } from "../idol.js";
+import { getIdol, setIdol as persistIdol, persona, biggestGap } from "../idol.js";
 import AiTooltip from "./AiTooltip";
 import RecommendButton from "./RecommendButton";
 import CoachMarkdown from "./CoachMarkdown.jsx";
@@ -29,6 +29,23 @@ const AXIS_LABELS = ["Decisiveness", "Endgames", "Patience", "Simplifying", "Att
 
 const RADAR_YOU = "#2B2620";   // ink
 const RADAR_GM  = "#C1793A";   // ochre
+
+function RingProgress({ pct }) {
+  const r = 34;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference * (1 - (pct ?? 0) / 100);
+  return (
+    <svg className="legend-ring" width="88" height="88" viewBox="0 0 88 88" aria-hidden="true">
+      <circle cx="44" cy="44" r={r} className="legend-ring-track" fill="none" strokeWidth="7" />
+      <circle
+        cx="44" cy="44" r={r} className="legend-ring-fill" fill="none" strokeWidth="7"
+        strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round"
+        transform="rotate(-90 44 44)"
+      />
+      <text x="44" y="49" textAnchor="middle" className="legend-ring-text">{pct ?? "—"}%</text>
+    </svg>
+  );
+}
 
 function isGoodForYou(key, youVal, gmVal) {
   const youNum = parseFloat(youVal);
@@ -183,33 +200,49 @@ export default function StyleGap({ username, onNavigateCoach }) {
     <div className="page">
       <div className="page-header">
         <div>
-          <div className="page-title">Style comparison</div>
-          <div className="page-sub">your play vs. a grandmaster&apos;s historical fingerprint</div>
+          <div className="page-title">Play like a legend</div>
+          <div className="page-sub">who you play like — and who you&rsquo;re becoming</div>
         </div>
         {style && <RecommendButton onClick={askRecommendations} loading={recoLoading} label="Give me recommendations" />}
       </div>
 
-      {/* Identity + aspiration banner */}
+      {/* The reveal: which legend you play like, + your idol journey */}
       {match?.you && match.gms?.length > 0 && (() => {
         const closest = match.gms[0];
         const idolEntry = idolSlug ? match.gms.find((g) => g.slug === idolSlug) : null;
+        const cp = persona(closest.slug);
+        const ip = idolEntry ? persona(idolEntry.slug) : null;
+        const gap = idolEntry ? biggestGap(match.you, idolEntry.axes, idolEntry.name) : null;
         return (
-          <div className="card idol-banner">
-            <div className="idol-banner-line">
-              <span className="idol-banner-eyebrow">You play most like</span>
-              <span className="idol-banner-name">{closest.name}</span>
-              <span className="idol-banner-pct">{closest.match}% match</span>
+          <>
+            <div className="card legend-reveal">
+              <div className="legend-reveal-eyebrow">You play most like</div>
+              <div className="legend-reveal-name">{closest.name}</div>
+              {cp.epithet && <div className="legend-reveal-epithet">“{cp.epithet}”</div>}
+              {cp.tagline && <div className="legend-reveal-tagline">{cp.tagline}</div>}
+              <div className="legend-reveal-pct">{closest.match}% style match</div>
             </div>
+
             {idolEntry ? (
-              <div className="idol-banner-line">
-                <span className="idol-banner-eyebrow">Training toward</span>
-                <span className="idol-banner-name idol-banner-goal">★ {idolEntry.name}</span>
-                <span className="idol-banner-pct">{idolEntry.match}% there</span>
+              <div className="card legend-idol">
+                <RingProgress pct={idolEntry.match} />
+                <div className="legend-idol-body">
+                  <div className="legend-idol-eyebrow">★ Training toward</div>
+                  <div className="legend-idol-name">{idolEntry.name}</div>
+                  {ip?.epithet && <div className="legend-idol-epithet">{ip.epithet}</div>}
+                  {gap && (
+                    <div className="legend-idol-gap">
+                      Fastest gain — <strong>{gap.label}</strong>: {gap.habit}
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
-              <div className="idol-banner-hint">Pick an idol below to start closing the gap toward their style.</div>
+              <div className="card legend-idol-empty">
+                <span>★</span> Pick your idol below to start the journey — you&rsquo;ll see how close you are and the one habit to get closer.
+              </div>
             )}
-          </div>
+          </>
         );
       })()}
 

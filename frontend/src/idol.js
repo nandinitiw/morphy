@@ -64,6 +64,36 @@ export const AXIS_META = {
   },
 };
 
+// Flavor for the "which legend are you?" reveal — an epithet + one-line
+// character read per GM. Kept punchy and directional (matching the model's
+// fidelity), not a scholarly bio.
+export const LEGEND_PERSONA = {
+  morphy: {
+    epithet: "The Pride and Sorrow of Chess",
+    tagline: "Swift, elegant, decisive — punishes every loose move.",
+  },
+  tal: {
+    epithet: "The Magician of Riga",
+    tagline: "Sacrifice first, calculate later. Chaos is a ladder.",
+  },
+  fischer: {
+    epithet: "The American Legend",
+    tagline: "Surgical precision and a relentless will to win.",
+  },
+  kasparov: {
+    epithet: "The Beast of Baku",
+    tagline: "Dynamic aggression backed by ruthless preparation.",
+  },
+  carlsen: {
+    epithet: "The Grinder",
+    tagline: "Squeezes water from stone — endless endgame pressure.",
+  },
+};
+
+export function persona(slug) {
+  return LEGEND_PERSONA[slug] ?? { epithet: "", tagline: "" };
+}
+
 export const AXIS_KEYS = ["decisiveness", "endgame_tendency", "patience", "simplification", "attack"];
 
 // Given your axes and your idol's, find the single biggest gap and the habit to

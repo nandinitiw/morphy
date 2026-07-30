@@ -160,6 +160,12 @@ body {
 }
 .nav-item-primary.active { background: var(--green-dim); }
 
+/* Legends — the second pillar, accented in ochre (the "idol" color). */
+.nav-item-idol { color: var(--accent); font-weight: 600; }
+.nav-item-idol .nav-dot { background: var(--accent); }
+.nav-item-idol .nav-item-icon { margin-left: auto; font-size: 13px; opacity: 0.75; }
+.nav-item-idol.active { background: var(--accent-soft); }
+
 /* ── Sidebar footer ── */
 .sidebar-footer {
   padding: 12px 16px;
@@ -499,25 +505,68 @@ body {
 }
 .mastery-due { color: var(--amber); }
 
-/* "Play like your idol" — identity + aspiration banner on the Style tab. */
-.idol-banner { display: flex; flex-direction: column; gap: 8px; }
-.idol-banner-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.idol-banner-eyebrow {
+/* "Play like a legend" — the reveal hero + idol journey. */
+.legend-reveal {
+  text-align: center;
+  padding: 28px 20px;
+  animation: legend-reveal-in 0.5s ease both;
+}
+@keyframes legend-reveal-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.99); }
+  to   { opacity: 1; transform: none; }
+}
+.legend-reveal-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+}
+.legend-reveal-name {
+  font-family: var(--serif, Georgia, serif);
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 6px 0 2px;
+}
+.legend-reveal-epithet { font-size: 15px; font-style: italic; color: var(--accent); }
+.legend-reveal-tagline { font-size: 14px; color: var(--text-muted); margin-top: 6px; }
+.legend-reveal-pct {
+  display: inline-block;
+  margin-top: 14px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--green);
+  background: var(--green-dim);
+  border-radius: 20px;
+  padding: 5px 14px;
+}
+
+.legend-idol { display: flex; align-items: center; gap: 20px; }
+.legend-idol-body { min-width: 0; }
+.legend-idol-eyebrow {
   font-family: var(--mono);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--text-dim);
-  min-width: 128px;
+  color: var(--accent);
 }
-.idol-banner-name { font-size: 20px; font-weight: 700; color: var(--text); }
-.idol-banner-goal { color: var(--accent); }
-.idol-banner-pct {
+.legend-idol-name { font-size: 22px; font-weight: 700; color: var(--text); margin: 2px 0; }
+.legend-idol-epithet { font-size: 13px; font-style: italic; color: var(--text-muted); }
+.legend-idol-gap { font-size: 14px; color: var(--text); line-height: 1.5; margin-top: 10px; }
+.legend-idol-empty { font-size: 14px; color: var(--text-muted); }
+.legend-idol-empty span { color: var(--accent); font-size: 16px; }
+
+.legend-ring { flex-shrink: 0; }
+.legend-ring-track { stroke: var(--border); }
+.legend-ring-fill { stroke: var(--accent); transition: stroke-dashoffset 0.8s ease; }
+.legend-ring-text {
   font-family: var(--mono);
-  font-size: 13px;
-  color: var(--green);
+  font-size: 17px;
+  font-weight: 600;
+  fill: var(--text);
 }
-.idol-banner-hint { font-size: 13px; color: var(--text-muted); }
+
 .idol-set-control { margin-top: 10px; }
 .idol-set-current {
   font-family: var(--mono);
