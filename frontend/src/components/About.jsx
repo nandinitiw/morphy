@@ -40,8 +40,10 @@ export default function About() {
             </li>
             <li>
               <strong>Match</strong> — In <em>Legends</em>, your play is mapped against five hand-picked
-              grandmasters (my personal favorites) to show who you play like and how close you are to
-              the idol you&apos;re training toward.
+              grandmasters (my personal favorites). Their full game archives — 13,000+ games — are run
+              through the <em>same</em> five-axis style analysis as yours, so the comparison is
+              apples-to-apples: who you play like, and how close you are to the idol you&apos;re training
+              toward.
             </li>
             <li>
               <strong>Coach</strong> — Claude reads your data via tools, renders your real positions on
@@ -99,6 +101,10 @@ export default function About() {
           <div className="tech-item">
             <span className="tech-name">Practice</span>
             <span className="tech-detail">Leitner spaced repetition on your own positions</span>
+          </div>
+          <div className="tech-item">
+            <span className="tech-name">Legend corpus</span>
+            <span className="tech-detail">13,000+ archived GM games · same five-axis analysis</span>
           </div>
           <div className="tech-item">
             <span className="tech-name">Deploy</span>
