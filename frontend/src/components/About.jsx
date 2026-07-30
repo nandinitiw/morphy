@@ -8,8 +8,9 @@ export default function About() {
 
       <div className="card about-hero">
         <p className="about-lead">
-          Morphy ingests your Chess.com games, runs every position through Stockfish, clusters your
-          mistakes into tactical themes, and pairs that data with an AI coach that knows your history.
+          Morphy ingests your Chess.com games, runs every position through Stockfish, groups your
+          mistakes into tactical themes, drills you on the exact positions you got wrong, and pairs it
+          all with an AI coach that knows your history — and shows you which legend you play like.
         </p>
       </div>
 
@@ -26,16 +27,24 @@ export default function About() {
               loss, best move, and move classification (blunder, mistake, inaccuracy).
             </li>
             <li>
-              <strong>Classify</strong> — Tactical motifs (forks, pins, back rank, etc.) are detected
-              from the position where you erred.
+              <strong>Classify</strong> — Tactical motifs (fork, pin, back rank, hung piece, bad trade,
+              pawn weakness…) are detected from the position where you erred.
             </li>
             <li>
-              <strong>Profile</strong> — Blunders are clustered into a weakness fingerprint — frequency
-              and average severity per theme.
+              <strong>Profile</strong> — Blunders are grouped by motif into a weakness fingerprint —
+              frequency and average severity per theme.
             </li>
             <li>
-              <strong>Coach</strong> — Claude reads your data via tools and gives targeted study plans,
-              opening notes, and puzzle links.
+              <strong>Drill</strong> — Re-solve the exact positions you got wrong, scheduled by spaced
+              repetition: fail one and it resurfaces, master it and it&apos;s pushed out.
+            </li>
+            <li>
+              <strong>Match</strong> — Your play is mapped against five grandmasters to show who you
+              play like and how close you are to the idol you&apos;re training toward.
+            </li>
+            <li>
+              <strong>Coach</strong> — Claude reads your data via tools, renders your real positions on
+              a board, explains what you missed, and queues drills of your own mistakes.
             </li>
           </ol>
         </div>
@@ -68,7 +77,7 @@ export default function About() {
           </div>
           <div className="tech-item">
             <span className="tech-name">Backend</span>
-            <span className="tech-detail">FastAPI · Python · SQLAlchemy</span>
+            <span className="tech-detail">FastAPI · Python · SQLAlchemy · SQLite / Postgres</span>
           </div>
           <div className="tech-item">
             <span className="tech-name">Engine</span>
@@ -85,6 +94,14 @@ export default function About() {
           <div className="tech-item">
             <span className="tech-name">Weakness profiling</span>
             <span className="tech-detail">Rule-based tactical-motif classification</span>
+          </div>
+          <div className="tech-item">
+            <span className="tech-name">Practice</span>
+            <span className="tech-detail">Leitner spaced repetition on your own positions</span>
+          </div>
+          <div className="tech-item">
+            <span className="tech-name">Deploy</span>
+            <span className="tech-detail">Render (Docker) · Vercel · GitHub Actions CI</span>
           </div>
         </div>
       </div>
