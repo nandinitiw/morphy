@@ -93,7 +93,10 @@ export default function Openings({ username, refreshKey = 0 }) {
   }, [username, refreshKey]);
 
   useEffect(() => {
-    if (!openings || !chartRef.current) return;
+    // Depend on `loading` too: the canvas only mounts once loading clears, and
+    // setOpenings / setLoading can land in separate renders — without this the
+    // effect runs while the canvas is still unmounted and the chart never draws.
+    if (loading || !openings || !chartRef.current) return;
 
     const all = [...openings.white, ...openings.black];
     const colors = all.map((o) =>
@@ -167,7 +170,7 @@ export default function Openings({ username, refreshKey = 0 }) {
       chart.destroy();
       if (chartInstance.current === chart) chartInstance.current = null;
     };
-  }, [openings]);
+  }, [openings, loading]);
 
   async function handleSelect(opening, color) {
     const key = `${color}-${opening.eco}-${opening.name}`;
