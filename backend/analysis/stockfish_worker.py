@@ -106,6 +106,17 @@ async def analyze_position(engine: chess.engine.UciProtocol, fen: str, move_play
     best_move = result.get("pv", [None])[0]
     score = result["score"].relative
 
+    # If the player already found the engine's top move, the loss is zero by
+    # definition — skip the second (post-move) search entirely. Most moves in a
+    # game aren't mistakes, so this removes a large share of evals at no cost to
+    # accuracy.
+    if best_move is not None and best_move.uci() == move_played:
+        return {
+            "best_move": best_move.uci(),
+            "centipawn_loss": 0,
+            "classification": classify_move(0),
+        }
+
     board_after_played = chess.Board(fen)
     board_after_played.push(chess.Move.from_uci(move_played))
     result_after = await engine.analyse(board_after_played, chess.engine.Limit(depth=ANALYSIS_DEPTH))
