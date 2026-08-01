@@ -2,13 +2,13 @@ export default function About() {
   return (
     <div className="page about-page">
       <div className="page-header">
-        <div className="page-title">About Morphy</div>
+        <div className="page-title">About MORPHY</div>
         <div className="page-sub">how your chess coach works under the hood</div>
       </div>
 
       <div className="card about-hero">
         <p className="about-lead">
-          Morphy ingests your Chess.com games, runs every position through Stockfish, groups your
+          MORPHY ingests your Chess.com games, runs every position through Stockfish, groups your
           mistakes into tactical themes, drills you on the exact positions you got wrong, and pairs it
           all with an AI coach that knows your history — and shows you which legend you play like.
         </p>
@@ -60,7 +60,7 @@ export default function About() {
             position.
           </p>
           <p className="about-body">
-            Morphy uses Stockfish to compare <em>your</em> move to the engine&apos;s best move. The gap
+            MORPHY uses Stockfish to compare <em>your</em> move to the engine&apos;s best move. The gap
             is measured in <strong>centipawns</strong> (1 pawn = 100 centipawns) — a standard way to
             quantify how much evaluation dropped after your move.
           </p>

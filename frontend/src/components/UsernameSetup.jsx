@@ -92,7 +92,7 @@ export default function UsernameSetup() {
     return (
       <div className="setup-screen">
         <div className="setup-card demo-loading-card">
-          <div className="setup-logo">Morphy</div>
+          <div className="setup-logo">MORPHY</div>
           <div className="demo-spinner" aria-hidden="true" />
           <div className="demo-timer">{demoElapsed}s</div>
           <p className="demo-loading-msg">{demoMessage(demoElapsed)}</p>
@@ -105,7 +105,7 @@ export default function UsernameSetup() {
   return (
     <div className="setup-screen">
       <div className="setup-card">
-        <div className="setup-logo">Morphy</div>
+        <div className="setup-logo">MORPHY</div>
         <p className="setup-tagline">Your chess coach agent</p>
 
         <form className="setup-form" onSubmit={handleSubmit}>
