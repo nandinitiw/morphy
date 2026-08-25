@@ -87,32 +87,69 @@ def _avg_cp_loss(db: Session, game_id: str) -> float | None:
     return sum(row[0] for row in rows) / len(rows)
 
 
-def _example_game_for_opening(db: Session, game_ids: list[str]) -> dict | None:
-    """Pick the game with the largest single-move centipawn loss in this opening."""
+def _scored_positions_by_game(
+    db: Session, game_ids: list[str]
+) -> tuple[dict[str, float], dict[str, tuple[int, float]]]:
+    """Fetch every scored position for these games in ONE query.
+
+    Returns (avg_cp_by_game, worst_move_by_game). Callers previously issued a
+    query per game plus one per opening bucket — an N+1 pattern that is
+    invisible against local SQLite but costs a network round-trip each against
+    a managed Postgres, which made /openings take ~20s+ in production.
+    """
     if not game_ids:
-        return None
-    row = (
+        return {}, {}
+
+    rows = (
         db.query(Position.game_id, Position.move_number, Position.centipawn_loss)
         .filter(
             Position.game_id.in_(game_ids),
             Position.is_your_move.is_(True),
             Position.centipawn_loss.isnot(None),
         )
-        .order_by(Position.centipawn_loss.desc())
-        .first()
+        .all()
     )
-    if not row:
+
+    totals: dict[str, list[float]] = {}
+    worst: dict[str, tuple[int, float]] = {}
+    for game_id, move_number, cp_loss in rows:
+        totals.setdefault(game_id, []).append(cp_loss)
+        if game_id not in worst or cp_loss > worst[game_id][1]:
+            worst[game_id] = (move_number, cp_loss)
+
+    averages = {gid: sum(vals) / len(vals) for gid, vals in totals.items()}
+    return averages, worst
+
+
+def _example_game_for_opening(
+    game_ids: list[str], worst_by_game: dict[str, tuple[int, float]]
+) -> dict | None:
+    """Pick the game with the largest single-move centipawn loss in this opening."""
+    if not game_ids:
+        return None
+
+    best_id: str | None = None
+    best: tuple[int, float] | None = None
+    for game_id in game_ids:
+        candidate = worst_by_game.get(game_id)
+        if candidate and (best is None or candidate[1] > best[1]):
+            best_id, best = game_id, candidate
+
+    if best is None:
         game_id = game_ids[0]
         return {"game_id": game_id, "move_number": None, "url": game_url(game_id)}
     return {
-        "game_id": row.game_id,
-        "move_number": row.move_number,
-        "url": game_url(row.game_id),
+        "game_id": best_id,
+        "move_number": best[0],
+        "url": game_url(best_id),
     }
 
 
 def aggregate_openings(username: str, db: Session, tc: str | None = None) -> dict:
     games = filter_games_by_tc(games_query(db, username).all(), tc)
+    # One batched query for every scored position, rather than one per game and
+    # one per opening bucket (see _scored_positions_by_game).
+    avg_cp_by_game, worst_by_game = _scored_positions_by_game(db, [g.id for g in games])
     buckets: dict[tuple[str, str], dict] = {}
 
     for game in games:
@@ -139,7 +176,7 @@ def aggregate_openings(username: str, db: Session, tc: str | None = None) -> dic
             bucket["draws"] += 1
         else:
             bucket["losses"] += 1
-        avg_cp = _avg_cp_loss(db, game.id)
+        avg_cp = avg_cp_by_game.get(game.id)
         if avg_cp is not None:
             bucket["cp_losses"].append(avg_cp)
         if not bucket["moves_notation"] and game.raw_pgn:
@@ -152,7 +189,7 @@ def aggregate_openings(username: str, db: Session, tc: str | None = None) -> dic
                 continue
             total = data["games"] or 1
             avg_cp = round(sum(data["cp_losses"]) / len(data["cp_losses"])) if data["cp_losses"] else 0
-            example = _example_game_for_opening(db, data["game_ids"])
+            example = _example_game_for_opening(data["game_ids"], worst_by_game)
             rows.append(
                 {
                     "eco": data["eco"],
