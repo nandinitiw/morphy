@@ -1,7 +1,7 @@
 import os
 import uuid
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 
@@ -26,9 +26,48 @@ MAX_ANALYZE_GAMES = int(os.getenv("MAX_ANALYZE_GAMES", "0"))
 
 ACTIVE_STATUSES = ("pending", "ingesting", "analyzing", "profiling")
 
+# A healthy job bumps updated_at after every ingested/analyzed game. If nothing
+# has moved for this long the worker is gone — the instance restarted, deployed,
+# or was OOM-killed mid-run — and the row is a zombie. Without this, such a job
+# stays "active" forever and get_active_job keeps handing it back, permanently
+# blocking that user from ever re-running an analysis.
+STALE_JOB_MINUTES = int(os.getenv("STALE_JOB_MINUTES", "15"))
+
+
+def _reap_stale_jobs(username: str, db: Session) -> int:
+    """Mark abandoned jobs for this user as failed. Returns how many were reaped."""
+    cutoff = datetime.now() - timedelta(minutes=STALE_JOB_MINUTES)
+    stale = (
+        db.query(IngestJob)
+        .filter(
+            IngestJob.username == username,
+            IngestJob.status.in_(ACTIVE_STATUSES),
+            IngestJob.updated_at < cutoff,
+        )
+        .all()
+    )
+    for job in stale:
+        job.status = "failed"
+        job.error = (
+            "The server restarted before this run finished, so it was abandoned. "
+            "Click Refresh to start a new analysis."
+        )
+        job.updated_at = datetime.now()
+        logger.warning(
+            "Reaped stale ingest job %s for %s (last update %s)",
+            job.id, username, job.updated_at,
+        )
+    if stale:
+        db.commit()
+    return len(stale)
+
 
 def get_active_job(username: str, db: Session) -> IngestJob | None:
-    """Return a still-running job for this user, if any."""
+    """Return a still-running job for this user, if any.
+
+    Abandoned jobs are reaped first so a dead run can't block new ones.
+    """
+    _reap_stale_jobs(username, db)
     return (
         db.query(IngestJob)
         .filter(IngestJob.username == username, IngestJob.status.in_(ACTIVE_STATUSES))
