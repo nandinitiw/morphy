@@ -20,6 +20,12 @@ from db.models import DrillCard, Game, Position
 BOX_INTERVALS_DAYS = [0, 1, 3, 7, 16, 35]
 MASTERED_BOX = len(BOX_INTERVALS_DAYS) - 1  # 5 — reached the top box
 
+# The demo is a single shared showcase account, so its drill progress must stay
+# stateless — otherwise one visitor's attempts would follow the next. The UI
+# already skips these writes for demo; this guard makes the invariant hold even
+# for direct API calls.
+DEMO_USERNAME = "demo"
+
 
 def _next_due(box: int, from_time: datetime) -> datetime:
     days = BOX_INTERVALS_DAYS[min(box, MASTERED_BOX)]
@@ -37,6 +43,23 @@ def record_attempt(username: str, position_id: int, correct: bool, db: Session) 
     next_due_at is recomputed from the new box.
     """
     now = datetime.now()
+
+    if username.lower() == DEMO_USERNAME:
+        # Compute what the card *would* be so the UI still shows scheduling
+        # feedback, but return it detached — never persisted.
+        box = 1 if correct else 0
+        return DrillCard(
+            username=DEMO_USERNAME,
+            position_id=position_id,
+            box=box,
+            attempts=1,
+            correct=1 if correct else 0,
+            streak=1 if correct else 0,
+            last_reviewed_at=now,
+            next_due_at=_next_due(box, now),
+            created_at=now,
+        )
+
     card = (
         db.query(DrillCard)
         .filter_by(username=username.lower(), position_id=position_id)

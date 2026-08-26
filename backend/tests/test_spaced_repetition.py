@@ -65,6 +65,35 @@ class TestRecordAttempt:
         assert is_mastered(card)
 
 
+class TestDemoIsStateless:
+    """The demo is a shared showcase account — drill attempts must not persist."""
+
+    def test_demo_attempt_is_not_persisted(self, db):
+        pos = _seed(db, n=1, username="demo")[0]
+        record_attempt("demo", pos.id, correct=True, db=db)
+        assert db.query(DrillCard).filter_by(username="demo").count() == 0
+
+    def test_demo_attempt_still_returns_usable_feedback(self, db):
+        pos = _seed(db, n=1, username="demo")[0]
+        card = record_attempt("demo", pos.id, correct=True, db=db)
+        assert card.box == 1
+        assert card.next_due_at is not None
+        wrong = record_attempt("demo", pos.id, correct=False, db=db)
+        assert wrong.box == 0
+
+    def test_demo_mastery_stays_empty(self, db):
+        positions = _seed(db, n=2, username="demo")
+        for p in positions:
+            record_attempt("demo", p.id, correct=True, db=db)
+        mastery = get_mastery("demo", db)
+        assert all(m["carded"] == 0 for m in mastery)
+
+    def test_real_users_still_persist(self, db):
+        pos = _seed(db, n=1, username="realuser")[0]
+        record_attempt("realuser", pos.id, correct=True, db=db)
+        assert db.query(DrillCard).filter_by(username="realuser").count() == 1
+
+
 class TestDrillQueue:
     def test_new_positions_when_no_cards(self, db):
         _seed(db, n=3)

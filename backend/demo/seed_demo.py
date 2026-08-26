@@ -24,7 +24,7 @@ import io
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from db.database import SessionLocal, engine
-from db.models import Base, Game, Position, WeaknessProfile
+from db.models import Base, DrillCard, Game, Position, WeaknessProfile
 
 DEMO_USER = "demo"
 random.seed(42)  # deterministic demo data
@@ -393,6 +393,14 @@ def seed(reset: bool = False) -> None:
     Base.metadata.create_all(engine)
     db = SessionLocal()
     try:
+        # The demo is a shared showcase account, so its drill progress must not
+        # accumulate across visitors. Runs before the already-seeded early return
+        # so a persistent DB self-heals on every boot.
+        purged = db.query(DrillCard).filter_by(username=DEMO_USER).delete()
+        if purged:
+            db.commit()
+            print(f"[demo] Purged {purged} stale demo drill card(s).")
+
         if reset:
             db.query(WeaknessProfile).filter_by(username=DEMO_USER).delete()
             # Delete positions via games
