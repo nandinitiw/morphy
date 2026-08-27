@@ -7,7 +7,7 @@ import chess
 import chess.engine
 from sqlalchemy.orm import Session
 
-from db.models import Position
+from db.models import Game, Position
 
 ANALYSIS_DEPTH = int(os.getenv("ANALYSIS_DEPTH", "15"))
 
@@ -75,20 +75,29 @@ class StockfishPool:
 stockfish_pool = StockfishPool()
 
 
-def load_fen_cache_from_db(db: Session) -> dict:
+def load_fen_cache_from_db(db: Session, username: str | None = None) -> dict:
+    """Previously-computed evaluations, keyed by "fen|move", to skip re-analysis.
+
+    Scope this to one user. Loading every position in the database grew without
+    bound as games accumulated: with a few thousand analyzed games it became a
+    multi-second, multi-megabyte blocking query at the start of every job, which
+    stalled the event loop long enough to trip the platform health check. A
+    user's own repeated openings supply nearly all the cache value anyway.
+    """
     # Query bare columns, not ORM objects — this table grows with every
     # analyzed game and full entities would pin the whole corpus in memory.
-    rows = (
-        db.query(
-            Position.fen,
-            Position.move_played,
-            Position.best_move,
-            Position.centipawn_loss,
-            Position.classification,
-        )
-        .filter(Position.best_move.isnot(None))
-        .all()
-    )
+    query = db.query(
+        Position.fen,
+        Position.move_played,
+        Position.best_move,
+        Position.centipawn_loss,
+        Position.classification,
+    ).filter(Position.best_move.isnot(None))
+
+    if username:
+        query = query.join(Game).filter(Game.username == username.lower())
+
+    rows = query.all()
     return {
         f"{fen}|{move_played}": {
             "best_move": best_move,

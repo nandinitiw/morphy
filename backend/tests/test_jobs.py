@@ -86,3 +86,30 @@ class TestActiveJobDedupe:
     def test_active_job_scoped_to_username(self, db):
         create_ingest_job("alice", db)
         assert get_active_job("bob", db) is None
+
+
+class TestFenCacheScoping:
+    """The cache must not load every position in the database (unbounded growth)."""
+
+    def test_cache_is_scoped_to_the_user(self, db):
+        from analysis.stockfish_worker import load_fen_cache_from_db
+        from tests.conftest import make_blunder, make_game
+
+        make_game(db, id="a1", username="alice")
+        make_blunder(db, game_id="a1", fen="ALICE_FEN")
+        make_game(db, id="b1", username="bob")
+        make_blunder(db, game_id="b1", fen="BOB_FEN")
+        db.commit()
+
+        alice = load_fen_cache_from_db(db, "alice")
+        assert any(k.startswith("ALICE_FEN") for k in alice)
+        assert not any(k.startswith("BOB_FEN") for k in alice), "leaked another user's positions"
+
+    def test_no_username_still_loads_everything(self, db):
+        from analysis.stockfish_worker import load_fen_cache_from_db
+        from tests.conftest import make_blunder, make_game
+
+        make_game(db, id="a1", username="alice")
+        make_blunder(db, game_id="a1", fen="ALICE_FEN")
+        db.commit()
+        assert len(load_fen_cache_from_db(db)) >= 1

@@ -167,7 +167,7 @@ async def run_ingest_job(job_id: str) -> None:
             games_analyzed=0,
         )
 
-        fen_cache = load_fen_cache_from_db(db)
+        fen_cache = load_fen_cache_from_db(db, job.username)
         engine = await stockfish_pool.get_engine()
         analyzed = 0
         failed_games = 0

@@ -54,7 +54,7 @@ async def analyze_user_games(username: str, db: Session) -> int:
     if not games:
         return 0
 
-    fen_cache = load_fen_cache_from_db(db)
+    fen_cache = load_fen_cache_from_db(db, username)
     engine = await stockfish_pool.get_engine()
     analyzed = 0
 
