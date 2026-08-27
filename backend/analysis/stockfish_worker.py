@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 import shutil
 from pathlib import Path
@@ -8,6 +9,8 @@ import chess.engine
 from sqlalchemy.orm import Session
 
 from db.models import Game, Position
+
+logger = logging.getLogger(__name__)
 
 ANALYSIS_DEPTH = int(os.getenv("ANALYSIS_DEPTH", "15"))
 
@@ -63,6 +66,15 @@ class StockfishPool:
         async with self._lock:
             if self._engine is None:
                 _, self._engine = await chess.engine.popen_uci(self._path())
+                # Pin resource use explicitly rather than trusting build
+                # defaults. Analysis shares a small instance with the web
+                # server, so an engine that grabs extra threads or a large hash
+                # starves the event loop — enough to make even a trivial
+                # /health take seconds and trip the platform health check.
+                try:
+                    await self._engine.configure({"Threads": 1, "Hash": 16})
+                except Exception:
+                    logger.warning("Could not configure Stockfish; using defaults", exc_info=True)
             return self._engine
 
     async def close(self):
