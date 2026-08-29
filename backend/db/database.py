@@ -1,9 +1,12 @@
+import logging
 import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.models import Base
+
+logger = logging.getLogger(__name__)
 
 def normalize_database_url(url: str) -> str:
     """Render and Heroku hand out postgres:// URLs, but SQLAlchemy 2 removed that
@@ -34,6 +37,29 @@ else:
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base.metadata.create_all(bind=engine)
+
+# Falling back to SQLite is silent and looks identical to a working Postgres
+# from the outside — until a restart wipes the container and every user's data
+# with it. Say plainly which backend is live so a missing DATABASE_URL is
+# obvious in the logs instead of being discovered the hard way.
+if _is_sqlite:
+    logger.warning(
+        "DATABASE_URL not set — using EPHEMERAL SQLite at %s. "
+        "Data will be lost on restart. Set DATABASE_URL to a managed Postgres "
+        "for durable storage.",
+        DATABASE_URL,
+    )
+else:
+    logger.info("Using durable database backend: %s", engine.dialect.name)
+
+
+def database_backend() -> dict:
+    """Non-sensitive description of the live database. Never exposes credentials."""
+    return {
+        "dialect": engine.dialect.name,
+        "configured": os.getenv("DATABASE_URL") is not None,
+        "durable": not _is_sqlite,
+    }
 
 
 def get_db():

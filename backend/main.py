@@ -110,6 +110,16 @@ async def health():
     return {"status": "ok"}
 
 
+@app.get("/health/db")
+async def health_db():
+    """Which database backend is live — so an accidental ephemeral SQLite
+    fallback is visible instead of silently masquerading as working storage.
+    Reports dialect only; never the connection string or credentials."""
+    from db.database import database_backend
+
+    return database_backend()
+
+
 @app.get("/health/stockfish")
 async def health_stockfish():
     import shutil
