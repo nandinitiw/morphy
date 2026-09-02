@@ -6,7 +6,7 @@ const INITIAL_MESSAGES = [
   {
     role: "coach",
     type: "text",
-    content: "Ready to review your games. Ask me anything — I can analyze recent games, pull your weakness profile, or build you a study plan.",
+    content: "Ready to review your games. Ask me anything: I can analyze recent games, pull your weakness profile, or build you a study plan.",
   },
 ];
 
@@ -89,7 +89,7 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
     initedRef.current = true;
 
     if (seedQuestion) {
-      send(seedQuestion, "Explain this position — why was my move a mistake?");
+      send(seedQuestion, "Explain this position: why was my move a mistake?");
       return;
     }
     if (seedMessage) {

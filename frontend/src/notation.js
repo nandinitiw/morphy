@@ -10,7 +10,7 @@ import { Chess } from "chess.js";
  * record degrades to something readable rather than throwing.
  */
 export function uciToSan(fen, uci) {
-  if (!uci) return "—";
+  if (!uci) return "-";
   if (!fen || uci.length < 4) return uci;
   try {
     const chess = new Chess(fen);

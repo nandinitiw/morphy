@@ -27,7 +27,7 @@ async function pollJob(jobId, onUpdate) {
       if (/\b404\b/.test(err.message)) {
         throw new JobLostError(
           "The free server restarted and lost this analysis run before it " +
-            "finished. This can happen on long runs — click Refresh to try again.",
+            "finished. This can happen on long runs; click Refresh to try again.",
         );
       }
       if (consecutiveErrors >= MAX_CONSECUTIVE_POLL_ERRORS) {

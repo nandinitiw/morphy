@@ -37,7 +37,7 @@ describe("uciToSan", () => {
   });
 
   it("returns an em dash for a missing move", () => {
-    expect(uciToSan(KNIGHT_FEN, null)).toBe("—");
+    expect(uciToSan(KNIGHT_FEN, null)).toBe("-");
   });
 });
 

@@ -46,7 +46,7 @@ function BoardPanel({ blunders, theme }) {
   if (examples.length === 0) {
     return (
       <div className="board-panel" style={{ gridTemplateColumns: "1fr" }}>
-        <p className="board-closed-hint">No example positions stored yet — run more game analysis to populate this.</p>
+        <p className="board-closed-hint">No example positions stored yet. Run more game analysis to populate this.</p>
       </div>
     );
   }
@@ -156,7 +156,7 @@ export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNav
       const top = weaknesses.slice(0, 3).map((w) => `${w.display} (${w.frequency}×, ${w.severity}cp)`).join(", ");
       const { response: text } = await sendCoachMessage(
         username,
-        `Based on my top weakness themes (${top || "none yet"}), give me a prioritized study plan with 3 concrete recommendations — puzzles, openings, or habits. Keep it under 200 words.`,
+        `Based on my top weakness themes (${top || "none yet"}), give me a prioritized study plan with 3 concrete recommendations: puzzles, openings, or habits. Keep it under 200 words.`,
       );
       setReco(text);
     } catch (err) {
@@ -192,7 +192,7 @@ export default function Weaknesses({ username, refreshKey = 0, tc = "all", onNav
 
       <div className="card cp-explainer">
         <p className="empty-copy" style={{ marginTop: 0 }}>
-          Themes are ordered by how costly they are — the longer the bar, the more damage that mistake type does to your games. Click any row to see an example position on the board.
+          Themes are ordered by how costly they are. The longer the bar, the more damage that mistake type does to your games. Click any row to see an example position on the board.
         </p>
       </div>
 

@@ -10,7 +10,7 @@ const CHART_AMBER = "#C1793A";
 
 function OpeningRow({ opening, color, onSelect, selected, summary, summaryLoading }) {
   const isWin = opening.win_rate >= 55;
-  const notation = opening.moves_notation || "—";
+  const notation = opening.moves_notation || "-";
   const example = opening.example_game;
 
   return (
@@ -32,7 +32,7 @@ function OpeningRow({ opening, color, onSelect, selected, summary, summaryLoadin
           className="win-bar-wrap"
           title={
             example
-              ? `W ${opening.win_rate}% · D ${opening.draw_rate}% · L ${opening.loss_rate}% — see example from game #${example.game_id.slice(-6)}`
+              ? `W ${opening.win_rate}% · D ${opening.draw_rate}% · L ${opening.loss_rate}% · see example from game #${example.game_id.slice(-6)}`
               : `W ${opening.win_rate}% · D ${opening.draw_rate}% · L ${opening.loss_rate}%`
           }
         >
@@ -219,7 +219,7 @@ export default function Openings({ username, refreshKey = 0 }) {
       {empty ? (
         <div className="card">
           <div className="card-title">No opening data yet</div>
-          <p className="empty-copy">Analyze games first — opening stats are built from your ingested PGNs.</p>
+          <p className="empty-copy">Analyze games first. Opening stats are built from your ingested PGNs.</p>
         </div>
       ) : (
         <>
@@ -257,7 +257,7 @@ export default function Openings({ username, refreshKey = 0 }) {
           <div className="card">
             <div className="card-title">
               Accuracy by opening
-              <span className="card-hint">avg centipawn loss — hover bars for notation & example games</span>
+              <span className="card-hint">avg centipawn loss · hover bars for notation & example games</span>
             </div>
             <div className="chart-wrap" style={{ height: 200 }}>
               <canvas ref={chartRef} role="img" aria-label="Bar chart of average centipawn loss per opening" />

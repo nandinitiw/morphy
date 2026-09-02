@@ -39,28 +39,28 @@ export function setIdol(username, slug) {
 export const AXIS_META = {
   decisiveness: {
     label: "Decisiveness",
-    below: (gm) => `Play for the win more — keep tension on the board instead of settling for draws like ${gm} avoids.`,
+    below: (gm) => `Play for the win more. Keep tension on the board instead of settling for draws like ${gm} avoids.`,
     above: (gm) => `You force decisions more than ${gm}; sometimes accepting a draw is the stronger call.`,
   },
   endgame_tendency: {
     label: "Endgames",
-    below: (gm) => `Steer more games into endgames rather than forcing matters early — that's where ${gm} does damage.`,
+    below: (gm) => `Steer more games into endgames rather than forcing matters early. That's where ${gm} does damage.`,
     above: (gm) => `You reach endgames often; try building middlegame pressure the way ${gm} does.`,
   },
   patience: {
     label: "Patience",
-    below: (gm) => `Slow down — ${gm} grinds long games. Look for a second plan before forcing the issue.`,
-    above: (gm) => `You play long games; ${gm} converts faster — hunt for the decisive break sooner.`,
+    below: (gm) => `Slow down. ${gm} grinds long games, so look for a second plan before forcing the issue.`,
+    above: (gm) => `You play long games; ${gm} converts faster, so hunt for the decisive break sooner.`,
   },
   simplification: {
     label: "Simplifying",
     below: (gm) => `When ahead, trade down into clean, technical positions like ${gm} does.`,
-    above: (gm) => `You simplify a lot; ${gm} keeps pieces on to attack — try holding the tension.`,
+    above: (gm) => `You simplify a lot; ${gm} keeps pieces on to attack, so try holding the tension.`,
   },
   attack: {
     label: "Attack",
-    below: (gm) => `Look for a forcing check or capture before every quiet move — that's the heart of ${gm}'s game.`,
-    above: (gm) => `You attack more than ${gm}; pick your moments — not every position wants a sacrifice.`,
+    below: (gm) => `Look for a forcing check or capture before every quiet move. That's the heart of ${gm}'s game.`,
+    above: (gm) => `You attack more than ${gm}; pick your moments, because not every position wants a sacrifice.`,
   },
 };
 
@@ -70,7 +70,7 @@ export const AXIS_META = {
 export const LEGEND_PERSONA = {
   morphy: {
     epithet: "The Pride and Sorrow of Chess",
-    tagline: "Swift, elegant, decisive — punishes every loose move.",
+    tagline: "Swift, elegant, decisive. Punishes every loose move.",
   },
   tal: {
     epithet: "The Magician of Riga",
@@ -86,7 +86,7 @@ export const LEGEND_PERSONA = {
   },
   carlsen: {
     epithet: "The Grinder",
-    tagline: "Squeezes water from stone — endless endgame pressure.",
+    tagline: "Squeezes water from stone with endless endgame pressure.",
   },
 };
 

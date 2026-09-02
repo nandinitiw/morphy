@@ -10,7 +10,7 @@ export default function About() {
         <p className="about-lead">
           MORPHY ingests your Chess.com games, runs every position through Stockfish, groups your
           mistakes into tactical themes, drills you on the exact positions you got wrong, and pairs it
-          all with an AI coach that knows your history — and shows you which legend you play like.
+          all with an AI coach that knows your history, and shows you which legend you play like.
         </p>
       </div>
 
@@ -19,34 +19,34 @@ export default function About() {
           <div className="card-title">How it works</div>
           <ol className="about-steps">
             <li>
-              <strong>Ingest</strong> — Pull recent games from Chess.com and store PGNs, openings, and
+              <strong>Ingest</strong>: Pull recent games from Chess.com and store PGNs, openings, and
               time controls.
             </li>
             <li>
-              <strong>Analyze</strong> — Stockfish evaluates each of your moves, recording centipawn
+              <strong>Analyze</strong>: Stockfish evaluates each of your moves, recording centipawn
               loss, best move, and move classification (blunder, mistake, inaccuracy).
             </li>
             <li>
-              <strong>Classify</strong> — Tactical motifs (fork, pin, back rank, hung piece, bad trade,
+              <strong>Classify</strong>: Tactical motifs (fork, pin, back rank, hung piece, bad trade,
               pawn weakness…) are detected from the position where you erred.
             </li>
             <li>
-              <strong>Profile</strong> — Blunders are grouped by motif into a weakness fingerprint —
+              <strong>Profile</strong>: Blunders are grouped by motif into a weakness fingerprint:
               frequency and average severity per theme.
             </li>
             <li>
-              <strong>Drill</strong> — Re-solve the exact positions you got wrong, scheduled by spaced
+              <strong>Drill</strong>: Re-solve the exact positions you got wrong, scheduled by spaced
               repetition: fail one and it resurfaces, master it and it&apos;s pushed out.
             </li>
             <li>
-              <strong>Match</strong> — In <em>Legends</em>, your play is mapped against five hand-picked
-              grandmasters (my personal favorites). Their full game archives — 13,000+ games — are run
+              <strong>Match</strong>: In <em>Legends</em>, your play is mapped against five hand-picked
+              grandmasters (my personal favorites). Their full game archives (13,000+ games) are run
               through the <em>same</em> five-axis style analysis as yours, so the comparison is
               apples-to-apples: who you play like, and how close you are to the idol you&apos;re training
               toward.
             </li>
             <li>
-              <strong>Coach</strong> — Claude reads your data via tools, renders your real positions on
+              <strong>Coach</strong>: Claude reads your data via tools, renders your real positions on
               a board, explains what you missed, and queues drills of your own mistakes.
             </li>
           </ol>
@@ -61,7 +61,7 @@ export default function About() {
           </p>
           <p className="about-body">
             MORPHY uses Stockfish to compare <em>your</em> move to the engine&apos;s best move. The gap
-            is measured in <strong>centipawns</strong> (1 pawn = 100 centipawns) — a standard way to
+            is measured in <strong>centipawns</strong> (1 pawn = 100 centipawns), a standard way to
             quantify how much evaluation dropped after your move.
           </p>
           <p className="about-body">
@@ -116,7 +116,7 @@ export default function About() {
       <div className="card about-note">
         <span className="ai-tip-badge">AI insight</span>
         <p>
-          Violet highlights across the app mark AI-generated coaching content — your signal that an
+          Violet highlights across the app mark AI-generated coaching content, your signal that an
           expert insight is behind the text, not just raw stats.
         </p>
       </div>

@@ -101,11 +101,11 @@ export default function Trainer({ username, refreshKey = 0, tc = "all", themeFil
 
   // Display SAN, not the UCI we store — "Qd7" not "d8d7".
   const playedSan = useMemo(
-    () => (current ? uciToSan(current.fen, current.move_played) : "—"),
+    () => (current ? uciToSan(current.fen, current.move_played) : "-"),
     [current],
   );
   const bestSan = useMemo(
-    () => (current ? uciToSan(current.fen, current.best_move) : "—"),
+    () => (current ? uciToSan(current.fen, current.best_move) : "-"),
     [current],
   );
   const guessSan = useMemo(
@@ -227,13 +227,13 @@ export default function Trainer({ username, refreshKey = 0, tc = "all", themeFil
               <>
                 {isDemo
                   ? `No blunders tagged “${themeLabel(activeTheme)}”.`
-                  : `You're caught up on “${themeLabel(activeTheme)}” — nothing is due for review.`}{" "}
+                  : `You're caught up on “${themeLabel(activeTheme)}”. Nothing is due for review.`}{" "}
                 <button type="button" className="trainer-link-btn" onClick={() => setActiveTheme(null)}>
                   Show all positions
                 </button>
               </>
             ) : (
-              "Analyze some games first — every blunder Stockfish finds becomes a puzzle here, so you can practice the fix on your own games."
+              "Analyze some games first. Every blunder Stockfish finds becomes a puzzle here, so you can practice the fix on your own games."
             )}
           </p>
         </div>
@@ -316,7 +316,7 @@ export default function Trainer({ username, refreshKey = 0, tc = "all", themeFil
                 Best was <span className="trainer-good">{bestSan}</span>
                 {!guess.correct && guess.uci !== REVEAL && (
                   <>
-                    {" "}— you tried <span className="trainer-bad">{guessSan}</span>
+                    {"; you tried "}<span className="trainer-bad">{guessSan}</span>
                   </>
                 )}
                 . In the game you played <span className="trainer-bad">{playedSan}</span>.
@@ -324,10 +324,10 @@ export default function Trainer({ username, refreshKey = 0, tc = "all", themeFil
               {attemptResult && (
                 <div className={`trainer-schedule ${attemptResult.mastered ? "mastered" : ""}`}>
                   {attemptResult.mastered ? (
-                    <>★ Mastered — you&rsquo;ve got this one down.</>
+                    <>★ Mastered. You&rsquo;ve got this one down.</>
                   ) : (
                     <>
-                      {guess.correct ? "Nice — back for review " : "You'll see this again "}
+                      {guess.correct ? "Nice. Back for review " : "You'll see this again "}
                       <strong>{formatNextDue(attemptResult.next_due_at) ?? "soon"}</strong>.
                     </>
                   )}
@@ -341,7 +341,7 @@ export default function Trainer({ username, refreshKey = 0, tc = "all", themeFil
                 )}
                 {finished ? (
                   <div className="trainer-done">
-                    Done — you solved <strong>{score.correct}</strong> of {score.done}.
+                    Done. You solved <strong>{score.correct}</strong> of {score.done}.
                   </div>
                 ) : (
                   <button type="button" className="trainer-next-btn" onClick={next}>

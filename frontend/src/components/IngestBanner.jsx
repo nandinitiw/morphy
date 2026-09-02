@@ -38,7 +38,7 @@ export default function IngestBanner({ username, onComplete }) {
     return (
       <div className="ingest-banner ingest-banner-demo">
         <div className="ingest-banner-text">
-          <strong>Demo mode</strong> — pre-loaded with 30 rapid games and 6 weakness themes.
+          <strong>Demo mode</strong>: pre-loaded with 30 rapid games and 6 weakness themes.
           Enter your Chess.com username on the home screen to analyze your own games.
         </div>
         <button
@@ -106,16 +106,16 @@ export default function IngestBanner({ username, onComplete }) {
               {job?.status === "analyzing" && (
                 <span className="ingest-banner-detail">
                   {job.games_analyzed === 0
-                    ? " — starting engine…"
-                    : ` — ${job.games_analyzed} / ${job.games_total} games`}
+                    ? " · starting engine…"
+                    : ` · ${job.games_analyzed} / ${job.games_total} games`}
                 </span>
               )}
               {job?.status === "ingesting" && job.games_ingested > 0 && (
-                <span className="ingest-banner-detail"> — {job.games_ingested} new games found</span>
+                <span className="ingest-banner-detail"> · {job.games_ingested} new games found</span>
               )}
               {isRunning && <span className="ingest-banner-detail"> · {formatDuration(elapsed)}</span>}
               {(error || job?.error) && (
-                <span className="ingest-banner-detail ingest-error"> — {error || job.error}</span>
+                <span className="ingest-banner-detail ingest-error"> · {error || job.error}</span>
               )}
             </>
           ) : null}
@@ -125,7 +125,7 @@ export default function IngestBanner({ username, onComplete }) {
         )}
         {isRunning && (job?.status === "analyzing" || job?.status === "ingesting") && (
           <div className="ingest-banner-hint">
-            Running deep Stockfish analysis — this can take a few minutes; keep this tab open and it&rsquo;ll finish on its own.
+            Running deep Stockfish analysis. This can take a few minutes; keep this tab open and it&rsquo;ll finish on its own.
           </div>
         )}
       </div>

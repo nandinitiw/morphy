@@ -16,11 +16,11 @@ const STAT_LABELS = {
 };
 
 const AXIS_HELP = {
-  Decisiveness: "How often your games end in a win or loss rather than a draw — high means you play for the win and rarely settle.",
+  Decisiveness: "How often your games end in a win or loss rather than a draw. High means you play for the win and rarely settle.",
   Endgames: "How often your games are played down into an endgame, instead of being decided while the board is still full.",
-  Patience: "How long your games run on average — grinders play long games, attackers finish quickly.",
-  Simplifying: "How much material comes off the board by the end — high means you trade down toward clean, technical positions.",
-  Attack: "How often you give check — a reliable signal of attacking, tactical play.",
+  Patience: "How long your games run on average. Grinders play long games; attackers finish quickly.",
+  Simplifying: "How much material comes off the board by the end. High means you trade down toward clean, technical positions.",
+  Attack: "How often you give check, a reliable signal of attacking, tactical play.",
 };
 
 // Radar axes, in display order. Keys must match the /style-gap payload.
@@ -42,7 +42,7 @@ function RingProgress({ pct }) {
         strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round"
         transform="rotate(-90 44 44)"
       />
-      <text x="44" y="49" textAnchor="middle" className="legend-ring-text">{pct ?? "—"}%</text>
+      <text x="44" y="49" textAnchor="middle" className="legend-ring-text">{pct ?? "-"}%</text>
     </svg>
   );
 }
@@ -210,7 +210,7 @@ export default function StyleGap({ username, onNavigateCoach }) {
       <div className="page-header">
         <div>
           <div className="page-title">Play like a legend</div>
-          <div className="page-sub">who you play like — and who you&rsquo;re becoming</div>
+          <div className="page-sub">who you play like, and who you&rsquo;re becoming</div>
         </div>
         {style && <RecommendButton onClick={askRecommendations} loading={recoLoading} label="Give me recommendations" />}
       </div>
@@ -241,14 +241,14 @@ export default function StyleGap({ username, onNavigateCoach }) {
                   {ip?.epithet && <div className="legend-idol-epithet">{ip.epithet}</div>}
                   {gap && (
                     <div className="legend-idol-gap">
-                      Fastest gain — <strong>{gap.label}</strong>: {gap.habit}
+                      Fastest gain in <strong>{gap.label}</strong>: {gap.habit}
                     </div>
                   )}
                 </div>
               </div>
             ) : (
               <div className="card legend-idol-empty">
-                <span>★</span> Pick your idol below to start the journey — you&rsquo;ll see how close you are and the one habit to get closer.
+                <span>★</span> Pick your idol below to start the journey. You&rsquo;ll see how close you are and the one habit to get closer.
               </div>
             )}
           </>
@@ -298,7 +298,7 @@ export default function StyleGap({ username, onNavigateCoach }) {
         <div className="legend-suggest-row">
           <span className="legend-suggest-note">★ A hand-picked lineup of my personal favorites.</span>
           {suggested ? (
-            <span className="legend-suggest-done">Noted — {suggested} is on the shortlist ♟</span>
+            <span className="legend-suggest-done">Noted: {suggested} is on the shortlist ♟</span>
           ) : suggestOpen ? (
             <form className="legend-suggest-form" onSubmit={handleSuggest}>
               <input
@@ -349,20 +349,20 @@ export default function StyleGap({ username, onNavigateCoach }) {
           {!hasRealUserData && (
             <div className="card" style={{ borderColor: "rgba(232,164,56,0.3)", background: "rgba(232,164,56,0.05)" }}>
               <p style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                Your style axes are all zero — no analyzed games found. Run a game analysis first, then revisit this page.
+                Your style axes are all zero because no analyzed games were found. Run a game analysis first, then revisit this page.
               </p>
             </div>
           )}
 
           <div className="card">
-            <div className="card-title">Head-to-head — {gmName}</div>
+            <div className="card-title">Head-to-head vs {gmName}</div>
             <div className="gm-compare">
               <div className="gm-col">
                 <div className="gm-header">You ({username})</div>
                 {Object.entries(youStats).map(([key, val]) => (
                   <div className="stat-row" key={key}>
                     <span className="stat-name">{STAT_LABELS[key] ?? key}</span>
-                    <span className={`stat-val ${isGoodForYou(key, val, gmStats[key]) ?? ""}`}>{val ?? "—"}</span>
+                    <span className={`stat-val ${isGoodForYou(key, val, gmStats[key]) ?? ""}`}>{val ?? "-"}</span>
                   </div>
                 ))}
               </div>
@@ -371,7 +371,7 @@ export default function StyleGap({ username, onNavigateCoach }) {
                 {Object.entries(gmStats).map(([key, val]) => (
                   <div className="stat-row" key={key}>
                     <span className="stat-name">{STAT_LABELS[key] ?? key}</span>
-                    <span className="stat-val good">{val ?? "—"}</span>
+                    <span className="stat-val good">{val ?? "-"}</span>
                   </div>
                 ))}
               </div>

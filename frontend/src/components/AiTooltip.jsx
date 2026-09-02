@@ -25,7 +25,7 @@ export default function AiTooltip({
         const text = await onAskCoach(prompt);
         setAiText(text);
       } catch {
-        setAiText("AI coach unavailable — check that ANTHROPIC_API_KEY is set on the backend.");
+        setAiText("AI coach unavailable. Check that ANTHROPIC_API_KEY is set on the backend.");
       } finally {
         setLoading(false);
       }

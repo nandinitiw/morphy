@@ -19,8 +19,8 @@ import { useElapsedSeconds, formatDuration } from "../hooks/useElapsedSeconds.js
 function demoMessage(sec) {
   if (sec < 4) return "Loading pre-analyzed demo games…";
   if (sec < 10) return "Waking the demo server…";
-  if (sec < 22) return "Almost there — the free server is starting up…";
-  return "Still starting — free-tier cold start can take up to a minute…";
+  if (sec < 22) return "Almost there. The free server is starting up…";
+  return "Still starting. Free-tier cold start can take up to a minute…";
 }
 
 export default function UsernameSetup() {
@@ -96,7 +96,7 @@ export default function UsernameSetup() {
           <div className="demo-spinner" aria-hidden="true" />
           <div className="demo-timer">{demoElapsed}s</div>
           <p className="demo-loading-msg">{demoMessage(demoElapsed)}</p>
-          <p className="setup-demo-note">Loading the pre-analyzed demo — no account needed.</p>
+          <p className="setup-demo-note">Loading the pre-analyzed demo. No account needed.</p>
         </div>
       </div>
     );
@@ -131,7 +131,7 @@ export default function UsernameSetup() {
           </button>
           {warming && (
             <p className="setup-footnote" style={{ marginTop: 8 }}>
-              The free-tier server sleeps when idle — this first wake-up can take up
+              The free-tier server sleeps when idle, so this first wake-up can take up
               to a minute. Analysis starts automatically once it&rsquo;s up.
             </p>
           )}
@@ -150,7 +150,7 @@ export default function UsernameSetup() {
           Try demo
         </button>
         <p className="setup-demo-note">
-          Explore with pre-loaded games — no Chess.com account needed.
+          Explore with pre-loaded games. No Chess.com account needed.
         </p>
         {demoError && <p className="setup-error">{demoError}</p>}
 
@@ -175,7 +175,7 @@ export default function UsernameSetup() {
             )}
             {job.status === "completed" && (
               <p className="setup-progress-detail setup-success">
-                Done — {job.games_analyzed} games analyzed, {job.weakness_themes} weakness themes found.
+                Done. {job.games_analyzed} games analyzed, {job.weakness_themes} weakness themes found.
               </p>
             )}
             {job.status === "failed" && (

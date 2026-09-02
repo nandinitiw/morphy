@@ -359,7 +359,7 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
                 {dateRange ? <> · <strong>{dateRange}</strong></> : null}
               </>
             ) : (
-              "No analyzed games yet — click Refresh games above"
+              "No analyzed games yet. Click Refresh games above"
             )}
           </div>
         </div>
@@ -399,7 +399,7 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
                 <i className={`ti ${trendDelta > 0 ? "ti-trending-down" : "ti-trending-up"}`} aria-hidden="true" />
                 {trendDelta > 0
                   ? `Improving · ${trendDelta} cp cleaner`
-                  : `Up ${Math.abs(trendDelta)} cp — slipping`}
+                  : `Up ${Math.abs(trendDelta)} cp, slipping`}
               </span>
             )}
           </div>
@@ -426,7 +426,7 @@ export default function Dashboard({ username, refreshKey = 0, tc = "all", onTcCh
             ) : (
               <div className="card hero-blunder hero-blunder-empty">
                 <p className="empty-copy" style={{ margin: 0 }}>
-                  No example position stored yet — analyze more games to surface your costliest moment.
+                  No example position stored yet. Analyze more games to surface your costliest moment.
                 </p>
               </div>
             )}
