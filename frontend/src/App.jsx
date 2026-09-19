@@ -96,11 +96,16 @@ export default function App() {
           <div className="logo-sub">chess coach · powered by AI</div>
         </div>
         <div className="nav-section">
+          {/* aria-label is explicit because CSS hides the label text on narrow
+              screens, which would otherwise leave these buttons unnamed for
+              screen readers and icon-only for everyone else. */}
           {NAV.map((n) => (
             <button
               key={n.id}
               className={`nav-item ${page === n.id ? "active" : ""} ${n.primary ? "nav-item-primary" : ""} ${n.idol ? "nav-item-idol" : ""}`}
               onClick={() => navigate(n.id)}
+              aria-label={n.label}
+              aria-current={page === n.id ? "page" : undefined}
             >
               <span className="nav-dot" aria-hidden="true" />
               <span>{n.label}</span>
