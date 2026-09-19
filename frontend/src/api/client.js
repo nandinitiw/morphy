@@ -226,6 +226,70 @@ export async function sendCoachMessage(username, message, history = []) {
   }
 }
 
+const TOOL_LABELS = {
+  get_recent_games: "reading your recent games",
+  get_weakness_profile: "checking your weakness profile",
+  get_game_details: "opening the game",
+  get_opening_stats: "reviewing your openings",
+  queue_practice: "lining up your drills",
+};
+
+export function toolLabel(name) {
+  return TOOL_LABELS[name] ?? name.replace(/_/g, " ");
+}
+
+/**
+ * Same turn as sendCoachMessage, but reports each tool the agent runs as it
+ * starts. A tool-using answer takes 10-20s (every tool is another round-trip),
+ * so this turns dead time into visible progress. Falls back to the plain
+ * request if streaming isn't available, so the coach still works either way.
+ * @param {(name: string) => void} [onTool]
+ */
+export async function sendCoachMessageStreaming(username, message, history = [], onTool) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 120_000);
+  try {
+    const res = await fetch(apiUrl("/coach/stream"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, message, history }),
+      signal: controller.signal,
+    });
+    if (!res.ok || !res.body) throw new Error(`API error ${res.status}`);
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      // SSE frames are separated by a blank line; keep any partial tail.
+      const frames = buffer.split("\n\n");
+      buffer = frames.pop() ?? "";
+      for (const frame of frames) {
+        const line = frame.split("\n").find((l) => l.startsWith("data:"));
+        if (!line) continue;
+        const event = JSON.parse(line.slice(5).trim());
+        if (event.type === "tool") onTool?.(event.name);
+        else if (event.type === "error") throw new Error(event.message || "Coach failed");
+        else if (event.type === "done") {
+          return { response: event.response ?? "", action: event.action ?? null };
+        }
+      }
+    }
+    throw new Error("Coach stream ended without a response");
+  } catch (err) {
+    if (err.name === "AbortError") {
+      throw new Error("Coach timed out. The report took too long; try a shorter question.");
+    }
+    // Streaming is an enhancement, never a hard dependency.
+    return sendCoachMessage(username, message, history);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export const triggerIngest = (username) => post(`/ingest/${username}`, {});
 
 export const fetchIngestStatus = (jobId) => get(`/jobs/${jobId}`);

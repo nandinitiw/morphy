@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import CoachMarkdown from "./CoachMarkdown.jsx";
-import { sendCoachMessage, themeLabel } from "../api/client";
+import { sendCoachMessageStreaming, themeLabel, toolLabel } from "../api/client";
 
 const INITIAL_MESSAGES = [
   {
@@ -72,6 +72,8 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  // What the agent is doing right now, from real tool events off the stream.
+  const [activity, setActivity] = useState(null);
   const bottomRef = useRef(null);
   const initedRef = useRef(false);
   const timerRef = useRef(null);
@@ -114,7 +116,9 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
     setElapsed(0);
     timerRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
     try {
-      const { response, action } = await sendCoachMessage(username, OPENING_PROMPT, []);
+      const { response, action } = await sendCoachMessageStreaming(
+        username, OPENING_PROMPT, [], (name) => setActivity(toolLabel(name)),
+      );
       // Replace the static greeting with the grounded one.
       setMessages([{ role: "coach", type: "text", content: response, action }]);
     } catch {
@@ -123,6 +127,7 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
       clearInterval(timerRef.current);
       setLoading(false);
       setElapsed(0);
+      setActivity(null);
     }
   }
 
@@ -144,7 +149,9 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
       .map((m) => ({ role: m.role === "coach" ? "assistant" : "user", content: m.content }));
 
     try {
-      const { response, action } = await sendCoachMessage(username, text, history);
+      const { response, action } = await sendCoachMessageStreaming(
+        username, text, history, (name) => setActivity(toolLabel(name)),
+      );
       setMessages((prev) => [...prev, { role: "coach", type: "text", content: response, action }]);
     } catch (err) {
       setMessages((prev) => [
@@ -159,6 +166,8 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
       clearInterval(timerRef.current);
       setLoading(false);
       setElapsed(0);
+      setActivity(null);
+      setActivity(null);
     }
   }
 
@@ -189,7 +198,7 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
             )}
             {loading && (
               <div className="tool-call ai-thinking">
-                analysing your games{elapsed > 3 ? ` · ${elapsed}s` : "…"}
+                {activity ?? "analysing your games"}{elapsed > 3 ? ` · ${elapsed}s` : "…"}
               </div>
             )}
             <div ref={bottomRef} />

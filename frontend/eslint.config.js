@@ -15,6 +15,7 @@ export default [
         window: "readonly",
         document: "readonly",
         fetch: "readonly",
+        TextDecoder: "readonly",
         console: "readonly",
         setTimeout: "readonly",
         clearTimeout: "readonly",

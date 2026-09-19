@@ -20,11 +20,16 @@ async def run_coach_session(
     user_message: str,
     db,
     history: list[dict] | None = None,
+    on_tool=None,
 ) -> dict:
     """Run one coach turn. Returns {"response": str, "action": dict | None}.
 
     `action` is set when a tool queued a UI follow-up (e.g. a themed drill), so
     the frontend can render a "drill these positions" button under the reply.
+
+    `on_tool(name, tool_input)` is called before each tool runs. A tool-using
+    turn takes 10-20s, so the stream endpoint uses this to tell the user what
+    the agent is actually doing instead of showing an opaque timer.
     """
     messages: list[dict] = []
     pending_action: dict | None = None
@@ -72,6 +77,8 @@ async def run_coach_session(
 
         tool_results = []
         for tool_use in tool_use_blocks:
+            if on_tool is not None:
+                on_tool(tool_use.name, tool_use.input)
             result, action = await execute_tool(tool_use.name, tool_use.input, username, db)
             if action is not None:
                 pending_action = action  # last queued action wins

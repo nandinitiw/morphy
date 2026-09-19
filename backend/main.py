@@ -1,3 +1,5 @@
+import asyncio
+import json
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -8,6 +10,7 @@ load_dotenv()
 
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -140,6 +143,54 @@ async def health_stockfish():
 async def coach(req: CoachRequest, db: Session = Depends(get_db)):
     result = await run_coach_session(req.username, req.message, db, history=req.history)
     return {"response": result["response"], "action": result.get("action")}
+
+
+@app.post("/coach/stream")
+async def coach_stream(req: CoachRequest, db: Session = Depends(get_db)):
+    """Same turn as /coach, but streams the agent's real tool calls as they run.
+
+    A tool-using answer takes 10-20s because every tool is another round-trip to
+    Claude. Emitting each tool as it starts turns that wait into visible progress.
+    Events are JSON lines in SSE format: {"type": "tool", "name": ...} then a
+    final {"type": "done", "response": ..., "action": ...}, or {"type": "error"}.
+    """
+    events: asyncio.Queue = asyncio.Queue()
+
+    async def run():
+        try:
+            result = await run_coach_session(
+                req.username, req.message, db, history=req.history,
+                on_tool=lambda name, _input: events.put_nowait(
+                    {"type": "tool", "name": name}
+                ),
+            )
+            await events.put({
+                "type": "done",
+                "response": result["response"],
+                "action": result.get("action"),
+            })
+        except Exception as exc:
+            logger.exception("Coach stream failed")
+            await events.put({"type": "error", "message": str(exc)})
+
+    async def generate():
+        task = asyncio.create_task(run())
+        try:
+            while True:
+                event = await events.get()
+                yield f"data: {json.dumps(event)}\n\n"
+                if event["type"] in ("done", "error"):
+                    return
+        finally:
+            if not task.done():
+                task.cancel()
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        # Proxies buffer event-streams by default, which would defeat the point.
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @app.post("/ingest/{username}")
