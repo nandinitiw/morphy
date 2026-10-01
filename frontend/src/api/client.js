@@ -65,7 +65,7 @@ const THEME_DESCRIPTIONS = {
   missed_hanging_piece: "An undefended piece was there for the taking.",
   missed_back_rank: "Your king was trapped on the back rank with a mating threat you missed.",
   king_safety: "You left your king exposed: loose pawns, open files, or delayed castling.",
-  hangs_piece: "You moved a piece to a square where your opponent could win it, undefended or defended too cheaply. Scan what your opponent can capture before you commit.",
+  hangs_piece: "You left material your opponent could simply take: either the piece you moved, or another one you stopped defending when you moved elsewhere. Scan what your opponent can capture before you commit.",
   bad_trade: "You entered an exchange that lost material, giving up more than you got back. Count the value on both sides before you capture.",
   pawn_weakness: "Your move damaged your own pawn structure, creating a doubled or isolated pawn that becomes a long-term target.",
   positional: "A genuine slow error with no material or structural signal, but Stockfish found a clearly better plan: a stronger square, a more active piece, or a better pawn break you overlooked.",

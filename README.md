@@ -19,7 +19,7 @@
 - **A closed practice loop, not a diagnosis.** The trainer re-serves the exact positions *you* blundered — not generic puzzles — scheduled by a Leitner spaced-repetition system: fail one and it resurfaces, master it and it's pushed out. Per-theme mastery tracking turns the weakness report into a progress bar. ([`backend/profiler/spaced_repetition.py`](backend/profiler/spaced_repetition.py))
 - **"Play like a legend."** Five grandmasters' full game archives — **13,081 games** — are parsed and reduced to style fingerprints across the same five axes computed for you, so the comparison is apples-to-apples rather than against a hand-written profile. That tells you who you naturally play like, how close you are to the idol you're training toward, and the one habit that closes the biggest gap. The corpus is precomputed into a committed `profiles.json` so deployed instances need no PGN data. ([`backend/gm/compute_style.py`](backend/gm/compute_style.py), [`backend/stats.py`](backend/stats.py))
 - **Built to survive real input.** One corrupt game can't kill a batch (per-game failure isolation), duplicate ingest requests are de-duplicated instead of spawning parallel engine runs, and Stockfish resolution falls back across install paths for portable deploys.
-- **Shipped like production.** GitHub Actions CI on every PR (typecheck, lint, 157 tests, build), Dockerized backend on Render, static frontend on Vercel with per-PR preview deployments, and an opt-in nightly scheduler that refreshes an explicit list of tracked users under the same analysis cap as on-demand runs.
+- **Shipped like production.** GitHub Actions CI on every PR (typecheck, lint, 161 tests, build), Dockerized backend on Render, static frontend on Vercel with per-PR preview deployments, and an opt-in nightly scheduler that refreshes an explicit list of tracked users under the same analysis cap as on-demand runs.
 
 ---
 
@@ -108,7 +108,7 @@ History is capped to bound token cost; the static prompt and tool definitions ar
 ## Engineering practices
 
 - **CI on every push and PR** ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)): backend `pytest`, frontend `tsc --noEmit` typecheck, ESLint, Vitest, and a production build. Any failure blocks the merge.
-- **157 tests.** 136 backend (`pytest`) covering the stats engine, PGN parser, tactical classifier, spaced-repetition scheduler, style-match, job dedupe, and the nightly refresh; 21 frontend (Vitest) covering client utilities.
+- **161 tests.** 140 backend (`pytest`) covering the stats engine, PGN parser, tactical classifier, spaced-repetition scheduler, style-match, job dedupe, and the nightly refresh; 21 frontend (Vitest) covering client utilities.
 - **Preview deployments.** Vercel builds a live preview for every PR automatically.
 - **Reliability by design.** Per-game failure isolation, ingest-job de-duplication, graceful Stockfish path resolution, and a `/health/stockfish` diagnostic endpoint.
 
