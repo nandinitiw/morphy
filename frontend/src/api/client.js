@@ -243,9 +243,13 @@ export function toolLabel(name) {
  * starts. A tool-using answer takes 10-20s (every tool is another round-trip),
  * so this turns dead time into visible progress. Falls back to the plain
  * request if streaming isn't available, so the coach still works either way.
+ * `onText` receives the answer as it is written. It is called with the text so
+ * far, and with "" when a tool starts — a turn can emit a short preamble before
+ * calling a tool, and that preamble is not part of the final answer.
  * @param {(name: string) => void} [onTool]
+ * @param {(textSoFar: string) => void} [onText]
  */
-export async function sendCoachMessageStreaming(username, message, history = [], onTool) {
+export async function sendCoachMessageStreaming(username, message, history = [], onTool, onText) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 120_000);
   try {
@@ -260,6 +264,7 @@ export async function sendCoachMessageStreaming(username, message, history = [],
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
+    let streamed = "";
     for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -271,8 +276,14 @@ export async function sendCoachMessageStreaming(username, message, history = [],
         const line = frame.split("\n").find((l) => l.startsWith("data:"));
         if (!line) continue;
         const event = JSON.parse(line.slice(5).trim());
-        if (event.type === "tool") onTool?.(event.name);
-        else if (event.type === "error") throw new Error(event.message || "Coach failed");
+        if (event.type === "tool") {
+          streamed = "";
+          onText?.("");
+          onTool?.(event.name);
+        } else if (event.type === "text") {
+          streamed += event.chunk;
+          onText?.(streamed);
+        } else if (event.type === "error") throw new Error(event.message || "Coach failed");
         else if (event.type === "done") {
           return { response: event.response ?? "", action: event.action ?? null };
         }

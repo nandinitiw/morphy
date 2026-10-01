@@ -74,6 +74,8 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
   const [elapsed, setElapsed] = useState(0);
   // What the agent is doing right now, from real tool events off the stream.
   const [activity, setActivity] = useState(null);
+  // The answer as it is being written, before the turn finishes.
+  const [partial, setPartial] = useState("");
   const bottomRef = useRef(null);
   const initedRef = useRef(false);
   const timerRef = useRef(null);
@@ -117,7 +119,9 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
     timerRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
     try {
       const { response, action } = await sendCoachMessageStreaming(
-        username, OPENING_PROMPT, [], (name) => setActivity(toolLabel(name)),
+        username, OPENING_PROMPT, [],
+        (name) => setActivity(toolLabel(name)),
+        setPartial,
       );
       // Replace the static greeting with the grounded one.
       setMessages([{ role: "coach", type: "text", content: response, action }]);
@@ -128,6 +132,7 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
       setLoading(false);
       setElapsed(0);
       setActivity(null);
+      setPartial("");
     }
   }
 
@@ -150,7 +155,9 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
 
     try {
       const { response, action } = await sendCoachMessageStreaming(
-        username, text, history, (name) => setActivity(toolLabel(name)),
+        username, text, history,
+        (name) => setActivity(toolLabel(name)),
+        setPartial,
       );
       setMessages((prev) => [...prev, { role: "coach", type: "text", content: response, action }]);
     } catch (err) {
@@ -167,6 +174,7 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
       setLoading(false);
       setElapsed(0);
       setActivity(null);
+      setPartial("");
       setActivity(null);
     }
   }
@@ -196,7 +204,10 @@ export default function Coach({ username, seedMessage, seedQuestion, onStartDril
                 ))}
               </div>
             )}
-            {loading && (
+            {loading && partial && (
+              <Message msg={{ role: "coach", type: "text", content: partial }} />
+            )}
+            {loading && !partial && (
               <div className="tool-call ai-thinking">
                 {activity ?? "analysing your games"}{elapsed > 3 ? ` · ${elapsed}s` : "…"}
               </div>

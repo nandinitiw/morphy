@@ -151,10 +151,17 @@ async def coach_stream(req: CoachRequest, db: Session = Depends(get_db)):
 
     A tool-using answer takes 10-20s because every tool is another round-trip to
     Claude. Emitting each tool as it starts turns that wait into visible progress.
-    Events are JSON lines in SSE format: {"type": "tool", "name": ...} then a
-    final {"type": "done", "response": ..., "action": ...}, or {"type": "error"}.
+    Events are JSON lines in SSE format: {"type": "tool", "name": ...} and
+    {"type": "text", "chunk": ...} as the answer is written, then a final
+    {"type": "done", "response": ..., "action": ...}, or {"type": "error"}.
     """
     events: asyncio.Queue = asyncio.Queue()
+    loop = asyncio.get_running_loop()
+
+    def emit_text(chunk: str) -> None:
+        # Called from the model-streaming worker thread; asyncio.Queue is not
+        # thread-safe, so hand the put back to the loop.
+        loop.call_soon_threadsafe(events.put_nowait, {"type": "text", "chunk": chunk})
 
     async def run():
         try:
@@ -163,6 +170,7 @@ async def coach_stream(req: CoachRequest, db: Session = Depends(get_db)):
                 on_tool=lambda name, _input: events.put_nowait(
                     {"type": "tool", "name": name}
                 ),
+                on_text=emit_text,
             )
             await events.put({
                 "type": "done",

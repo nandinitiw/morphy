@@ -15,12 +15,33 @@ MODEL = "claude-sonnet-4-6"
 _TOOLS_CACHED = [*TOOLS[:-1], {**TOOLS[-1], "cache_control": {"type": "ephemeral"}}]
 
 
+def _run_turn(system, messages, on_text):
+    """One blocking model call, streaming text deltas through `on_text`.
+
+    Runs in a worker thread, so `on_text` is called off the event loop and must
+    hand work back to it safely (see the stream endpoint). Returns the same
+    final message a non-streaming call would, so the loop below is unchanged.
+    """
+    with client.messages.stream(
+        model=MODEL,
+        max_tokens=4096,
+        system=system,
+        tools=_TOOLS_CACHED,
+        messages=messages,
+    ) as stream:
+        if on_text is not None:
+            for chunk in stream.text_stream:
+                on_text(chunk)
+        return stream.get_final_message()
+
+
 async def run_coach_session(
     username: str,
     user_message: str,
     db,
     history: list[dict] | None = None,
     on_tool=None,
+    on_text=None,
 ) -> dict:
     """Run one coach turn. Returns {"response": str, "action": dict | None}.
 
@@ -30,6 +51,10 @@ async def run_coach_session(
     `on_tool(name, tool_input)` is called before each tool runs. A tool-using
     turn takes 10-20s, so the stream endpoint uses this to tell the user what
     the agent is actually doing instead of showing an opaque timer.
+
+    `on_text(chunk)` receives the answer token by token. Tool events alone still
+    left a long silent stretch while the final answer was written; streaming it
+    removes that. Chunks arrive from a worker thread.
     """
     messages: list[dict] = []
     pending_action: dict | None = None
@@ -60,14 +85,7 @@ async def run_coach_session(
     ]
 
     for _ in range(MAX_TOOL_ITERATIONS):
-        response = await asyncio.to_thread(
-            client.messages.create,
-            model=MODEL,
-            max_tokens=4096,
-            system=system,
-            tools=_TOOLS_CACHED,
-            messages=messages,
-        )
+        response = await asyncio.to_thread(_run_turn, system, messages, on_text)
 
         text_blocks = [block.text for block in response.content if block.type == "text"]
         tool_use_blocks = [block for block in response.content if block.type == "tool_use"]
