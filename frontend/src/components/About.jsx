@@ -47,7 +47,9 @@ export default function About() {
             </li>
             <li>
               <strong>Coach</strong>: Claude reads your data via tools, renders your real positions on
-              a board, explains what you missed, and queues drills of your own mistakes.
+              a board, explains what you missed, and queues drills of your own mistakes. You can watch
+              it work: the coach names each step as it runs, then writes its answer out live rather
+              than making you wait for the finished reply.
             </li>
           </ol>
         </div>
