@@ -4,7 +4,9 @@
 
 **[Try the live demo →](https://morphy-jade.vercel.app)** *(no account needed — click "Try demo")*
 
-![Coach session](docs/screenshots/coach.png)
+![The coach answering a question about a real game, streaming live](docs/screenshots/coach-stream.gif)
+
+*Real time, unedited: the coach names each step as it runs, then writes the answer out live — citing the actual game, the move number, the centipawn loss, and rendering the position you blundered in.*
 
 > The coach isn't a chatbot bolted onto a prompt. It runs an agentic tool-use loop: it pulls your actual game data mid-conversation, cites real move numbers and centipawn losses, renders the exact position you blundered in, explains *why* the engine's move was better, spots the pattern across your games, and ends with a concrete drill.
 
